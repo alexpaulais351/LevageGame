@@ -6,8 +6,12 @@ import { VINCI } from "@/lib/design-tokens";
 import { formatNombreAuto } from "@/lib/study/format";
 import { formatNombreFR } from "@/lib/utils";
 
+import { projeter } from "@/lib/visuals/silhouettes";
+
 import { domaineGlobal, ecartAngulaire, graduations, lignesAbaque, polaire } from "./geometry";
-import { couleurZone, positionsVisuelles, type PropsVue } from "./model";
+import { couleurZone, positionSelectionnee, positionsVisuelles, type PropsVue } from "./model";
+import { geometriePlan, notePlanIndicatif } from "./silhouette-model";
+import { FormesSvg } from "./SilhouetteSvg";
 
 const W = 640;
 const H = 560;
@@ -24,8 +28,14 @@ export function PlanView({ data, result, selectionId, onSelect }: PropsVue) {
   const dom = useMemo(() => (chart ? domaineGlobal(lignesAbaque(chart)) : null), [chart]);
 
   const portees = positions.map((p) => p.porteeM).filter((v): v is number => v !== null);
-  const rMax = Math.max(dom?.max ?? 0, ...portees, calage ? Math.max(calage.longueurM, calage.largeurM) / 2 : 0, 1) * 1.05;
+  const sel = positionSelectionnee(positions, result, selectionId);
+  const iSel = Math.max(0, positions.findIndex((p) => p.id === sel?.id));
+  const azSel = sel ? (sel.angleDeg ?? ANGLE_REPLI(iSel)) : 0;
+  const porteeRef = Math.max(dom?.max ?? 0, ...portees, 1);
+  const geo = geometriePlan(data, azSel, sel?.porteeM ?? null, porteeRef);
+  const rMax = Math.max(dom?.max ?? 0, ...portees, calage ? Math.max(calage.longueurM, calage.largeurM) / 2 : 0, geo.etendueM * 0.85, 1) * 1.05;
   const px = R_MAX_PX / rMax;
+  const formesMachine = projeter(geo.sil.formes, { ox: CX, oy: CY, s: px, flipY: false });
 
   const placees = positions.map((p, i) => {
     const manuel = p.angleDeg !== null;
@@ -102,6 +112,11 @@ export function PlanView({ data, result, selectionId, onSelect }: PropsVue) {
           </g>
         )}
 
+        {/* Silhouette de la machine (vue de dessus, indicative) */}
+        <g data-testid="silhouette-plan" data-type={geo.type}>
+          <FormesSvg formes={formesMachine} />
+        </g>
+
         {/* Cercles de portée et positions */}
         {placees.map((p) =>
           p.pt === null ? null : (
@@ -139,20 +154,9 @@ export function PlanView({ data, result, selectionId, onSelect }: PropsVue) {
             0°
           </text>
         </g>
-        {!calage && (
-          <g>
-            <rect x="12" y="12" width="260" height="46" rx="4" fill={VINCI.grisLight} stroke={VINCI.gris} />
-            <text x="22" y="32" fontSize="12" fill={VINCI.noir}>
-              Emprise des stabilisateurs masquée :
-            </text>
-            <text x="22" y="48" fontSize="12" fill={VINCI.noir}>
-              dimensions de calage non disponibles.
-            </text>
-          </g>
-        )}
       </svg>
       <p className="text-xs text-foreground/70">
-        Angles : 0° = haut du plan, sens horaire (saisis à l&apos;étape 5).
+        {notePlanIndicatif(geo)} Angles : 0° = haut du plan, sens horaire (saisis à l&apos;étape 5).
         {!secteur && " Arc de balayage affiché dès que l'angle de la prise et celui de la pose sont saisis."}
         {sansAngle && " Les positions sans angle saisi sont posées à titre indicatif sur leur cercle (pastille creuse)."}
         {secteur && " Le balayage suit l'arc le plus court entre la première et la dernière position."}

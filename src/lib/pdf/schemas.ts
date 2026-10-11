@@ -4,16 +4,13 @@
  * les capacités affichées sont celles du moteur, jamais recalculées ici.
  */
 import {
-  HAUTEUR_PIED_DEFAUT_M,
   aireSvg,
-  angleFlecheDeg,
   appliquer,
   cheminSvg,
   domaineDeplacement,
   domaineGlobal,
   ecartAngulaire,
   graduations,
-  hauteurTeteM,
   lignesAbaque,
   lignesActives,
   polaire,
@@ -21,11 +18,13 @@ import {
   type Echelle,
 } from "@/components/modules/visuals/geometry";
 import { couleurZone, positionSelectionnee, positionsVisuelles } from "@/components/modules/visuals/model";
+import { geometrieElevation, geometriePlan, hauteurAxeM, HAUTEUR_MOUFLE_M, noteIndicatif, notePlanIndicatif } from "@/components/modules/visuals/silhouette-model";
 import { VERDICT, VINCI } from "@/lib/design-tokens";
 import type { StudyResult } from "@/lib/study/compute";
 import { formatNombreAuto } from "@/lib/study/format";
 import type { StudyData } from "@/lib/study/types";
 import { formatMasse, formatNombreFR } from "@/lib/utils";
+import { formesCrochet, projeter, type Forme } from "@/lib/visuals/silhouettes";
 
 export type Prim =
   | { k: "line"; x1: number; y1: number; x2: number; y2: number; stroke: string; w: number; dash?: string }
@@ -59,6 +58,15 @@ const indisponible = (id: Schema["id"], titre: string, w: number, h: number, mes
 });
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
+
+/** Formes de silhouette (déjà en pixels) → primitives de la fiche : même géométrie que l'écran. */
+export function formesVersPrims(formes: readonly Forme[]): Prim[] {
+  return formes.map((f): Prim => {
+    if (f.k === "poly") return { k: "path", d: `M${f.pts.map(([x, y]) => `${r2(x)},${r2(y)}`).join(" L")} Z`, fill: f.fill, stroke: f.stroke, sw: f.sw };
+    if (f.k === "circle") return { k: "circle", cx: r2(f.cx), cy: r2(f.cy), r: r2(f.r), fill: f.fill, stroke: f.stroke, sw: f.sw };
+    return { k: "line", x1: r2(f.x1), y1: r2(f.y1), x2: r2(f.x2), y2: r2(f.y2), stroke: f.stroke, w: f.w, dash: f.dash };
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Courbe de charge
@@ -159,7 +167,7 @@ export function schemaCourbe(data: StudyData, result: StudyResult, seuils: { ver
 export function schemaElevation(data: StudyData, result: StudyResult): Schema {
   const W = 900;
   const H = 470;
-  const PAD = { g: 40, d: 30, h: 30, b: 62 };
+  const PAD = { g: 40, d: 30, h: 30, b: 84 };
   const titre = "Élévation — position la plus défavorable";
   const positions = positionsVisuelles(data, result);
   const sel = positionSelectionnee(positions, result, result.verdict.value.positionDefavorable?.id ?? null);
@@ -171,31 +179,14 @@ export function schemaElevation(data: StudyData, result: StudyResult): Schema {
   const domaine = domaineDeplacement(lignes, axeY === "none" ? null : sel.yM);
   const g = data.geometrie;
   const c = data.charge;
-  const hPied = HAUTEUR_PIED_DEFAUT_M;
-  const r = sel.porteeM ?? domaine?.min ?? 0;
-  const longueur = axeY === "boom_length_m" ? sel.yM : null;
-  const hTete = hauteurTeteM(r, longueur);
-  const angle = angleFlecheDeg(r, longueur);
-  let teteY: number;
-  let teteIndicative = false;
-  if (hTete !== null) teteY = hPied + hTete;
-  else if (axeY === "height_m" && sel.yM !== null) teteY = sel.yM;
-  else {
-    teteY = (g.hauteurSousCrochetM ?? 6) + 2;
-    teteIndicative = true;
-  }
-  teteY = Math.max(teteY, hPied + 1);
-  const chargeL = c.longueurM ?? 1.5;
-  const chargeH = c.hauteurM ?? 1;
-  const chargeIndicative = c.longueurM === null || c.hauteurM === null;
-  const elingue = 0.8;
-  let crochetY = g.hauteurSousCrochetM ?? chargeH + elingue;
-  crochetY = Math.min(Math.max(crochetY, chargeH + elingue), teteY - 0.6);
+  const geo = geometrieElevation(data, sel, domaine?.min ?? null);
+  const { sil, r, angle, chargeL, chargeH, chargeIndicative, elingue, crochetY, teteIndicative } = geo;
+  const teteY = geo.teteY;
   const obstacles = (g.obstaclesSaisis ?? []).filter((o) => o.distanceM !== null && o.hauteurM !== null);
   const LARG_OBST = 0.8;
-  const xMin = -4.5;
-  const xMax = Math.max(domaine?.max ?? 0, r, ...obstacles.map((o) => (o.distanceM ?? 0) + LARG_OBST)) + 2.5;
-  const yMax = Math.max(teteY, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
+  const xMin = Math.min(-4.5, sil.bornes.minX - 0.5);
+  const xMax = Math.max(domaine?.max ?? 0, r, sil.bornes.maxX + 0.5, ...obstacles.map((o) => (o.distanceM ?? 0) + LARG_OBST)) + 2.5;
+  const yMax = Math.max(teteY, sil.bornes.maxY, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
   const s = Math.min((W - PAD.g - PAD.d) / (xMax - xMin), (H - PAD.h - PAD.b) / yMax);
   const sx = (m: number) => PAD.g + (m - xMin) * s;
   const sy = (m: number) => H - PAD.b - m * s;
@@ -209,44 +200,44 @@ export function schemaElevation(data: StudyData, result: StudyResult): Schema {
     prims.push({ k: "line", x1: sx(t), x2: sx(t), y1: sy(0), y2: sy(0) + 6, stroke: VINCI.noir, w: 1 });
     prims.push({ k: "text", x: sx(t), y: sy(0) + 22, t: formatNombreFR(t, 0), size: 14, fill: VINCI.noir, anchor: "middle" });
   }
-  prims.push({ k: "text", x: W - PAD.d, y: sy(0) + 42, t: "distance à l'axe de rotation (m)", size: 14, fill: VINCI.noir, anchor: "end" });
+  prims.push({ k: "text", x: W - PAD.d, y: sy(0) + 60, t: "distance à l'axe de rotation (m)", size: 14, fill: VINCI.noir, anchor: "end" });
   if (domaine) {
-    prims.push({ k: "line", x1: sx(domaine.min), x2: sx(domaine.max), y1: sy(0) + 50, y2: sy(0) + 50, stroke: VINCI.bleu, w: 4 });
-    prims.push({ k: "text", x: sx(domaine.min) - 6, y: sy(0) + 55, t: "plage de l'abaque", size: 13, fill: VINCI.bleu, anchor: "end" });
+    prims.push({ k: "line", x1: sx(domaine.min), x2: sx(domaine.max), y1: sy(0) + 72, y2: sy(0) + 72, stroke: VINCI.bleu, w: 4 });
+    prims.push({ k: "text", x: sx(domaine.min) - 6, y: sy(0) + 77, t: "plage de l'abaque", size: 13, fill: VINCI.bleu, anchor: "end" });
   }
   for (const o of obstacles) {
     const hx = o.hauteurM as number;
     prims.push({ k: "rect", x: sx(o.distanceM as number), y: sy(hx), w: LARG_OBST * s, h: hx * s, fill: VINCI.rougeXLight, stroke: VINCI.rouge, sw: 2 });
     prims.push({ k: "text", x: sx(o.distanceM as number) + (LARG_OBST * s) / 2, y: sy(hx) - 6, t: `${o.nom.trim() || "Obstacle"} ${formatNombreAuto(hx)} m`, size: 13, fill: VINCI.rougeDark, anchor: "middle" });
   }
-  prims.push({ k: "rect", x: sx(-3.2), y: sy(hPied - 0.3), w: 6.4 * s, h: (hPied - 0.8) * s, fill: VINCI.bleuXLight, stroke: VINCI.bleu, sw: 2 });
-  prims.push({ k: "circle", cx: sx(-2.2), cy: sy(0.5), r: 0.5 * s, fill: VINCI.noir });
-  prims.push({ k: "circle", cx: sx(2.2), cy: sy(0.5), r: 0.5 * s, fill: VINCI.noir });
-  prims.push({ k: "line", x1: xPivot, x2: xPivot, y1: sy(0), y2: sy(hPied + 1.2), stroke: VINCI.gris, w: 1.5, dash: "5 4" });
-  prims.push({ k: "text", x: xPivot - 8, y: sy(hPied + 1.2) - 4, t: "axe de rotation", size: 13, fill: VINCI.noir, anchor: "end" });
-  // Flèche
-  const piedY = sy(hPied);
-  const tetePx = sx(r);
+  const yAxe = hauteurAxeM(geo);
+  prims.push({ k: "line", x1: xPivot, x2: xPivot, y1: sy(0), y2: sy(yAxe), stroke: VINCI.gris, w: 1.5, dash: "5 4" });
+  prims.push({ k: "text", x: xPivot - 8, y: sy(yAxe) + 4, t: "axe de rotation", size: 13, fill: VINCI.noir, anchor: "end" });
+  // Silhouette de la machine (indicative), pilotée par la même géométrie que l'écran
+  prims.push(...formesVersPrims(projeter(sil.formes, { ox: xPivot, oy: sy(0), s, flipY: true })));
+  const piedX = sx(sil.pied[0]);
+  const piedY = sy(sil.pied[1]);
+  const tetePx = sx(sil.tete[0]);
   const tetePy = sy(teteY);
-  prims.push({ k: "line", x1: xPivot, y1: piedY, x2: tetePx, y2: tetePy, stroke: VINCI.bleu, w: 9 });
-  prims.push({ k: "circle", cx: xPivot, cy: piedY, r: 8, fill: VINCI.bleuDark });
-  prims.push({ k: "circle", cx: tetePx, cy: tetePy, r: 7, fill: VINCI.bleuDark });
-  // Câble, élingues, charge
+  // Câble, moufle, élingues, charge
   const hookY = sy(crochetY);
-  prims.push({ k: "line", x1: tetePx, y1: tetePy, x2: tetePx, y2: hookY, stroke: VINCI.noir, w: 2 });
-  prims.push({ k: "line", x1: tetePx, y1: hookY, x2: tetePx - (chargeL * s) / 2, y2: sy(crochetY - elingue), stroke: VINCI.noir, w: 1.5 });
-  prims.push({ k: "line", x1: tetePx, y1: hookY, x2: tetePx + (chargeL * s) / 2, y2: sy(crochetY - elingue), stroke: VINCI.noir, w: 1.5 });
+  if (!geo.sansCable) {
+    prims.push({ k: "line", x1: tetePx, y1: tetePy, x2: tetePx, y2: sy(crochetY + HAUTEUR_MOUFLE_M), stroke: VINCI.noir, w: 2 });
+    prims.push(...formesVersPrims(projeter(formesCrochet(r, crochetY + HAUTEUR_MOUFLE_M), { ox: xPivot, oy: sy(0), s, flipY: true })));
+    prims.push({ k: "line", x1: tetePx, y1: hookY, x2: tetePx - (chargeL * s) / 2, y2: sy(crochetY - elingue), stroke: VINCI.noir, w: 1.5 });
+    prims.push({ k: "line", x1: tetePx, y1: hookY, x2: tetePx + (chargeL * s) / 2, y2: sy(crochetY - elingue), stroke: VINCI.noir, w: 1.5 });
+  }
   prims.push({ k: "rect", x: tetePx - (chargeL * s) / 2, y: sy(crochetY - elingue), w: chargeL * s, h: chargeH * s, fill: VINCI.grisLight, stroke: VINCI.noir, sw: 2, dash: chargeIndicative ? "6 4" : undefined });
   prims.push({ k: "circle", cx: tetePx, cy: hookY, r: 9, fill: couleur, stroke: VINCI.bleuDark, sw: 3 });
   prims.push({ k: "text", x: tetePx + (chargeL * s) / 2 + 8, y: sy(crochetY - elingue - chargeH / 2) + 5, t: c.masseKg !== null ? formatMasse(c.masseKg) : "charge", size: 13, fill: VINCI.noir });
   // Cote de portée
-  prims.push({ k: "line", x1: xPivot, x2: tetePx, y1: sy(0) - 14, y2: sy(0) - 14, stroke: couleur, w: 2.5 });
-  prims.push({ k: "text", x: (xPivot + tetePx) / 2, y: sy(0) - 20, t: `portée ${formatNombreAuto(r)} m`, size: 15, fill: VINCI.noir, anchor: "middle", bold: true });
-  if (angle !== null) prims.push({ k: "text", x: xPivot + 26, y: piedY - 40, t: `${formatNombreFR(angle, 1)} °`, size: 14, fill: VINCI.bleuDark, bold: true });
+  prims.push({ k: "line", x1: xPivot, x2: tetePx, y1: sy(0) + 38, y2: sy(0) + 38, stroke: couleur, w: 2.5 });
+  prims.push({ k: "text", x: (xPivot + tetePx) / 2, y: sy(0) + 43, t: `portée ${formatNombreAuto(r)} m`, size: 15, fill: VINCI.noir, anchor: "middle", bold: true });
+  if (angle !== null) prims.push({ k: "text", x: piedX + (tetePx - piedX) * 0.25 - 14, y: piedY + (tetePy - piedY) * 0.25 - 4, anchor: "end", t: `${formatNombreFR(angle, 1)} °`, size: 14, fill: VINCI.bleuDark, bold: true });
 
   const notes = [
     `Position « ${sel.nom} » : portée ${sel.porteeM === null ? "non saisie" : `${formatNombreAuto(sel.porteeM)} m`}, ${sel.horsAbaque ? "hors abaque" : sel.capaciteKg === null ? "capacité non lue" : `capacité ${formatMasse(sel.capaciteKg)}`}.`,
-    `Schéma indicatif : châssis et hauteur du pied de flèche (${formatNombreFR(hPied, 1)} m par défaut, donnée constructeur non saisie)${chargeIndicative ? ", dimensions de charge par défaut en pointillé" : ""}${teteIndicative ? ", hauteur de tête de flèche non déductible des données saisies" : ""}${g.hauteurSousCrochetM === null ? ", hauteur du crochet par défaut" : ""}.`,
+    `${noteIndicatif(geo)}${chargeIndicative ? ", dimensions de charge par défaut en pointillé" : ""}${teteIndicative ? ", hauteur de tête de flèche non déductible des données saisies" : ""}${g.hauteurSousCrochetM === null ? ", hauteur du crochet par défaut" : ""}.`,
   ];
   return { id: "elevation", titre, w: W, h: H, prims, notes, disponible: true };
 }
@@ -268,9 +259,12 @@ export function schemaPlan(data: StudyData, result: StudyResult): Schema {
   const calage = data.machine.selection?.calage ?? null;
   const dom = chart ? domaineGlobal(lignesAbaque(chart)) : null;
   const portees = positions.map((p) => p.porteeM).filter((v): v is number => v !== null);
-  const rMax = Math.max(dom?.max ?? 0, ...portees, calage ? Math.max(calage.longueurM, calage.largeurM) / 2 : 0, 1) * 1.05;
-  const px = R_MAX_PX / rMax;
   const repli = (i: number) => -50 + 50 * i;
+  const selP = positionSelectionnee(positions, result, result.verdict.value.positionDefavorable?.id ?? null);
+  const iSel = Math.max(0, positions.findIndex((p) => p.id === selP?.id));
+  const geo = geometriePlan(data, selP ? (selP.angleDeg ?? repli(iSel)) : 0, selP?.porteeM ?? null, Math.max(dom?.max ?? 0, ...portees, 1));
+  const rMax = Math.max(dom?.max ?? 0, ...portees, calage ? Math.max(calage.longueurM, calage.largeurM) / 2 : 0, geo.etendueM * 0.85, 1) * 1.05;
+  const px = R_MAX_PX / rMax;
   const placees = positions.map((p, i) => {
     const manuel = p.angleDeg !== null;
     const a = p.angleDeg ?? repli(i);
@@ -316,6 +310,7 @@ export function schemaPlan(data: StudyData, result: StudyResult): Schema {
       prims.push({ k: "line", x1: CX, y1: CY, x2: CX + e.x, y2: CY + e.y, stroke: VINCI.bleu, w: 1.5 });
     }
   }
+  prims.push(...formesVersPrims(projeter(geo.sil.formes, { ox: CX, oy: CY, s: px, flipY: false })));
   for (const p of placees) {
     if (p.pt === null) continue;
     prims.push({ k: "circle", cx: CX, cy: CY, r: (p.porteeM as number) * px, stroke: couleurZone(p.zone), sw: 1.8, dash: "6 4" });
@@ -331,10 +326,9 @@ export function schemaPlan(data: StudyData, result: StudyResult): Schema {
   prims.push({ k: "text", x: W - 40, y: 80, t: "0°", size: 12, fill: VINCI.noir, anchor: "middle" });
 
   const notes = [
-    "Angles : 0° = haut du plan, sens horaire.",
+    `${notePlanIndicatif(geo)} Angles : 0° = haut du plan, sens horaire.`,
     balayage ? "Le balayage suit l'arc le plus court entre la première et la dernière position." : "Arc de balayage tracé uniquement si l'angle de la prise et celui de la pose sont saisis.",
     ...(sansAngle ? ["Les positions sans angle saisi sont posées à titre indicatif sur leur cercle (pastille creuse)."] : []),
-    ...(calage ? [] : ["Emprise des stabilisateurs non tracée : dimensions de calage non disponibles."]),
   ];
   return { id: "plan", titre, w: W, h: H, prims, notes, disponible: true };
 }

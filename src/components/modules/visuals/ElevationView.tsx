@@ -6,26 +6,24 @@ import { VINCI } from "@/lib/design-tokens";
 import { formatNombreAuto, formatTaux } from "@/lib/study/format";
 import { formatMasse, formatNombreFR } from "@/lib/utils";
 
+import { formesCrochet, projeter } from "@/lib/visuals/silhouettes";
+
 import {
-  HAUTEUR_PIED_DEFAUT_M,
-  angleFlecheDeg,
   aimanter,
   borner,
   domaineDeplacement,
   graduations,
-  hauteurTeteM,
   lignesAbaque,
   pointeurVersPortee,
 } from "./geometry";
 import { couleurZone, positionSelectionnee, positionsVisuelles, type PropsVue } from "./model";
+import { geometrieElevation, hauteurAxeM, HAUTEUR_MOUFLE_M, noteIndicatif } from "./silhouette-model";
+import { FormesSvg } from "./SilhouetteSvg";
 
 const W = 900;
 const H = 440;
-const PAD = { g: 40, d: 30, h: 30, b: 62 };
+const PAD = { g: 40, d: 30, h: 30, b: 84 };
 const PAS_M = 0.1;
-/** Valeurs par défaut du schéma (indicatives) lorsque la donnée n'est pas saisie. */
-const CHARGE_LARGEUR_DEFAUT_M = 1.5;
-const CHARGE_HAUTEUR_DEFAUT_M = 1;
 const OBSTACLE_LARGEUR_M = 0.8;
 
 export function ElevationView({ data, result, selectionId, onPortee }: PropsVue) {
@@ -63,35 +61,14 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
   const axeY = chart?.axisY ?? "none";
   const g = data.geometrie;
   const c = data.charge;
-  const hPied = HAUTEUR_PIED_DEFAUT_M;
-  const r = sel.porteeM ?? domaine?.min ?? 0;
-
-  // Flèche : longueur connue ⇒ angle géométrique ; hauteur d'abaque ⇒ tête à cette hauteur ; sinon indicatif.
-  const longueur = axeY === "boom_length_m" ? sel.yM : null;
-  const hTete = hauteurTeteM(r, longueur);
-  const angle = angleFlecheDeg(r, longueur);
-  let teteY: number;
-  let teteIndicative = false;
-  if (hTete !== null) teteY = hPied + hTete;
-  else if (axeY === "height_m" && sel.yM !== null) teteY = sel.yM;
-  else {
-    teteY = (g.hauteurSousCrochetM ?? 6) + 2;
-    teteIndicative = true;
-  }
-  teteY = Math.max(teteY, hPied + 1);
-
-  const chargeL = c.longueurM ?? CHARGE_LARGEUR_DEFAUT_M;
-  const chargeH = c.hauteurM ?? CHARGE_HAUTEUR_DEFAUT_M;
-  const chargeIndicative = c.longueurM === null || c.hauteurM === null;
-  const elingueM = 0.8;
-  let crochetY = g.hauteurSousCrochetM ?? chargeH + elingueM;
-  crochetY = Math.min(Math.max(crochetY, chargeH + elingueM), teteY - 0.6);
-  const crochetIndicatif = g.hauteurSousCrochetM === null;
+  const geo = geometrieElevation(data, sel, domaine?.min ?? null);
+  const { sil, r, angle, chargeL, chargeH, chargeIndicative, elingue, crochetY, crochetIndicatif, teteIndicative } = geo;
+  const teteY = geo.teteY;
 
   const obstacles = (g.obstaclesSaisis ?? []).filter((o) => o.distanceM !== null && o.hauteurM !== null);
-  const xMin = -4.5;
-  const xMax = Math.max(domaine?.max ?? 0, r, ...obstacles.map((o) => (o.distanceM ?? 0) + OBSTACLE_LARGEUR_M)) + 2.5;
-  const yMax = Math.max(teteY, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
+  const xMin = Math.min(-4.5, sil.bornes.minX - 0.5);
+  const xMax = Math.max(domaine?.max ?? 0, r, sil.bornes.maxX + 0.5, ...obstacles.map((o) => (o.distanceM ?? 0) + OBSTACLE_LARGEUR_M)) + 2.5;
+  const yMax = Math.max(teteY, sil.bornes.maxY, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
   const s = Math.min((W - PAD.g - PAD.d) / (xMax - xMin), (H - PAD.h - PAD.b) / yMax);
   const sx = (m: number) => PAD.g + (m - xMin) * s;
   const sy = (m: number) => H - PAD.b - m * s;
@@ -123,9 +100,12 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
   const couleur = couleurZone(sel.zone);
   const hookX = sx(r);
   const hookTopY = sy(crochetY);
-  const teteX = sx(r);
+  const teteX = sx(sil.tete[0]);
   const tetePy = sy(teteY);
-  const piedY = sy(hPied);
+  const piedX = sx(sil.pied[0]);
+  const piedY = sy(sil.pied[1]);
+  const formesMachine = projeter(sil.formes, { ox: xPivot, oy: sy(0), s, flipY: true });
+  const formesCrochetPx = projeter(formesCrochet(r, crochetY + HAUTEUR_MOUFLE_M), { ox: xPivot, oy: sy(0), s, flipY: true });
 
   return (
     <figure className="flex flex-col gap-3">
@@ -156,16 +136,16 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
             </text>
           </g>
         ))}
-        <text x={W - PAD.d} y={sy(0) + 40} textAnchor="end" fontSize="13" fill={VINCI.noir}>
+        <text x={W - PAD.d} y={sy(0) + 60} textAnchor="end" fontSize="13" fill={VINCI.noir}>
           distance à l&apos;axe de rotation (m)
         </text>
         {/* Plage de portée de l'abaque */}
         {domaine && (
           <g>
-            <line x1={sx(domaine.min)} x2={sx(domaine.max)} y1={sy(0) + 50} y2={sy(0) + 50} stroke={VINCI.bleu} strokeWidth="4" />
-            <line x1={sx(domaine.min)} x2={sx(domaine.min)} y1={sy(0) + 44} y2={sy(0) + 56} stroke={VINCI.bleu} strokeWidth="3" />
-            <line x1={sx(domaine.max)} x2={sx(domaine.max)} y1={sy(0) + 44} y2={sy(0) + 56} stroke={VINCI.bleu} strokeWidth="3" />
-            <text x={sx(domaine.min) - 6} y={sy(0) + 55} textAnchor="end" fontSize="12" fill={VINCI.bleu}>
+            <line x1={sx(domaine.min)} x2={sx(domaine.max)} y1={sy(0) + 72} y2={sy(0) + 72} stroke={VINCI.bleu} strokeWidth="4" />
+            <line x1={sx(domaine.min)} x2={sx(domaine.min)} y1={sy(0) + 66} y2={sy(0) + 78} stroke={VINCI.bleu} strokeWidth="3" />
+            <line x1={sx(domaine.max)} x2={sx(domaine.max)} y1={sy(0) + 66} y2={sy(0) + 78} stroke={VINCI.bleu} strokeWidth="3" />
+            <text x={sx(domaine.min) - 6} y={sy(0) + 77} textAnchor="end" fontSize="12" fill={VINCI.bleu}>
               plage de l&apos;abaque
             </text>
           </g>
@@ -181,26 +161,27 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
           </g>
         ))}
 
-        {/* Châssis (indicatif) et pivot */}
-        <rect x={sx(-3.2)} y={sy(hPied - 0.3)} width={6.4 * s} height={(hPied - 0.8) * s} rx="4" fill={VINCI.bleuXLight} stroke={VINCI.bleu} strokeWidth="2" />
-        <circle cx={sx(-2.2)} cy={sy(0.5)} r={0.5 * s} fill={VINCI.noir} />
-        <circle cx={sx(2.2)} cy={sy(0.5)} r={0.5 * s} fill={VINCI.noir} />
-        <line x1={xPivot} x2={xPivot} y1={sy(0)} y2={sy(hPied + 1.2)} stroke={VINCI.gris} strokeDasharray="5 4" strokeWidth="1.5" />
-        <text x={xPivot} y={sy(hPied + 1.2) - 6} textAnchor="middle" fontSize="12" fill={VINCI.noir}>
+        {/* Axe de rotation, silhouette de la machine (indicative) */}
+        <line x1={xPivot} x2={xPivot} y1={sy(0)} y2={sy(hauteurAxeM(geo))} stroke={VINCI.gris} strokeDasharray="5 4" strokeWidth="1.5" />
+        <text x={xPivot - 6} y={sy(hauteurAxeM(geo)) + 4} textAnchor="end" fontSize="12" fill={VINCI.noir} paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="3">
           axe de rotation
         </text>
+        <g data-testid="silhouette" data-type={geo.type}>
+          <FormesSvg formes={formesMachine} />
+        </g>
 
-        {/* Flèche */}
-        <line x1={xPivot} y1={piedY} x2={teteX} y2={tetePy} stroke={VINCI.bleu} strokeWidth="9" strokeLinecap="round" />
-        <circle cx={xPivot} cy={piedY} r="8" fill={VINCI.bleuDark} />
-        <circle cx={teteX} cy={tetePy} r="7" fill={VINCI.bleuDark} />
-        {/* Câble, crochet, charge */}
-        <line x1={teteX} y1={tetePy} x2={hookX} y2={hookTopY} stroke={VINCI.noir} strokeWidth="2" />
-        <line x1={hookX} y1={hookTopY} x2={hookX - (chargeL * s) / 2} y2={sy(crochetY - elingueM)} stroke={VINCI.noir} strokeWidth="1.5" />
-        <line x1={hookX} y1={hookTopY} x2={hookX + (chargeL * s) / 2} y2={sy(crochetY - elingueM)} stroke={VINCI.noir} strokeWidth="1.5" />
+        {/* Câble, moufle, élingues, charge */}
+        {!geo.sansCable && <line x1={teteX} y1={tetePy} x2={hookX} y2={sy(crochetY + HAUTEUR_MOUFLE_M)} stroke={VINCI.noir} strokeWidth="2" />}
+        {!geo.sansCable && <FormesSvg formes={formesCrochetPx} />}
+        {!geo.sansCable && (
+          <>
+            <line x1={hookX} y1={hookTopY} x2={hookX - (chargeL * s) / 2} y2={sy(crochetY - elingue)} stroke={VINCI.noir} strokeWidth="1.5" />
+            <line x1={hookX} y1={hookTopY} x2={hookX + (chargeL * s) / 2} y2={sy(crochetY - elingue)} stroke={VINCI.noir} strokeWidth="1.5" />
+          </>
+        )}
         <rect
           x={hookX - (chargeL * s) / 2}
-          y={sy(crochetY - elingueM)}
+          y={sy(crochetY - elingue)}
           width={chargeL * s}
           height={chargeH * s}
           fill={VINCI.grisLight}
@@ -208,17 +189,17 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
           strokeWidth="2"
           strokeDasharray={chargeIndicative ? "6 4" : undefined}
         />
-        <text x={hookX + (chargeL * s) / 2 + 8} y={sy(crochetY - elingueM - chargeH / 2) + 5} fontSize="12" fill={VINCI.noir} paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="3">
+        <text x={hookX + (chargeL * s) / 2 + 8} y={sy(crochetY - elingue - chargeH / 2) + 5} fontSize="12" fill={VINCI.noir} paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="3">
           {c.masseKg !== null ? formatMasse(c.masseKg) : "charge"}
         </text>
 
         {/* Cote de portée */}
-        <line x1={xPivot} x2={hookX} y1={sy(0) - 14} y2={sy(0) - 14} stroke={couleur} strokeWidth="2.5" />
-        <text x={(xPivot + hookX) / 2} y={sy(0) - 20} textAnchor="middle" fontSize="14" fontWeight="bold" fill={VINCI.noir} paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="4">
+        <line x1={xPivot} x2={hookX} y1={sy(0) + 38} y2={sy(0) + 38} stroke={couleur} strokeWidth="2.5" />
+        <text x={(xPivot + hookX) / 2} y={sy(0) + 43} textAnchor="middle" fontSize="14" fontWeight="bold" fill={VINCI.noir} paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="4">
           portée {formatNombreAuto(r)} m
         </text>
         {angle !== null && (
-          <text x={xPivot + 34} y={piedY - 8} fontSize="13" fill={VINCI.bleuDark} fontWeight="bold">
+          <text x={piedX + (teteX - piedX) * 0.25 - 14} y={piedY + (tetePy - piedY) * 0.25 - 4} textAnchor="end" fontSize="13" fill={VINCI.bleuDark} fontWeight="bold" paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="3">
             {formatNombreFR(angle, 1)} °
           </text>
         )}
@@ -260,7 +241,6 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
           <circle cx={hookX} cy={hookTopY} r={rayonCible} fill="transparent" />
           {focus && <circle cx={hookX} cy={hookTopY} r="19" fill="none" stroke={VINCI.bleu} strokeWidth="3" strokeDasharray="4 3" />}
           <circle cx={hookX} cy={hookTopY} r="11" fill={couleur} stroke={VINCI.bleuDark} strokeWidth="3" />
-          <path d={`M${hookX - 5},${hookTopY + 14} q0,10 5,10 q5,0 5,-8`} fill="none" stroke={VINCI.bleuDark} strokeWidth="3" />
         </g>
       </svg>
 
@@ -278,8 +258,7 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
         <Item t="Obstacles tracés" v={String(obstacles.length)} />
       </dl>
       <p className="text-xs text-foreground/70">
-        Schéma indicatif : châssis et hauteur du pied de flèche ({formatNombreFR(hPied, 1)} m par défaut, donnée constructeur
-        non saisie)
+        {noteIndicatif(geo)}
         {chargeIndicative ? ", dimensions de charge par défaut en pointillé" : ""}
         {teteIndicative ? ", hauteur de tête de flèche non déductible des données saisies" : ""}
         {crochetIndicatif ? ", hauteur du crochet par défaut" : ""}. L&apos;angle n&apos;est donné que si la longueur de flèche est

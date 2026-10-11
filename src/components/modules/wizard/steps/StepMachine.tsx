@@ -7,9 +7,11 @@ import { chartSourceLabel, type LoadChart } from "@/engine";
 import { getCatalogProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
 import { formatMasse } from "@/lib/utils";
 import { useStudy } from "@/stores/study";
+import { LIBELLE_TYPE, typeMachineDepuis } from "@/lib/visuals/silhouettes";
 
 import { Grille, SousTitre, StepShell } from "../StepShell";
 import { SelectField, UNITES_MASSE, UnitNumberField } from "../fields";
+import { MachineVignette } from "../../visuals/SilhouetteSvg";
 import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
 
@@ -88,6 +90,8 @@ export function StepMachine() {
   const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0;
   const opt = <T,>(l: T[], v: (x: T) => string, t: (x: T) => string) => l.map((x) => ({ value: v(x), label: t(x) }));
   const chart: LoadChart | null = sel?.chart ?? null;
+  const typeCourant = types.items.find((t) => t.id === typeId);
+  const typeVisuel = typeCourant ? typeMachineDepuis(typeCourant.code, typeCourant.label) : null;
 
   return (
     <StepShell
@@ -110,6 +114,15 @@ export function StepMachine() {
               {provider.kind === "statique" && " Supabase n'est pas configuré : catalogue statique de repli utilisé."}
             </p>
           </div>
+        </div>
+      )}
+      {typeVisuel && (
+        <div className="flex items-center gap-3" data-testid="apercu-type">
+          <MachineVignette type={typeVisuel} largeur={96} className="shrink-0 rounded-md border border-border" />
+          <p className="text-sm">
+            <span className="font-semibold text-primary">{LIBELLE_TYPE[typeVisuel]}</span>
+            <span className="block text-xs text-muted-foreground">Silhouette indicative — ne remplace pas les plans constructeur.</span>
+          </p>
         </div>
       )}
       <Grille>

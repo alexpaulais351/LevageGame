@@ -10,6 +10,7 @@ import { formatTaux } from "@/lib/study/format";
 import type { StudyResult } from "@/lib/study/compute";
 import type { MachineSelection, StudyData } from "@/lib/study/types";
 import { formatMasse } from "@/lib/utils";
+import { typeMachineDepuis } from "@/lib/visuals/silhouettes";
 
 import { SelectField } from "../wizard/fields";
 import { VERDICT_LIBELLE, VERDICT_STYLE } from "../wizard/ResultPanel";
@@ -18,6 +19,8 @@ import { cn } from "@/lib/utils";
 
 import { axeYIncompatible, etudeAvecAlternative, evaluerAlternative, type Alternative } from "./comparateur";
 import { couleurZone, positionsVisuelles } from "./model";
+import { typeDeLaSelection } from "./silhouette-model";
+import { MachineVignette } from "./SilhouetteSvg";
 
 interface Props {
   data: StudyData;
@@ -28,10 +31,16 @@ interface Props {
 function Colonne({ titre, sous, result, data }: { titre: string; sous: string; result: StudyResult; data: StudyData }) {
   const v = result.verdict.value;
   const positions = positionsVisuelles(data, result);
+  const typeVisuel = data.machine.selection ? typeDeLaSelection(data.machine.selection) : null;
   return (
     <section className="min-w-0 rounded-lg border border-border p-3" aria-label={titre}>
-      <h4 className="text-xs font-bold uppercase tracking-wide text-primary">{titre}</h4>
-      <p className="mb-2 break-words text-sm font-semibold">{sous}</p>
+      <div className="mb-2 flex items-start gap-3">
+        {typeVisuel && <MachineVignette type={typeVisuel.type} largeur={80} className="shrink-0 rounded-md border border-border" />}
+        <div className="min-w-0">
+          <h4 className="text-xs font-bold uppercase tracking-wide text-primary">{titre}</h4>
+          <p className="break-words text-sm font-semibold">{sous}</p>
+        </div>
+      </div>
       <div className={cn("mb-2 rounded border-l-8 px-3 py-2", VERDICT_STYLE[v.verdict].fond, VERDICT_STYLE[v.verdict].bord)}>
         <p className="text-sm font-bold">{VERDICT_LIBELLE[v.verdict]}</p>
         <p className="text-lg font-bold tabular-nums" data-testid="taux-pire-cas">
@@ -107,6 +116,8 @@ export function Comparateur({ data, result, onAdopter }: Props) {
   const memeConfig = alt !== null && sel?.configurationId === alt.selection.configurationId;
   const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0;
   const opt = <T,>(l: T[], v: (x: T) => string, t: (x: T) => string) => l.map((x) => ({ value: v(x), label: t(x) }));
+  const typeTeste = types.items.find((t) => t.id === typeId);
+  const typeTesteVisuel = typeTeste ? typeMachineDepuis(typeTeste.code, typeTeste.label) : null;
   const nomActuelle = sel ? `${sel.manufacturerName} ${sel.model} — ${sel.configurationLabel}` : "Aucune machine choisie";
 
   return (
@@ -121,6 +132,12 @@ export function Comparateur({ data, result, onAdopter }: Props) {
           <Info className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           {MESSAGE_CATALOGUE_VIDE}
         </p>
+      )}
+      {typeTesteVisuel && (
+        <div className="flex items-center gap-3" data-testid="apercu-type-comparateur">
+          <MachineVignette type={typeTesteVisuel} largeur={72} className="shrink-0 rounded-md border border-border" />
+          <p className="text-xs text-foreground/70">Silhouette indicative du type testé — ne remplace pas les plans constructeur.</p>
+        </div>
       )}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SelectField label="Type" value={typeId} placeholder="Choisir…" options={opt(types.items, (t) => t.id, (t) => t.label)}
