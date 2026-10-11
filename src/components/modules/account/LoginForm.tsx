@@ -1,0 +1,99 @@
+"use client";
+
+import { useActionState } from "react";
+import { LogIn, Mail, UserPlus } from "lucide-react";
+
+import { connexion, inscription, lienMagique } from "@/actions/auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { EtatForm } from "@/lib/account/result";
+
+import { ChampForm, RetourForm } from "./form-bits";
+
+const VIDE: EtatForm = {};
+
+export function LoginForm({ next, erreurLien }: { next: string; erreurLien: boolean }) {
+  const [etatCo, actionCo, enCoursCo] = useActionState(connexion, VIDE);
+  const [etatIns, actionIns, enCoursIns] = useActionState(inscription, VIDE);
+  const [etatLien, actionLien, enCoursLien] = useActionState(lienMagique, VIDE);
+
+  return (
+    <Card className="mx-auto w-full max-w-md">
+      <CardHeader>
+        <CardTitle className="text-primary">Compte</CardTitle>
+        <CardDescription>
+          Connectez-vous pour enregistrer vos adéquations dans des projets. Le mode invité reste disponible sans compte.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {erreurLien && (
+          <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight px-3 py-2 text-sm text-vinci-rouge-dark">
+            Ce lien de connexion est invalide ou a expiré. Demandez-en un nouveau.
+          </p>
+        )}
+        <Tabs defaultValue="connexion">
+          <TabsList className="grid h-auto w-full grid-cols-3">
+            <TabsTrigger value="connexion" className="min-h-10">Connexion</TabsTrigger>
+            <TabsTrigger value="inscription" className="min-h-10">Inscription</TabsTrigger>
+            <TabsTrigger value="lien" className="min-h-10">Lien magique</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="connexion">
+            <form action={actionCo} className="flex flex-col gap-4" aria-label="Connexion">
+              <input type="hidden" name="next" value={next} />
+              <ChampForm label="Adresse e-mail" name="email" type="email" autoComplete="email" required />
+              <ChampForm label="Mot de passe" name="motDePasse" type="password" autoComplete="current-password" required />
+              <RetourForm etat={etatCo} />
+              <Button type="submit" size="lg" disabled={enCoursCo}>
+                <LogIn />
+                {enCoursCo ? "Connexion…" : "Se connecter"}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="inscription">
+            <form action={actionIns} className="flex flex-col gap-4" aria-label="Inscription">
+              <input type="hidden" name="next" value={next} />
+              <ChampForm label="Nom complet" name="nom" autoComplete="name" required />
+              <ChampForm label="Adresse e-mail" name="email" type="email" autoComplete="email" required />
+              <ChampForm
+                label="Mot de passe"
+                name="motDePasse"
+                type="password"
+                autoComplete="new-password"
+                required
+                minLength={8}
+                hint="8 caractères minimum."
+              />
+              <RetourForm etat={etatIns} />
+              <Button type="submit" size="lg" disabled={enCoursIns}>
+                <UserPlus />
+                {enCoursIns ? "Création…" : "Créer mon compte"}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="lien">
+            <form action={actionLien} className="flex flex-col gap-4" aria-label="Lien magique">
+              <input type="hidden" name="next" value={next} />
+              <ChampForm
+                label="Adresse e-mail"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                hint="Vous recevrez un lien de connexion à usage unique, sans mot de passe."
+              />
+              <RetourForm etat={etatLien} />
+              <Button type="submit" size="lg" disabled={enCoursLien}>
+                <Mail />
+                {enCoursLien ? "Envoi…" : "Recevoir le lien"}
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}

@@ -17,7 +17,7 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Appelé depuis un Server Component : ignoré (pas de middleware d'auth à ce stade).
+            // Appelé depuis un Server Component : ignoré (le middleware rafraîchit la session).
           }
         },
       },

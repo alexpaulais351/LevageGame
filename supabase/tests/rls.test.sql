@@ -9,6 +9,11 @@ set search_path = public, extensions;
 
 select plan(46);
 
+-- Isole les tests du catalogue réel chargé par seed/charts.sql : on retire (dans la transaction,
+-- annulée en fin de test) les machines publiques et leurs sources, pour raisonner sur un catalogue maîtrisé.
+delete from machines where owner_id is null;
+delete from chart_sources where owner_id is null;
+
 -- ---------------------------------------------------------------------
 -- Jeu de données (rôle propriétaire, RLS non appliquée)
 -- ---------------------------------------------------------------------
@@ -57,10 +62,10 @@ select is((select threshold_green from user_settings where user_id = 'aaaaaaaa-0
 select is((select index from study_versions where id = '33333333-0000-0000-0000-00000000000a'),
   1, 'index de version attribué automatiquement');
 select is((select count(*)::int from machine_types), 10, 'seed : 10 types de machines');
-select is((select count(*)::int from machines where owner_id is null and model <> 'TEST-PUBLIC'), 0, 'seed : aucune machine');
+select is((select count(*)::int from machines where owner_id is null and model <> 'TEST-PUBLIC'), 0, 'catalogue public isolé : aucune machine hors test');
 select is((select count(*)::int from load_chart_points p join load_charts c on c.id = p.chart_id
            join machine_configurations mc on mc.id = c.configuration_id join machines m on m.id = mc.machine_id
-           where m.model not like 'TEST-%'), 0, 'seed : aucune valeur d''abaque');
+           where m.model not like 'TEST-%'), 0, 'catalogue public isolé : aucune valeur hors test');
 select throws_ok($$update study_versions set data = '{"v":2}' where id = '33333333-0000-0000-0000-00000000000a'$$,
   'P0001', null, 'versions immuables même pour le propriétaire de la base');
 select throws_ok($$insert into load_chart_points (chart_id, x, y, capacity_kg) values ('77777777-0000-0000-0000-000000000000', 4, 10, 900)$$,

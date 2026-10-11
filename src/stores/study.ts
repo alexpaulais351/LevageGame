@@ -12,13 +12,25 @@ import { createJSONStorage, persist, type StateStorage } from "zustand/middlewar
 import { accessoireVide, createInitialData, fusionnerAvecDefauts, nouvelId, obstacleVide, positionVide } from "@/lib/study/defaults";
 import type { AccessoireSaisie, ObstacleSaisie, PositionSaisie, SectionKey, StudyData } from "@/lib/study/types";
 
+/** Clé IndexedDB du brouillon invité. */
+export const CLE_BROUILLON_INVITE = "levage-etude-invite";
+
+/**
+ * Quand une étude de projet (compte) est chargée dans le store, l'écriture dans le brouillon invité
+ * est suspendue : le brouillon IndexedDB reste intact.
+ */
+let persistanceInvite = true;
+export function setPersistanceInvite(actif: boolean): void {
+  persistanceInvite = actif;
+}
+
 const idbStorage: StateStorage = {
   getItem: async (name) => (await get<string>(name)) ?? null,
   setItem: async (name, value) => {
-    await set(name, value);
+    if (persistanceInvite) await set(name, value);
   },
   removeItem: async (name) => {
-    await del(name);
+    if (persistanceInvite) await del(name);
   },
 };
 
@@ -40,6 +52,10 @@ export interface StudyState {
   ajouterReserve: () => void;
   majReserve: (id: string, texte: string) => void;
   supprimerReserve: (id: string) => void;
+  /** Charge une étude existante (version d'un projet) ; `etape` conservée si fournie. */
+  charger: (data: StudyData, etape?: number) => void;
+  /** Applique les seuils du compte à une étude vierge, sans la marquer comme modifiée. */
+  appliquerSeuilsCompte: (vertPct: number, orangePct: number) => void;
   /** Nouvelle adéquation : repart d'une étude vierge (la confirmation est demandée par l'UI). */
   reinitialiser: () => void;
 }
@@ -151,11 +167,14 @@ export const useStudy = create<StudyState>()(
           setState((s) =>
             touch({ ...s.data, reserves: { liste: s.data.reserves.liste.filter((r) => r.id !== id) } }),
           ),
+        charger: (data, etape = 0) => setState({ data: fusionnerAvecDefauts(data), etape: Math.min(8, Math.max(0, etape)), majLe: null }),
+        appliquerSeuilsCompte: (vertPct, orangePct) =>
+          setState((s) => ({ data: { ...s.data, seuils: { vertPct, orangePct } } })),
         reinitialiser: () => setState({ data: createInitialData(), etape: 0, majLe: null }),
       };
     },
     {
-      name: "levage-etude-invite",
+      name: CLE_BROUILLON_INVITE,
       version: 1,
       storage: createJSONStorage(() => idbStorage),
       skipHydration: true,

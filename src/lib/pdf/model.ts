@@ -42,10 +42,12 @@ const TYPE_ACCESSOIRE: Record<AccessoireSaisie["type"], string> = {
   autre: "Autre",
 };
 
-/** Informations hors étude : référence/indice (futur compte), entreprise/logo (futur), mode invité. */
+/** Informations hors étude : référence/indice, rédacteur (profil), entreprise/logo (compte), mode invité. */
 export interface PdfMeta {
   reference?: string;
   indice?: string;
+  /** Rédacteur du profil ; repli si le champ « Rédacteur » de l'étude est vide. */
+  redacteur?: string;
   entreprise?: string;
   /** URL ou data-URI du logo entreprise ; rien en mode invité. */
   logoUrl?: string | null;
@@ -222,6 +224,7 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
   const worst = v.positionDefavorable;
   const chargeTotale = result.chargeTotale.value;
   const o = data.operation;
+  const redacteur = o.redacteur.trim() || (meta.redacteur ?? "").trim();
   const style = VERDICT_COULEUR[v.verdict];
 
   // --- Accessoires
@@ -382,7 +385,7 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
       reference: txt(meta.reference),
       indice: txt(meta.indice),
       date: o.date ? dateFR(o.date) : dateFR(dateIso(meta.genereLe)),
-      redacteur: txt(o.redacteur),
+      redacteur: txt(redacteur),
       entreprise: (meta.entreprise ?? "").trim(),
       logoUrl: meta.logoUrl ?? null,
     },
@@ -404,7 +407,7 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
     },
     abaqueAVerifier: aVerifier,
     operation: {
-      champs: champs(["Projet / chantier", txt(o.projet)], ["Lieu", txt(o.lieu)], ["Date du levage", o.date ? dateFR(o.date) : TIRET], ["Rédacteur", txt(o.redacteur)]),
+      champs: champs(["Projet / chantier", txt(o.projet)], ["Lieu", txt(o.lieu)], ["Date du levage", o.date ? dateFR(o.date) : TIRET], ["Rédacteur", txt(redacteur)]),
       description: txt(o.description),
       intervenants: txt(o.intervenants),
     },

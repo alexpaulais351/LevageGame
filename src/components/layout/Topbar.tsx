@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { LogIn, Menu } from "lucide-react";
+import { LogIn, Menu, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import type { Utilisateur } from "@/lib/supabase/session";
 
 interface TopbarProps {
   onMenuClick: () => void;
+  utilisateur: Utilisateur | null;
 }
 
-export function Topbar({ onMenuClick }: TopbarProps) {
+export function Topbar({ onMenuClick, utilisateur }: TopbarProps) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-4">
       <div className="flex items-center gap-2">
@@ -24,10 +26,17 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <span className="text-sm font-semibold text-primary lg:hidden">ADÉQUATION LEVAGE</span>
       </div>
       <Button asChild variant="outline" size="sm">
-        <Link href="/login">
-          <LogIn />
-          Connexion
-        </Link>
+        {utilisateur ? (
+          <Link href="/profil">
+            <UserRound />
+            Profil
+          </Link>
+        ) : (
+          <Link href="/login">
+            <LogIn />
+            Connexion
+          </Link>
+        )}
       </Button>
     </header>
   );

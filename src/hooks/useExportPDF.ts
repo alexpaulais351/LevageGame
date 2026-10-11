@@ -41,10 +41,10 @@ export interface UseExportPDF {
   erreur: string | null;
 }
 
-export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indice" | "entreprise" | "logoUrl" | "invite">> = {}): UseExportPDF {
+export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indice" | "redacteur" | "entreprise" | "logoUrl" | "invite">> = {}): UseExportPDF {
   const etatEnCours = useSyncExternalStore(abonner, () => enCours, () => false);
   const etatErreur = useSyncExternalStore(abonner, () => erreur, () => null);
-  const { reference, indice, entreprise, logoUrl, invite = true } = options;
+  const { reference, indice, redacteur, entreprise, logoUrl, invite = true } = options;
 
   const exporter = useCallback(async () => {
     if (enCours) return;
@@ -54,7 +54,7 @@ export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indic
     try {
       const data: StudyData = useStudy.getState().data;
       const maintenant = new Date();
-      const model = buildPdfModel(data, computeStudy(data), { reference, indice, entreprise, logoUrl, invite, genereLe: maintenant });
+      const model = buildPdfModel(data, computeStudy(data), { reference, indice, redacteur, entreprise, logoUrl, invite, genereLe: maintenant });
       const { genererFichePdf } = await import("@/lib/pdf/generate");
       const blob = await genererFichePdf(model);
       telecharger(blob, nomFichierPdf({ reference, projet: data.operation.projet, date: maintenant }));
@@ -64,7 +64,7 @@ export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indic
       enCours = false;
       notifier();
     }
-  }, [reference, indice, entreprise, logoUrl, invite]);
+  }, [reference, indice, redacteur, entreprise, logoUrl, invite]);
 
   return { exporter, enCours: etatEnCours, erreur: etatErreur };
 }

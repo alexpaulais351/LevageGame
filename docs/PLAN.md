@@ -12,7 +12,7 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 4 | Assistant 9 étapes, mode invité | ✅ /outil, IndexedDB, résultat temps réel |
 | 5 | Visuels interactifs + comparateur | ✅ courbe en escalier, élévation (crochet déplaçable), plan, comparateur |
 | 6 | Export PDF | ✅ fiche A4 côté client (Helvetica, polices VINCI à convertir en TTF) |
-| 7 | Comptes, projets, versions | à faire |
+| 7 | Comptes, projets, versions | ✅ auth @supabase/ssr, projets/études/versions (Server Actions + Zod), reprise du brouillon invité, profil/logo/seuils |
 | 8 | Machines perso + import CSV | à faire |
 | 9 | Déploiement Vercel | à faire |
 

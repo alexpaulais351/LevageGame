@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FolderOpen, PlusCircle, Truck, X, type LucideIcon } from "lucide-react";
+import { FolderOpen, LogOut, PlusCircle, Truck, X, type LucideIcon } from "lucide-react";
 
+import { deconnexion } from "@/actions/auth";
+import type { Utilisateur } from "@/lib/supabase/session";
 import { cn } from "@/lib/utils";
 
 const LIENS: { href: string; label: string; icon: LucideIcon }[] = [
@@ -15,9 +17,10 @@ const LIENS: { href: string; label: string; icon: LucideIcon }[] = [
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
+  utilisateur: Utilisateur | null;
 }
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -72,6 +75,23 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             );
           })}
         </nav>
+        {utilisateur && (
+          <div className="border-t border-white/20 px-4 py-3 text-sm" data-testid="pied-utilisateur">
+            <Link href="/profil" onClick={onClose} className="block rounded hover:text-white">
+              <div className="truncate font-semibold">{utilisateur.nom}</div>
+              <div className="truncate text-xs text-white/70">{utilisateur.email}</div>
+            </Link>
+            <form action={deconnexion} className="mt-2">
+              <button
+                type="submit"
+                className="flex items-center gap-2 rounded px-1 py-1 text-xs text-white/70 hover:bg-vinci-bleu-dark hover:text-white"
+              >
+                <LogOut className="size-4" aria-hidden />
+                Se déconnecter
+              </button>
+            </form>
+          </div>
+        )}
       </aside>
     </>
   );
