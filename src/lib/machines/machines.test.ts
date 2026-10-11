@@ -160,7 +160,7 @@ describe("PDF : photo de la machine personnelle", () => {
     deductionsIncluded: false,
   };
   const sel = { typeId: "t", typeLabel: "Grue", manufacturerId: "f", manufacturerName: "F", machineId: "m", model: "M", configurationId: "c", configurationLabel: "C", chart };
-  const meta = { invite: false, genereLe: new Date("2026-10-11T10:00:00Z"), machinePhotoUrl: "data:image/png;base64,AAAA" };
+  const meta = { genereLe: new Date("2026-10-11T10:00:00Z"), machinePhotoUrl: "data:image/png;base64,AAAA" };
   const model = (selection: typeof sel & { personnelle?: boolean }) => {
     const d = createInitialData();
     d.machine.selection = selection;

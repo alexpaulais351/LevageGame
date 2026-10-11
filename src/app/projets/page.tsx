@@ -2,7 +2,6 @@ import Link from "next/link";
 import { FolderOpen } from "lucide-react";
 
 import { listerProjets } from "@/actions/projets";
-import { BrouillonInvite } from "@/components/modules/account/BrouillonInvite";
 import { CreerProjetForm } from "@/components/modules/account/CreationForms";
 import { ProjetActions } from "@/components/modules/account/LigneActions";
 import { Card } from "@/components/ui/card";
@@ -20,7 +19,6 @@ export default async function PageProjets() {
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
       <h1 className="text-2xl font-bold text-primary">Projets</h1>
-      <BrouillonInvite source="idb" variante="bandeau" />
       {!r.ok && (
         <p role="alert" className="text-vinci-rouge-dark">
           {r.error}

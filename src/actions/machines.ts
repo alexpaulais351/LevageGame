@@ -27,9 +27,9 @@ import {
   abaqueSaisiSchema,
   sourceSaisieSchema,
 } from "@/lib/machines/schemas";
-import { contexteUtilisateur, type Contexte } from "@/lib/supabase/session";
+import { ACCES_REFUSE, contexteApprouve, type Contexte } from "@/lib/supabase/session";
 
-const CONNEXION = "Connexion requise.";
+const CONNEXION = ACCES_REFUSE;
 const MACHINE_INTROUVABLE = "Machine introuvable (ou non modifiable).";
 const ECHEC_GENERIQUE = "L'enregistrement a échoué. Réessayez.";
 const BUCKET = "user-files";
@@ -232,7 +232,7 @@ async function enregistrerAbaque(
 
 /** Création d'une machine personnelle. FormData : `payload` (JSON) + `photo` (optionnelle). Redirige vers la fiche. */
 export async function creerMachine(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return { error: CONNEXION };
   const p = machinePersoSchema.safeParse(lirePayload(formData));
   if (!p.success) return { error: premiereErreur(p.error) };
@@ -268,7 +268,7 @@ export async function creerMachine(_prev: EtatForm, formData: FormData): Promise
 
 /** Modification d'une machine personnelle (caractéristiques, photo). Redirige vers la fiche. */
 export async function modifierMachine(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return { error: CONNEXION };
   const p = machineModifSchema.safeParse(lirePayload(formData));
   if (!p.success) return { error: premiereErreur(p.error) };
@@ -295,7 +295,7 @@ export async function modifierMachine(_prev: EtatForm, formData: FormData): Prom
 
 /** Suppression d'une machine personnelle : configurations, abaques, sources, pièces jointes et fichiers. */
 export async function supprimerMachine(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = idEntiteSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -323,7 +323,7 @@ export async function supprimerMachine(input: unknown): Promise<ActionResult> {
 
 /** Ajoute une configuration avec son abaque (`a_verifier`) et sa source. FormData : `payload` (JSON) + `pdf`. */
 export async function creerConfiguration(formData: FormData): Promise<ActionResult<{ id: string; chartId: string }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = configurationAvecAbaqueSchema.safeParse(lirePayload(formData));
   if (!p.success) return echec(premiereErreur(p.error));
@@ -350,7 +350,7 @@ export async function creerConfiguration(formData: FormData): Promise<ActionResu
 
 /** Libellé, paramètres, masse de moufle et notes d'une configuration (l'abaque n'est pas touché). */
 export async function modifierConfiguration(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = configurationModifSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -367,7 +367,7 @@ export async function modifierConfiguration(input: unknown): Promise<ActionResul
 
 /** Remplace l'abaque d'une configuration : le nouvel abaque repart en `a_verifier`. FormData : `payload` + `pdf`. */
 export async function remplacerAbaque(formData: FormData): Promise<ActionResult<{ chartId: string }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = remplacerAbaqueSchema.safeParse(lirePayload(formData));
   if (!p.success) return echec(premiereErreur(p.error));
@@ -386,7 +386,7 @@ export async function remplacerAbaque(formData: FormData): Promise<ActionResult<
 }
 
 export async function supprimerConfiguration(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = idEntiteSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -410,7 +410,7 @@ export async function supprimerConfiguration(input: unknown): Promise<ActionResu
  * sont posés par le trigger `load_charts_guard` (jamais par le client).
  */
 export async function marquerVerifie(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = verifierSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -429,7 +429,7 @@ export async function marquerVerifie(input: unknown): Promise<ActionResult> {
 
 /** Retour à « à vérifier » (les traces de vérification sont effacées par le trigger). */
 export async function remettreAVerifier(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = chartRefSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));

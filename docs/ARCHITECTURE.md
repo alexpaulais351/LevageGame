@@ -1,5 +1,7 @@
 # Proposition d'architecture — Adéquation de levage
 
+> Mise à jour 2026-10-11 (D25-D26) : le **mode invité est supprimé**. Toute utilisation exige un compte **approuvé par l'administrateur** ; les mentions d'IndexedDB et d'accès anonyme ci-dessous sont caduques.
+
 > Statut : **PROPOSITION — en attente de validation**. Aucun code applicatif n'est écrit avant validation.
 
 ## 1. Arbitrages entre les documents sources

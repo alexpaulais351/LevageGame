@@ -7,7 +7,6 @@ import { formatMasse } from "@/lib/utils";
 
 import {
   LIBELLE_ABAQUE_A_VERIFIER,
-  MENTION_INVITE,
   pct,
   pdfTexte,
   type AbaqueModel,
@@ -31,8 +30,6 @@ function creerStyles(ff: string) {
     enteteDroite: { alignItems: "flex-end", maxWidth: 380 },
     enteteTitre: { color: VINCI_PDF.headerText, fontSize: 14, fontWeight: 700, letterSpacing: 0.6 },
     enteteLigne: { color: VINCI_PDF.headerText, fontSize: 7.5, marginTop: 2, textAlign: "right" },
-    bandeauInvite: { backgroundColor: VERDICT.jauneBg, borderBottomWidth: 1, borderBottomColor: VERDICT.jaune, height: 15, justifyContent: "center", alignItems: "center" },
-    bandeauInviteTexte: { fontSize: 8, fontWeight: 700 },
     pied: { position: "absolute", bottom: 14, left: 34, right: 34, borderTopWidth: 0.75, borderTopColor: VINCI_PDF.border, paddingTop: 4 },
     piedLigne: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
     piedTexte: { fontSize: 6.5, color: VINCI_PDF.textMuted },
@@ -322,11 +319,6 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
               </Text>
             </View>
           </View>
-          {m.invite && (
-            <View style={s.bandeauInvite}>
-              <Text style={s.bandeauInviteTexte}>{MENTION_INVITE}</Text>
-            </View>
-          )}
         </View>
 
         {/* Pied fixe */}
@@ -334,7 +326,7 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
           <View style={s.piedLigne}>
             <View style={{ width: "82%" }}>
               <Text style={s.piedTexte}>{m.mentionPermanente}</Text>
-              <Text style={s.piedTexte}>{m.cadreCourt}{m.invite ? `  ·  ${MENTION_INVITE}` : ""}</Text>
+              <Text style={s.piedTexte}>{m.cadreCourt}</Text>
             </View>
             <Text style={s.piedTexte} render={({ pageNumber, totalPages }) => `Page ${pageNumber} / ${totalPages}`} />
           </View>

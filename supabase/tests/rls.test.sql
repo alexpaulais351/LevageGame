@@ -20,6 +20,9 @@ delete from chart_sources where owner_id is null;
 insert into auth.users (id, email, aud, role, raw_user_meta_data) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'a@test.local', 'authenticated', 'authenticated', '{"full_name":"Alice"}'),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'b@test.local', 'authenticated', 'authenticated', '{"full_name":"Bruno"}');
+-- Comptes validés explicitement par l'administrateur (sinon aucun accès, cf. comptes_admin.test.sql).
+update profiles set statut = 'approuve'
+ where id in ('aaaaaaaa-0000-0000-0000-000000000001', 'bbbbbbbb-0000-0000-0000-000000000002');
 
 insert into projects (id, owner_id, name) values
   ('11111111-0000-0000-0000-00000000000a', 'aaaaaaaa-0000-0000-0000-000000000001', 'Projet A'),
@@ -148,15 +151,15 @@ select is_empty($$update projects set name = 'pirate' where id = '11111111-0000-
 select is((select count(*)::int from storage.objects where bucket_id = 'user-files'), 0, 'B ne voit pas les fichiers de A');
 
 -- ---------------------------------------------------------------------
--- Anonyme (mode invité)
+-- Anonyme : plus aucun accès (mode invité supprimé, D25)
 -- ---------------------------------------------------------------------
 reset role;
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);
 select set_config('request.jwt.claim.sub', '', true);
 
-select results_eq($$select model from machines$$, $$values ('TEST-PUBLIC'::text)$$, 'anon ne lit que le catalogue public');
-select results_eq($$select capacity_kg from load_chart_points$$, $$values (1000.0::numeric)$$, 'anon lit les points publics uniquement');
+select throws_ok($$select count(*) from machines$$, '42501', null, 'anon ne lit plus le catalogue public');
+select throws_ok($$select count(*) from load_chart_points$$, '42501', null, 'anon ne lit plus les points d''abaque');
 select throws_ok($$select count(*) from projects$$, '42501', null, 'anon n''a pas accès aux projets');
 select throws_ok($$insert into machines (type_id, manufacturer_id, model) values ((select id from machine_types limit 1), (select id from manufacturers limit 1), 'X')$$,
   '42501', null, 'anon ne peut pas écrire dans le catalogue');

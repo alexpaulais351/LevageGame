@@ -8,7 +8,7 @@ import { nomFichierPdf, slugFichier } from "./filename";
 import { abaqueFictif, etudeFictive } from "./fixture";
 import { CADRE_COURT, MENTION_PERMANENTE, buildPdfModel, dateFR, pdfTexte, type PdfMeta } from "./model";
 
-const meta: PdfMeta = { invite: true, genereLe: new Date(2026, 9, 11) };
+const meta: PdfMeta = { genereLe: new Date(2026, 9, 11) };
 const modele = (statut: "a_verifier" | "verifie" = "a_verifier", m = meta) => {
   const d = etudeFictive(statut);
   return buildPdfModel(d, computeStudy(d), m);
@@ -102,11 +102,10 @@ describe("buildPdfModel", () => {
     expect(m.abaqueAVerifier).toBe(false);
     expect(m.machine.abaque?.statutLibelle).toBe("Vérifié");
   });
-  it("mode invité : mention « non enregistré » ; logo seulement s'il est fourni", () => {
-    expect(modele().invite).toBe(true);
+  it("en-tête du compte : logo seulement s'il est fourni ; aucune mention « non enregistré »", () => {
     expect(modele().entete.logoUrl).toBeNull();
-    const connecte = modele("verifie", { invite: false, genereLe: meta.genereLe, entreprise: "Entreprise Test", logoUrl: "data:image/png;base64,AAAA", reference: "R-1", indice: "B" });
-    expect(connecte.invite).toBe(false);
+    expect(modele()).not.toHaveProperty("invite");
+    const connecte = modele("verifie", { genereLe: meta.genereLe, entreprise: "Entreprise Test", logoUrl: "data:image/png;base64,AAAA", reference: "R-1", indice: "B" });
     expect(connecte.entete).toMatchObject({ reference: "R-1", indice: "B", entreprise: "Entreprise Test", logoUrl: "data:image/png;base64,AAAA" });
   });
   it("accessoires : CMU utile vs effort, conforme / non conforme", () => {

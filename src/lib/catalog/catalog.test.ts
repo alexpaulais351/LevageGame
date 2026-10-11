@@ -1,40 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { abaqueTestFictifSimple } from "@/engine/__tests__/fixtures";
-
-import { createStaticProvider } from "./static-provider";
 import { mapChartRow, type ChartRow } from "./supabase-provider";
-import type { StaticCatalogData } from "./types";
-
-describe("fournisseur statique de repli", () => {
-  it("le JSON embarqué est vide", async () => {
-    const p = createStaticProvider();
-    expect(p.kind).toBe("statique");
-    expect(await p.listTypes()).toEqual([]);
-  });
-
-  it("navigue types → constructeurs → modèles → configurations → abaque", async () => {
-    const chart = abaqueTestFictifSimple();
-    const data: StaticCatalogData = {
-      types: [{ id: "t1", code: "x", label: "Type test" }],
-      manufacturers: [
-        { id: "f1", name: "Fab A" },
-        { id: "f2", name: "Fab B" },
-      ],
-      machines: [{ id: "m1", typeId: "t1", manufacturerId: "f1", model: "M1" }],
-      configurations: [{ id: "c1", machineId: "m1", label: "Conf", hookBlockMassKg: 50, notes: null }],
-      charts: [{ ...chart, configurationId: "c1" }],
-    };
-    const p = createStaticProvider(data);
-    expect((await p.listManufacturers("t1")).map((f) => f.id)).toEqual(["f1"]);
-    expect((await p.listModels("t1", "f1")).map((m) => m.id)).toEqual(["m1"]);
-    expect((await p.listConfigurations("m1"))[0].hookBlockMassKg).toBe(50);
-    const c = await p.getChart("c1");
-    expect(c?.id).toBe(chart.id);
-    expect(c).not.toHaveProperty("configurationId");
-    expect(await p.getChart("inconnu")).toBeNull();
-  });
-});
 
 describe("mapChartRow", () => {
   const base: ChartRow = {

@@ -16,7 +16,6 @@ import { SelectField } from "../wizard/fields";
 import { VERDICT_LIBELLE, VERDICT_STYLE } from "../wizard/ResultPanel";
 import { useCatalogList } from "../wizard/use-catalog";
 import { ChoixSourceMachines, type SourceMachines } from "../wizard/ChoixSourceMachines";
-import { useConnecte } from "../wizard/use-connecte";
 import { cn } from "@/lib/utils";
 
 import { axeYIncompatible, etudeAvecAlternative, evaluerAlternative, type Alternative } from "./comparateur";
@@ -69,10 +68,9 @@ function Colonne({ titre, sous, result, data }: { titre: string; sous: string; r
 
 /** Panneau « Comparer » : évalue une autre machine / configuration sur le même levage, sans toucher à l'étude. */
 export function Comparateur({ data, result, onAdopter }: Props) {
-  const connecte = useConnecte();
   const sel = data.machine.selection;
   const [source, setSource] = useState<SourceMachines>(sel?.personnelle ? "mine" : "public");
-  const provider = (source === "mine" && getMesMachinesProvider()) || getCatalogProvider();
+  const provider = source === "mine" ? getMesMachinesProvider() : getCatalogProvider();
   const [typeId, setTypeId] = useState(sel?.typeId ?? "");
   const [manufId, setManufId] = useState("");
   const [machineId, setMachineId] = useState("");
@@ -140,7 +138,7 @@ export function Comparateur({ data, result, onAdopter }: Props) {
         Testez une autre machine ou configuration sur le même levage (charge, accessoires et positions inchangés). L&apos;étude n&apos;est
         modifiée que si vous adoptez la configuration.
       </p>
-      {connecte && <ChoixSourceMachines valeur={source} onChange={surSource} nom="comparateur" />}
+      <ChoixSourceMachines valeur={source} onChange={surSource} nom="comparateur" />
       {aucuneMachinePerso && (
         <p role="status" className="flex gap-2 rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm">
           <Info className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />

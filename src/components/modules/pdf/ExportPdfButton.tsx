@@ -18,12 +18,12 @@ export function ExportPdfButton({
   meta,
 }: {
   variant?: "default" | "outline";
-  /** Mode connecté : référence, indice, rédacteur, entreprise, logo (sans `invite: true`). */
+  /** Référence, indice, rédacteur, entreprise, logo (sinon : contexte de l'assistant). */
   meta?: MetaCompte;
 }) {
   const contexte = useContext(PdfMetaContext);
   const m = meta ?? contexte;
-  const { exporter, enCours, erreur } = useExportPDF(m ? { ...m, invite: false } : {});
+  const { exporter, enCours, erreur } = useExportPDF(m ?? {});
   return (
     <div className="flex flex-col items-start gap-1">
       <Button type="button" variant={variant} size="lg" onClick={() => void exporter()} disabled={enCours} aria-busy={enCours}>

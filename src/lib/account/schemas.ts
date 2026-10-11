@@ -20,11 +20,15 @@ const emailSchema = z.string().trim().toLowerCase().pipe(z.email("Adresse e-mail
 const motDePasseSchema = z.string().min(8, "8 caractères minimum").max(128, "128 caractères maximum");
 
 export const connexionSchema = z.object({ email: emailSchema, motDePasse: z.string().min(1, "Mot de passe requis").max(128) });
-export const inscriptionSchema = z.object({
-  nom: texteRequis(120, "Nom requis"),
-  email: emailSchema,
-  motDePasse: motDePasseSchema,
-});
+export const inscriptionSchema = z
+  .object({
+    nom: texteRequis(120, "Nom requis"),
+    entreprise: texteRequis(160, "Entreprise requise"),
+    email: emailSchema,
+    motDePasse: motDePasseSchema,
+    confirmation: z.string().max(128),
+  })
+  .refine((v) => v.motDePasse === v.confirmation, { path: ["confirmation"], message: "Les mots de passe ne correspondent pas" });
 export const lienMagiqueSchema = z.object({ email: emailSchema });
 
 // --- Profil, entreprise, seuils
@@ -104,11 +108,11 @@ export const versionEnregistrerSchema = z.object({ etudeId: idSchema, data: stud
 export const versionRefSchema = z.object({ etudeId: idSchema, index: z.number().int().min(1).max(100_000) });
 export const etudeRefSchema = z.object({ etudeId: idSchema });
 
-export const brouillonSchema = z
+/** Nouvelle adéquation : projet existant OU nouveau projet, puis titre de l'étude. */
+export const nouvelleAdequationSchema = z
   .object({
-    data: studyDataSchema,
     projetId: idSchema.optional(),
-    nouveauProjet: z.string().trim().min(1).max(160).optional(),
+    nouveauProjet: z.string().trim().min(1, "Nom du projet requis").max(160, "160 caractères maximum").optional(),
     titre: texteRequis(200, "Titre requis"),
   })
   .refine((v) => Boolean(v.projetId) !== Boolean(v.nouveauProjet), {

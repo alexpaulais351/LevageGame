@@ -56,12 +56,12 @@ export function mapChartRow(row: ChartRow): LoadChart {
 }
 
 /**
- * `public` : catalogue public (owner_id IS NULL), lisible par l'invité (clé anon).
- * `mine`   : machines personnelles ; la RLS ne renvoie que celles de l'utilisateur connecté (rien pour un invité).
+ * `public` : catalogue public (owner_id IS NULL), lisible par tout compte approuvé.
+ * `mine`   : machines personnelles ; la RLS ne renvoie que celles de l'utilisateur connecté.
  */
 export type PorteeCatalogue = "public" | "mine";
 
-/** Lecture seule du catalogue (RLS : le client porte la session éventuelle). */
+/** Lecture seule du catalogue (RLS : le client porte la session de l'utilisateur). */
 export function createSupabaseProvider(portee: PorteeCatalogue = "public"): CatalogProvider {
   const mine = portee === "mine";
   const proprietaire = <Q extends { is: (c: string, v: null) => Q; not: (c: string, o: string, v: null) => Q }>(q: Q): Q =>

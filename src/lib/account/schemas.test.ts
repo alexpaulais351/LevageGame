@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import { createInitialData } from "@/lib/study/defaults";
 
 import {
-  brouillonSchema,
   connexionSchema,
   entrepriseSchema,
   etudeCreationSchema,
   idSchema,
   inscriptionSchema,
+  nouvelleAdequationSchema,
   profilSchema,
   projetCreationSchema,
   seuilsUtilisateurSchema,
@@ -24,10 +24,13 @@ describe("schémas d'authentification", () => {
     expect(r.email).toBe("jean@example.fr");
   });
   it("refuse e-mail invalide et mot de passe court", () => {
-    expect(inscriptionSchema.safeParse({ nom: "A", email: "pas-un-mail", motDePasse: "12345678" }).success).toBe(false);
-    expect(inscriptionSchema.safeParse({ nom: "A", email: "a@b.fr", motDePasse: "1234567" }).success).toBe(false);
-    expect(inscriptionSchema.safeParse({ nom: " ", email: "a@b.fr", motDePasse: "12345678" }).success).toBe(false);
-    expect(inscriptionSchema.safeParse({ nom: "Alex", email: "a@b.fr", motDePasse: "12345678" }).success).toBe(true);
+    const ok = { nom: "Alex", entreprise: "BTP", email: "a@b.fr", motDePasse: "12345678", confirmation: "12345678" };
+    expect(inscriptionSchema.safeParse({ ...ok, email: "pas-un-mail" }).success).toBe(false);
+    expect(inscriptionSchema.safeParse({ ...ok, motDePasse: "1234567", confirmation: "1234567" }).success).toBe(false);
+    expect(inscriptionSchema.safeParse({ ...ok, nom: " " }).success).toBe(false);
+    expect(inscriptionSchema.safeParse({ ...ok, entreprise: " " }).success).toBe(false);
+    expect(inscriptionSchema.safeParse({ ...ok, confirmation: "12345679" }).success).toBe(false);
+    expect(inscriptionSchema.safeParse(ok).success).toBe(true);
   });
 });
 
@@ -84,11 +87,11 @@ describe("données d'étude", () => {
     expect(versionEnregistrerSchema.safeParse({ etudeId: "x", data: createInitialData() }).success).toBe(false);
     expect(versionEnregistrerSchema.safeParse({ etudeId: UUID, data: createInitialData() }).success).toBe(true);
   });
-  it("brouillon : un projet existant OU un nouveau projet", () => {
-    const base = { data: createInitialData(), titre: "T" };
-    expect(brouillonSchema.safeParse(base).success).toBe(false);
-    expect(brouillonSchema.safeParse({ ...base, projetId: UUID }).success).toBe(true);
-    expect(brouillonSchema.safeParse({ ...base, nouveauProjet: "Nouveau" }).success).toBe(true);
-    expect(brouillonSchema.safeParse({ ...base, projetId: UUID, nouveauProjet: "Nouveau" }).success).toBe(false);
+  it("nouvelle adéquation : un projet existant OU un nouveau projet", () => {
+    const base = { titre: "T" };
+    expect(nouvelleAdequationSchema.safeParse(base).success).toBe(false);
+    expect(nouvelleAdequationSchema.safeParse({ ...base, projetId: UUID }).success).toBe(true);
+    expect(nouvelleAdequationSchema.safeParse({ ...base, nouveauProjet: "Nouveau" }).success).toBe(true);
+    expect(nouvelleAdequationSchema.safeParse({ ...base, projetId: UUID, nouveauProjet: "Nouveau" }).success).toBe(false);
   });
 });

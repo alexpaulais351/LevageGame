@@ -2,11 +2,11 @@
 
 - D1 (validée 2026-10-11) — supabase-js + RLS au lieu de Prisma : Prisma se connecte en rôle privilégié et contourne la RLS exigée.
 - D2 (validée 2026-10-11) — Supabase Auth au lieu de NextAuth : imposé par le cahier des charges (mdp + lien magique).
-- D3 (validée 2026-10-11) — Mode invité stocké en IndexedDB, pas localStorage (interdit par le modèle).
+- D3 (validée 2026-10-11, caduque depuis D25) — Mode invité stocké en IndexedDB, pas localStorage (interdit par le modèle).
 - D4 (validée 2026-10-11) — Charte VINCI et patterns UI du modèle Conduc Rail conservés ; polices VINCI fournies le 2026-10-11.
 - D5 — Lecture d'abaque entre nœuds : valeur la plus défavorable par défaut ; interpolation seulement si autorisée par la doc ; jamais d'extrapolation.
 - D6 — Tout abaque importé arrive en `a_verifier` ; passage en `verifie` uniquement après contrôle humain contre le PDF constructeur.
-- D7 — PDF généré côté client (@react-pdf/renderer) pour fonctionner en mode invité.
+- D7 — PDF généré côté client (@react-pdf/renderer) pour fonctionner en mode invité (motif caduc depuis D25 ; génération client conservée).
 - D8 — Moteur de calcul dans `src/engine/`, pur TypeScript, testé Vitest.
 - D9 — Polices VINCI commitées dans le dépôt public (choix explicite de l'utilisateur, 2026-10-11) ; Expanded, Rounded et Dingbats non utilisées.
 - D10 — `load_chart_points.y` NOT NULL DEFAULT 0 : colonne de clé primaire (PK(chart_id,x,y)) ; pour `axis_y = 'none'`, y = 0 imposé par trigger.
@@ -24,3 +24,5 @@
 - D22 — Moteur : vent en m/s en interne (helper km/h → m/s) ; masses en kg, efforts en kN (g = 9,81) ; aucun arrondi interne, formules symboliques.
 - D23 — Moteur : champ `flechetteReplieeKg` sans accent (identifiant ASCII) ; contrôles renvoient `Check<T>` = `Calc<T>` + `issues[]` (bloquant/réserve) agrégés par `computeVerdict`.
 - D24 — Abaques : saisie dans data/charts/<machine>/ (machine.json + un CSV par configuration), validation `npm run charts:check`, import par `npm run charts:sql` → supabase/seed/charts.sql ; cellules vides non stockées (nœud absent = hors abaque) ; slug de configuration dans params.slug.
+- D25 (demande utilisateur 2026-10-11) — Suppression du mode invité ; accès sur compte validé par l'administrateur. `profiles.statut` (`en_attente` par défaut / `approuve` / `refuse` / `suspendu`), `est_admin`, `statut_modifie_par/le` ; profils existants à la migration passés en `approuve`. Policies RESTRICTIVES `private.est_approuve()` sur toutes les tables de données + buckets `user-files` / `chart-sources` (désormais privé) ; plus aucun droit `anon`. Garde par trigger (`current_user` = `authenticated` ⇒ statut intouchable). Admin via RPC SECURITY DEFINER `admin_lister_comptes` / `admin_definir_statut` (refus hors admin, sur soi-même ou sur un autre admin, retour à `en_attente` interdit) ; premier admin par `private.designer_admin(email)` (postgres / service_role). Brouillon IndexedDB, reprise de brouillon, catalogue statique de repli et mention PDF « Document non enregistré » supprimés ; `/outil` crée l'étude dans un projet. Redirections `suivant` filtrées par `cheminInterne` (chemin interne uniquement).
+- D26 — Notification e-mail de l'administrateur à chaque inscription : trigger `profiles_notifier_inscription` (pg_net) → Edge Function `notifier-inscription` (Resend), URL et secret partagé lus dans Vault ; sans secrets Vault, aucun appel ; sans `RESEND_API_KEY`, la fonction journalise et répond 200. Le bouton « Valider la demande » mène à `/admin/comptes/<id>` : aucune décision sur simple ouverture (GET), uniquement au clic (Server Action).

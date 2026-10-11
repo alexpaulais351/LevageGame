@@ -1,6 +1,6 @@
 /**
- * Catalogue machines côté invité : types → constructeurs → modèles → configurations → abaque.
- * Deux implémentations : Supabase (lecture anon) et repli sur un JSON statique.
+ * Catalogue machines (comptes approuvés) : types → constructeurs → modèles → configurations → abaque.
+ * Implémentation unique : Supabase, sous RLS.
  */
 import type { LoadChart } from "@/engine";
 
@@ -36,22 +36,13 @@ export interface CatalogConfiguration {
 }
 
 export interface CatalogProvider {
-  readonly kind: "supabase" | "statique";
+  readonly kind: "supabase";
   listTypes(): Promise<CatalogType[]>;
   listManufacturers(typeId: string): Promise<CatalogManufacturer[]>;
   listModels(typeId: string, manufacturerId: string): Promise<CatalogModel[]>;
   listConfigurations(machineId: string): Promise<CatalogConfiguration[]>;
   /** Abaque de la configuration, ou `null` s'il n'y en a pas. */
   getChart(configurationId: string): Promise<LoadChart | null>;
-}
-
-/** Forme du JSON statique de repli. */
-export interface StaticCatalogData {
-  types: CatalogType[];
-  manufacturers: CatalogManufacturer[];
-  machines: CatalogModel[];
-  configurations: CatalogConfiguration[];
-  charts: (LoadChart & { configurationId: string })[];
 }
 
 export const MESSAGE_CATALOGUE_VIDE =
