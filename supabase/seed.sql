@@ -102,6 +102,7 @@ on conflict (code) do update
 insert into public.manufacturers (name)
 select n from unnest(array[
   'Liebherr', 'Tadano', 'Demag', 'Grove', 'Potain', 'Manitou', 'Merlo',
-  'JCB', 'Caterpillar', 'Komatsu', 'Volvo', 'Palfinger', 'Fassi', 'Hiab'
+  'JCB', 'Caterpillar', 'Komatsu', 'Volvo', 'Palfinger', 'Fassi', 'Hiab',
+  'Shuttlelift', 'Galizia', 'JMG', 'Terex'
 ]) as t(n)
 on conflict (lower(name)) do nothing;

@@ -59,6 +59,10 @@ export interface ProjetModele {
 
 export const MIGRATIONS_DIR = path.resolve(__dirname, "../../supabase/migrations");
 export const SUFFIXE_MIGRATION = "_projets_exemples_modeles.sql";
+/** Table lue par private.creer_exemples depuis la migration 20261011000900 (v1 corrompue en production). */
+export const TABLE_MODELES = "private.modeles_exemples_v2";
+/** Table des migrations de modèles antérieures à la 0900 (20261011000800). */
+export const TABLE_MODELES_V1 = "private.modeles_exemples";
 
 /**
  * Abaque tel que l'application le lit en base (`mapChartRow`) : nœuds vides non stockés,
@@ -193,7 +197,7 @@ function dollar(tag: string, s: string): string {
   return `$${tag}$${s}$${tag}$`;
 }
 
-export function genererSql(modeles: ProjetModele[]): string {
+export function genererSql(modeles: ProjetModele[], table: string = TABLE_MODELES): string {
   const lignes = modeles.map(
     (p) => `  (${p.ordre}, ${q(p.nom)}, ${q(p.adresse)}, ${q(p.client)},\n   ${dollar(`ex${p.ordre}`, JSON.stringify(p.etudes))}::jsonb)`,
   );
@@ -202,12 +206,12 @@ export function genererSql(modeles: ProjetModele[]): string {
     "-- =====================================================================",
     "-- GÉNÉRÉ par `npm run exemples:sql` (scripts/exemples) — NE PAS ÉDITER.",
     "-- Modèles des projets d'exemple créés à la validation de chaque compte (D30).",
-    "-- Remplacement complet et idempotent du contenu de private.modeles_exemples.",
+    `-- Remplacement complet et idempotent du contenu de ${table}.`,
     "-- data / result calculés par le moteur du dépôt ; marqueurs @@...@@ substitués par private.creer_exemples.",
     ...resume,
     "-- =====================================================================",
-    "delete from private.modeles_exemples;",
-    "insert into private.modeles_exemples (ordre, nom, adresse, client, etudes) values",
+    `delete from ${table};`,
+    `insert into ${table} (ordre, nom, adresse, client, etudes) values`,
     lignes.join(",\n") + ";",
     "",
   ].join("\n");
@@ -231,6 +235,16 @@ export function derniereMigrationModeles(dir = MIGRATIONS_DIR): string | null {
     .sort()
     .at(-1);
   return f ? path.join(dir, f) : null;
+}
+
+/** Table ciblée par une migration de modèles générée (ligne « delete from … ; »), ou null. */
+export function tableDeMigration(sql: string): string | null {
+  return /^delete from (private\.[a-z_0-9]+);$/m.exec(sql)?.[1] ?? null;
+}
+
+/** SQL attendu pour une migration existante : même table que celle qu'elle cible (0800 : v1). */
+export function sqlAttendu(modeles: ProjetModele[], contenuMigration: string): string {
+  return genererSql(modeles, tableDeMigration(contenuMigration) ?? TABLE_MODELES);
 }
 
 export function lireFichier(p: string): string {

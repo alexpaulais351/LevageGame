@@ -1,4 +1,4 @@
--- Projets d'exemple créés à la validation d'un compte (migrations 20261011000700/0800, D30).
+-- Projets d'exemple créés à la validation d'un compte (migrations 20261011000700/0800/0900, D30).
 -- Nécessite le catalogue public (seed charts.sql). U1 : validé par l'admin · U2 : validé après modification
 -- d'un abaque · ADM : désigné par designer_admin.
 begin;
@@ -12,7 +12,7 @@ insert into auth.users (id, email, aud, role, raw_user_meta_data) values
   ('e0000000-0000-0000-0000-0000000000b2', 'u2@test.local', 'authenticated', 'authenticated', '{}'),
   ('e0000000-0000-0000-0000-0000000000b9', 'adm@test.local', 'authenticated', 'authenticated', '{"full_name":"Admin"}');
 
-select is((select count(*)::int from private.modeles_exemples), 2, 'deux modèles de projet');
+select is((select count(*)::int from private.modeles_exemples_v2), 2, 'deux modèles de projet (v2)');
 select is((select count(*)::int from projects where owner_id = 'e0000000-0000-0000-0000-0000000000b1'), 0,
   'compte en attente : aucun exemple');
 
@@ -21,8 +21,8 @@ select is(has_function_privilege('authenticated', 'private.creer_exemples(uuid)'
   'creer_exemples non exécutable par authenticated');
 select is(has_function_privilege('anon', 'private.creer_exemples(uuid)', 'execute'), false,
   'creer_exemples non exécutable par anon');
-select is(has_table_privilege('authenticated', 'private.modeles_exemples', 'select'), false,
-  'modeles_exemples non lisible par authenticated');
+select is(has_table_privilege('authenticated', 'private.modeles_exemples_v2', 'select'), false,
+  'modeles_exemples_v2 non lisible par authenticated');
 
 -- ---------------------------------------------------------------------
 -- designer_admin ⇒ exemples
