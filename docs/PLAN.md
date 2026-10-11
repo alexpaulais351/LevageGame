@@ -14,6 +14,6 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 6 | Export PDF | ✅ fiche A4 côté client (Helvetica, polices VINCI à convertir en TTF) |
 | 7 | Comptes, projets, versions | ✅ auth @supabase/ssr, projets/études/versions (Server Actions + Zod), reprise du brouillon invité, profil/logo/seuils |
 | 8 | Machines perso + import CSV | ✅ /machines (catalogue + Mes machines), CSV/grille, PDF constructeur, vérification ; migration 0500 (suppression de compte) |
-| 9 | Déploiement Vercel | à faire |
+| 9 | Déploiement Vercel | 🟡 site en ligne (levagegame.vercel.app) ; branche `main` + PR créées, protection et production sur `main` à régler |
 
 **Prochaine tâche** : validation des arbitrages (`DECISIONS.md` D1–D4), puis étape 0.

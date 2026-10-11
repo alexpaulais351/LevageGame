@@ -20,4 +20,20 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run charts:check
       - run: npm run build
+
+  db:
+    name: Base de données (migrations + tests RLS pgTAP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Démarrer Supabase local
+        run: npx --yes supabase@2.120.0 start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,mailpit,postgres-meta
+      - name: Rejouer migrations et seed
+        run: npx --yes supabase@2.120.0 db reset
+      - name: Tests pgTAP
+        run: npx --yes supabase@2.120.0 test db

@@ -35,14 +35,18 @@ L'application est servie sur http://localhost:3000.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Vérification TypeScript (`tsc --noEmit`) |
 | `npm test` | Tests Vitest |
+| `npm run charts:check` | Contrôle de cohérence des abaques de `data/charts/` |
+| `npm run charts:sql` | Génère `supabase/seed/charts.sql` (catalogue public, statut `a_verifier`) |
+| `npx supabase@latest start` / `db reset` / `test db` | Base locale, migrations + seed, tests RLS pgTAP |
 
-La CI (GitHub Actions) exécute lint, typecheck, tests et build à chaque push et pull request.
+La CI (GitHub Actions) exécute lint, typecheck, tests, contrôle des abaques et build, plus un job base de données (migrations, seed et tests pgTAP sur un Supabase local), à chaque push et pull request.
 
-## Déploiement (Vercel)
+## Déploiement
 
-1. Importer le dépôt GitHub dans Vercel (framework Next.js détecté automatiquement).
-2. Définir `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` pour chaque environnement.
-3. Les migrations Supabase (`supabase/migrations/`) sont appliquées séparément, jamais manuellement en production.
+- **Production** : https://levagegame.vercel.app — branche `main` (protégée, fusion par pull request avec CI verte).
+- **Preview** : un déploiement Vercel par pull request.
+- **Vercel** : framework Next.js (`vercel.json`), variables `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` pour Production et Preview.
+- **Supabase** (projet `unvedfxxiasjpbtamsdd`, eu-west-1) : migrations de `supabase/migrations/` appliquées dans l'ordre (jamais de modification manuelle du schéma) ; catalogue public chargé depuis `supabase/seed/charts.sql`. Auth : Site URL `https://levagegame.vercel.app`, Redirect URLs `https://levagegame.vercel.app/**`. Pour un usage en équipe, configurer un SMTP (lien magique, confirmation d'e-mail).
 
 ## Avertissement réglementaire
 
