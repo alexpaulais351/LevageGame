@@ -11,7 +11,7 @@ Références : `docs/CAHIER-DES-CHARGES.md` (besoin) · `docs/ARCHITECTURE.md` (
 ## Stack (proposée, voir DECISIONS)
 ```
 Next.js App Router · TypeScript strict · Tailwind + shadcn/ui · lucide-react
-Supabase : Postgres + RLS, Auth (mdp + lien magique), Storage — via supabase-js / @supabase/ssr
+Supabase : Postgres + RLS, Auth (e-mail + mot de passe, comptes validés par l'admin), Storage — via supabase-js / @supabase/ssr
 Mutations : Server Actions + Zod · State : Zustand · Server state : TanStack Query v5
 PDF : @react-pdf/renderer (côté client) · Tests : Vitest · CI : GitHub Actions · Hébergement : Vercel
 Étude en cours d'édition : store Zustand en mémoire ; persistance = versions en base. Jamais localStorage/sessionStorage

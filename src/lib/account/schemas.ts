@@ -29,7 +29,6 @@ export const inscriptionSchema = z
     confirmation: z.string().max(128),
   })
   .refine((v) => v.motDePasse === v.confirmation, { path: ["confirmation"], message: "Les mots de passe ne correspondent pas" });
-export const lienMagiqueSchema = z.object({ email: emailSchema });
 
 // --- Profil, entreprise, seuils
 export const profilSchema = z.object({

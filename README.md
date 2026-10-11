@@ -46,7 +46,7 @@ La CI (GitHub Actions) exécute lint, typecheck, tests, contrôle des abaques et
 - **Production** : https://levagegame.vercel.app — branche `main` (protégée, fusion par pull request avec CI verte).
 - **Preview** : un déploiement Vercel par pull request.
 - **Vercel** : framework Next.js (`vercel.json`), variables `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` pour Production et Preview.
-- **Supabase** (projet `unvedfxxiasjpbtamsdd`, eu-west-1) : migrations de `supabase/migrations/` appliquées dans l'ordre (jamais de modification manuelle du schéma) ; catalogue public chargé depuis `supabase/seed/charts.sql`. Auth : Site URL `https://levagegame.vercel.app`, Redirect URLs `https://levagegame.vercel.app/**`. Pour un usage en équipe, configurer un SMTP (lien magique, confirmation d'e-mail).
+- **Supabase** (projet `unvedfxxiasjpbtamsdd`, eu-west-1) : migrations de `supabase/migrations/` appliquées dans l'ordre (jamais de modification manuelle du schéma) ; catalogue public chargé depuis `supabase/seed/charts.sql`. Auth : Site URL `https://levagegame.vercel.app`, Redirect URLs `https://levagegame.vercel.app/**`. Pour un usage en équipe, configurer un SMTP (confirmation d'e-mail).
 
 ## Avertissement réglementaire
 

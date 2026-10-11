@@ -1,12 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
-import { LogIn, Mail, UserPlus } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 
-import { connexion, inscription, lienMagique } from "@/actions/auth";
+import { connexion, inscription } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { EtatForm } from "@/lib/account/result";
 
@@ -25,7 +24,6 @@ export function LoginForm({
 }) {
   const [etatCo, actionCo, enCoursCo] = useActionState(connexion, VIDE);
   const [etatIns, actionIns, enCoursIns] = useActionState(inscription, VIDE);
-  const [etatLien, actionLien, enCoursLien] = useActionState(lienMagique, VIDE);
 
   return (
     <Card className="w-full">
@@ -36,7 +34,7 @@ export function LoginForm({
       <CardContent className="flex flex-col gap-4">
         {erreurLien && (
           <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight px-3 py-2 text-sm text-vinci-rouge-dark">
-            Ce lien de connexion est invalide ou a expiré. Demandez-en un nouveau.
+            Ce lien est invalide ou a expiré.
           </p>
         )}
         <Tabs defaultValue={ongletInitial}>
@@ -49,7 +47,7 @@ export function LoginForm({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="connexion" className="flex flex-col gap-4">
+          <TabsContent value="connexion">
             <form action={actionCo} className="flex flex-col gap-4" aria-label="Connexion">
               <input type="hidden" name="suivant" value={suivant} />
               <ChampForm label="Adresse e-mail" name="email" type="email" autoComplete="email" required />
@@ -58,25 +56,6 @@ export function LoginForm({
               <Button type="submit" size="lg" disabled={enCoursCo}>
                 <LogIn />
                 {enCoursCo ? "Connexion…" : "Se connecter"}
-              </Button>
-            </form>
-
-            <Separator />
-
-            <form action={actionLien} className="flex flex-col gap-4" aria-label="Lien magique">
-              <input type="hidden" name="suivant" value={suivant} />
-              <ChampForm
-                label="Connexion sans mot de passe"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                hint="Saisissez votre adresse : vous recevrez un lien de connexion à usage unique."
-              />
-              <RetourForm etat={etatLien} />
-              <Button type="submit" size="lg" variant="outline" disabled={enCoursLien}>
-                <Mail />
-                {enCoursLien ? "Envoi…" : "Recevoir un lien de connexion"}
               </Button>
             </form>
           </TabsContent>
