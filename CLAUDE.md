@@ -6,7 +6,7 @@ Mode invité complet + comptes. Chaque utilisateur ne voit que ses données ; ca
 
 Références : `docs/CAHIER-DES-CHARGES.md` (besoin) · `docs/ARCHITECTURE.md` (architecture, schéma) · `docs/PLAN.md` (avancement) · `docs/DECISIONS.md` · `docs/ORCHESTRATION.md` (économie de tokens, sous-agents).
 
-> Statut : architecture **en attente de validation** — ne pas écrire de code applicatif avant.
+> Statut : architecture validée — voir docs/PLAN.md.
 
 ## Stack (proposée, voir DECISIONS)
 ```

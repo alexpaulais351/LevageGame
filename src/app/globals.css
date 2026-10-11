@@ -1,0 +1,89 @@
+@import "../styles/vinci-fonts.css";
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+/* Charte VINCI — valeurs miroir de src/lib/design-tokens.ts */
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #004489;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0f0;
+  --secondary-foreground: #003370;
+  --muted: #f0f0f0;
+  --muted-foreground: #b5aba1;
+  --accent: #e20025;
+  --accent-foreground: #ffffff;
+  --destructive: #e20025;
+  --destructive-foreground: #ffffff;
+  --border: #dcdcdc;
+  --input: #dcdcdc;
+  --ring: #0056b3;
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-light: #0056b3;
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-danger: #e20025;
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-vinci-bleu: #004489;
+  --color-vinci-bleu-dark: #003370;
+  --color-vinci-bleu-light: #0056b3;
+  --color-vinci-bleu-xlight: #e5eff8;
+  --color-vinci-rouge: #e20025;
+  --color-vinci-rouge-dark: #b8001e;
+  --color-vinci-rouge-xlight: #fdeaed;
+  --color-vinci-gris: #b5aba1;
+  --color-vinci-gris-light: #f0f0f0;
+  --color-vinci-border: #dcdcdc;
+
+  --color-verdict-vert: #7aa536;
+  --color-verdict-vert-bg: #e8efda;
+  --color-verdict-jaune: #f2ab1b;
+  --color-verdict-jaune-bg: #fff7d1;
+  --color-verdict-rouge: #e20025;
+  --color-verdict-rouge-bg: #fdeaed;
+
+  --font-sans: "VINCI Sans", Arial, Helvetica, sans-serif;
+  --font-condensed: "VINCI Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-serif: "VINCI Serif", Georgia, serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+}
