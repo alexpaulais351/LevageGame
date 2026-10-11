@@ -1,0 +1,65 @@
+{
+  "manufacturer": "Grove",
+  "type_code": "grue_mobile",
+  "model": "GMK3060L",
+  "specs": {
+    "capacite_max_t": 60,
+    "fleche_principale_m": "9,6 - 48,0",
+    "fleche_fleche_m": "8,7 - 15",
+    "hauteur_max_pointe_fleche_m": 51,
+    "contrepoids_max_t": 13.5
+  },
+  "source": {
+    "document_title": "GMK3060L Product Guide 60 t 48 m 8,7 - 15 m 65 m (édition métrique, EN 13000)",
+    "reference": "sha256:621f544c5bdf793443b26c37056c813547f8f4ef0663f4f2bdddb2edfa82bfde",
+    "edition": null,
+    "url": "https://www.manitowoc.com/media/14859/download",
+    "publisher": "Manitowoc Cranes (constructeur Grove), fiche « GMK3060L Metric » sur manitowoc.com",
+    "page_refs": "p. 9 : diagramme de levage, renvoi « * En arrière avec équipement supplémentaire » ; p. 10 : flèche télescopique, 360°, calage 6,2 m, contrepoids 13,5 t ; p. 11 : même tableau, 12,5 t ; p. 27 : « Les capacités de levage sont conformes à la norme EN 13000:2010 », capacités en tonnes, capacité = charge utile + crochet et élingage, flèche principale valable fléchette démontée"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw12-5t",
+      "label": "Flèche principale 9,6-48,0 m, calage 6,2 m, 360°, contrepoids 12,5 t",
+      "params": {
+        "contrepoids_t": 12.5,
+        "base_calage_m": 6.2,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw12-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau « Telescopic boom » p. 11 du document, 14 colonnes de longueur de flèche (9,55 à 48,0 m), 27 lignes de portée (3,0 à 42,0 m), toutes saisies ; cellules vides = vides dans le tableau. Capacité = charge utile + poids du crochet et du dispositif d'élingage (doc. p. 27) : moufle non déduite, masse non documentée (hook_block_mass_kg = null). Valable fléchette démontée (p. 27). Mouflage et conditions de vent non indiqués sur la page. Valeurs non monotones (capacité qui remonte quand la flèche s'allonge à certaines portées) reproduites telles quelles, présentes dans le tableau imprimé. Relecture avancée : diff intégral page 11, 378 cellules (dont cellules vides, en-têtes de flèche et portées), 0 écart (extraction pdfplumber par coordonnées de mots + pdftotext -layout + lecture visuelle du rendu PNG 150 dpi)."
+      }
+    },
+    {
+      "slug": "fleche-principale-360-cw13-5t",
+      "label": "Flèche principale 9,6-48,0 m, calage 6,2 m, 360°, contrepoids 13,5 t",
+      "params": {
+        "contrepoids_t": 13.5,
+        "base_calage_m": 6.2,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw13-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau « Telescopic boom » p. 10 du document (360°, calage 6,2 m, 13,5 t). Saisies : les 14 colonnes 9,55 à 48,0 m et les 27 lignes de portée 3,0 à 42,0 m ; cellules vides = vides dans le tableau. EXCLUES (non 360°) : la colonne « 9,55(0°) » et la ligne « 2,4/3,0* » (dont l'unique valeur « 55,0/60,0* » est dans cette colonne). Motif : dans ce document « 0° » désigne une position d'orientation (pictogramme d'orientation « 0° » du tableau p. 15 bas), et le diagramme p. 9 renvoie la valeur 60,0* sur 9,55 m à « * En arrière avec équipement supplémentaire » ; p. 27 : capacités > 49,6 t / > 55 t exigent un équipement supplémentaire / spécial. Le bandeau « 360° » de l'en-tête couvre aussi cette colonne, mais il est générique (présent aussi sur le tableau 0° p. 15). Capacité = charge utile + crochet et élingage (p. 27) : moufle non déduite, masse non documentée. Valable fléchette démontée. Mouflage et vent non indiqués. Valeurs non monotones reproduites telles qu'imprimées (ex. ligne 36 m, colonne 36,9 m). Relecture avancée : diff intégral page 10, 378 cellules (dont cellules vides, en-têtes de flèche et portées), 0 écart entre pdfplumber (coordonnées de mots), pdftotext -layout et lecture visuelle du rendu PNG 150 dpi."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}
