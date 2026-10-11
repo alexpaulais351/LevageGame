@@ -8,6 +8,7 @@ import {
   etudeCreationSchema,
   etudeRenommerSchema,
   idEntiteSchema,
+  nouvelleAdequationSchema,
   premiereErreur,
   projetRefSchema,
 } from "@/lib/account/schemas";
@@ -20,7 +21,7 @@ import {
   projetAutorise,
   reglagesUtilisateur,
 } from "@/lib/supabase/domain";
-import { contexteUtilisateur, type Contexte } from "@/lib/supabase/session";
+import { ACCES_REFUSE, contexteApprouve, type Contexte } from "@/lib/supabase/session";
 import type { StudyData } from "@/lib/study/types";
 
 export interface EtudeResume {
@@ -32,11 +33,11 @@ export interface EtudeResume {
   majLe: string;
 }
 
-const CONNEXION = "Connexion requise.";
+const CONNEXION = ACCES_REFUSE;
 const INTROUVABLE = "Étude introuvable.";
 
 export async function listerEtudes(input: unknown): Promise<ActionResult<EtudeResume[]>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = projetRefSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -99,7 +100,7 @@ async function creerEtudeAvecVersion(
 }
 
 export async function creerEtude(input: unknown): Promise<ActionResult<{ id: string }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = etudeCreationSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -110,8 +111,45 @@ export async function creerEtude(input: unknown): Promise<ActionResult<{ id: str
   return creerEtudeAvecVersion(ctx, projet.id, p.data.titre, data);
 }
 
+/**
+ * Nouvelle adéquation (page /outil) : projet existant ou créé à la volée, puis étude + version A.
+ * En cas d'échec de l'étude, le projet tout juste créé est supprimé.
+ */
+export async function nouvelleAdequation(input: unknown): Promise<ActionResult<{ projetId: string; etudeId: string }>> {
+  const ctx = await contexteApprouve();
+  if (!ctx) return echec(CONNEXION);
+  const p = nouvelleAdequationSchema.safeParse(input);
+  if (!p.success) return echec(premiereErreur(p.error));
+  const { supabase, user } = ctx;
+
+  let projet: { id: string; name: string; site_address: string | null } | null;
+  let projetCree = false;
+  if (p.data.projetId) {
+    projet = await projetAutorise(supabase, user.id, p.data.projetId);
+    if (!projet) return echec("Projet introuvable.");
+  } else {
+    const { data, error } = await supabase
+      .from("projects")
+      .insert({ owner_id: user.id, name: p.data.nouveauProjet })
+      .select("id,name,site_address")
+      .single();
+    if (error || !data) return echec("La création du projet a échoué.");
+    projet = { id: data.id as string, name: data.name as string, site_address: data.site_address as string | null };
+    projetCree = true;
+  }
+
+  const reglages = await reglagesUtilisateur(supabase, user.id);
+  const data = donneesInitiales({ projet: projet.name, lieu: projet.site_address, redacteur: reglages.nom, seuils: reglages.seuils });
+  const r = await creerEtudeAvecVersion(ctx, projet.id, p.data.titre, data);
+  if (!r.ok) {
+    if (projetCree) await supabase.from("projects").delete().eq("id", projet.id).eq("owner_id", user.id);
+    return r;
+  }
+  return ok({ projetId: projet.id, etudeId: r.data.id });
+}
+
 export async function renommerEtude(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = etudeRenommerSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -126,7 +164,7 @@ export async function renommerEtude(input: unknown): Promise<ActionResult> {
 
 /** Duplique l'étude dans le même projet : nouvelle référence, version A = copie de la version courante. */
 export async function dupliquerEtude(input: unknown): Promise<ActionResult<{ id: string }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = idEntiteSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -138,7 +176,7 @@ export async function dupliquerEtude(input: unknown): Promise<ActionResult<{ id:
 }
 
 export async function supprimerEtude(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = idEntiteSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));

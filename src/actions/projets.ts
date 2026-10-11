@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { echec, ok, type ActionResult } from "@/lib/account/result";
 import { idEntiteSchema, premiereErreur, projetCreationSchema, projetRenommerSchema } from "@/lib/account/schemas";
 import { projetAutorise } from "@/lib/supabase/domain";
-import { contexteUtilisateur } from "@/lib/supabase/session";
+import { ACCES_REFUSE, contexteApprouve } from "@/lib/supabase/session";
 
 export interface ProjetResume {
   id: string;
@@ -16,10 +16,10 @@ export interface ProjetResume {
   majLe: string;
 }
 
-const CONNEXION = "Connexion requise.";
+const CONNEXION = ACCES_REFUSE;
 
 export async function listerProjets(): Promise<ActionResult<ProjetResume[]>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const { data, error } = await ctx.supabase
     .from("projects")
@@ -40,7 +40,7 @@ export async function listerProjets(): Promise<ActionResult<ProjetResume[]>> {
 }
 
 export async function creerProjet(input: unknown): Promise<ActionResult<{ id: string }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = projetCreationSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -55,7 +55,7 @@ export async function creerProjet(input: unknown): Promise<ActionResult<{ id: st
 }
 
 export async function renommerProjet(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = projetRenommerSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -69,7 +69,7 @@ export async function renommerProjet(input: unknown): Promise<ActionResult> {
 
 /** Supprime le projet, ses études et leurs versions (cascade en base). */
 export async function supprimerProjet(input: unknown): Promise<ActionResult> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = idEntiteSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));

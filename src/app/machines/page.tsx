@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { LogIn, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { CarteMachine } from "@/components/modules/machines/CarteMachine";
 import { Button } from "@/components/ui/button";
 import { listerMachines, type MachineResume } from "@/lib/machines/queries";
-import { supabaseConfigure } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
-import { contexteUtilisateur } from "@/lib/supabase/session";
+import { exigerUtilisateur } from "@/lib/supabase/session";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Machines — Adéquation levage" };
@@ -35,31 +33,26 @@ function parType(machines: MachineResume[]): [string, MachineResume[]][] {
 
 export default async function PageMachines({ searchParams }: { searchParams: Promise<{ vue?: string }> }) {
   const { vue } = await searchParams;
-  const ctx = await contexteUtilisateur();
   const mes = vue === "mes";
+  const ctx = await exigerUtilisateur(mes ? "/machines?vue=mes" : "/machines");
   let machines: MachineResume[] = [];
   let erreur: string | null = null;
-  if (supabaseConfigure() && (!mes || ctx)) {
-    try {
-      const supabase = ctx?.supabase ?? (await createClient());
-      machines = await listerMachines(supabase, mes ? "mine" : "public", ctx?.user.id);
-    } catch (e) {
-      erreur = e instanceof Error ? e.message : "Erreur inconnue";
-    }
+  try {
+    machines = await listerMachines(ctx.supabase, mes ? "mine" : "public", ctx.user.id);
+  } catch (e) {
+    erreur = e instanceof Error ? e.message : "Erreur inconnue";
   }
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-primary">Machines</h1>
-        {ctx && (
-          <Button asChild size="lg">
-            <Link href="/machines/nouvelle">
-              <Plus />
-              Ajouter ma machine
-            </Link>
-          </Button>
-        )}
+        <Button asChild size="lg">
+          <Link href="/machines/nouvelle">
+            <Plus />
+            Ajouter ma machine
+          </Link>
+        </Button>
       </div>
 
       <nav aria-label="Origine des machines" className="flex gap-1 border-b border-border">
@@ -71,31 +64,13 @@ export default async function PageMachines({ searchParams }: { searchParams: Pro
         </Onglet>
       </nav>
 
-      {!supabaseConfigure() && (
-        <p role="status" className="rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm">
-          Supabase n&apos;est pas configuré : le catalogue n&apos;est pas disponible dans cet environnement.
-        </p>
-      )}
       {erreur && (
         <p role="alert" className="text-vinci-rouge-dark">
           Catalogue indisponible : {erreur}
         </p>
       )}
 
-      {mes && !ctx ? (
-        <div role="status" className="flex flex-col items-start gap-3 rounded-md border border-border p-5">
-          <p>
-            Connectez-vous pour ajouter vos propres machines, saisir ou importer leur abaque (CSV) et joindre le PDF constructeur. En mode invité, seul le catalogue public est disponible.
-          </p>
-          <Button asChild>
-            <Link href="/login?next=%2Fmachines%3Fvue%3Dmes">
-              <LogIn />
-              Se connecter
-            </Link>
-          </Button>
-        </div>
-      ) : (
-        <>
+      <>
           <p className="text-sm text-foreground/80">
             {mes
               ? "Vos machines, visibles de vous seul. Un abaque saisi par vos soins reste « à vérifier » tant que vous n'avez pas contrôlé chaque valeur contre le document constructeur."
@@ -115,8 +90,7 @@ export default async function PageMachines({ searchParams }: { searchParams: Pro
               </section>
             ))
           )}
-        </>
-      )}
+      </>
     </div>
   );
 }

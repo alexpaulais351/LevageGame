@@ -18,7 +18,6 @@ export const MENTION_PERMANENTE =
   "Outil d'aide à la rédaction. L'adéquation doit être validée par une personne compétente, sur la base de la documentation constructeur de la machine réellement présente sur le chantier.";
 export const CADRE_REGLEMENTAIRE = "Examen d'adéquation : arrêté du 1er mars 2004 ; Code du travail, art. R.4323-22 et suivants.";
 export const CADRE_COURT = "Arrêté du 1er mars 2004 · Code du travail R.4323-22 s.";
-export const MENTION_INVITE = "Document non enregistré";
 export const LIBELLE_ABAQUE_A_VERIFIER = "ABAQUE À VÉRIFIER";
 export const SIGNATAIRES = ["Rédacteur", "Chef de manœuvre", "Conducteur", "Responsable chantier"] as const;
 
@@ -42,18 +41,17 @@ const TYPE_ACCESSOIRE: Record<AccessoireSaisie["type"], string> = {
   autre: "Autre",
 };
 
-/** Informations hors étude : référence/indice, rédacteur (profil), entreprise/logo (compte), mode invité. */
+/** Informations hors étude : référence/indice, rédacteur (profil), entreprise/logo (compte). */
 export interface PdfMeta {
   reference?: string;
   indice?: string;
   /** Rédacteur du profil ; repli si le champ « Rédacteur » de l'étude est vide. */
   redacteur?: string;
   entreprise?: string;
-  /** URL ou data-URI du logo entreprise ; rien en mode invité. */
+  /** URL ou data-URI du logo entreprise, si l'entreprise en a un. */
   logoUrl?: string | null;
   /** Data-URI de la photo de la machine personnelle sélectionnée (section Machine), si présente. */
   machinePhotoUrl?: string | null;
-  invite: boolean;
   /** Date de génération (injectée : fonction pure). */
   genereLe: Date;
 }
@@ -115,7 +113,6 @@ export interface PdfModel {
     entreprise: string;
     logoUrl: string | null;
   };
-  invite: boolean;
   mentionPermanente: string;
   cadre: string;
   cadreCourt: string;
@@ -391,7 +388,6 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
       entreprise: (meta.entreprise ?? "").trim(),
       logoUrl: meta.logoUrl ?? null,
     },
-    invite: meta.invite,
     mentionPermanente: MENTION_PERMANENTE,
     cadre: CADRE_REGLEMENTAIRE,
     cadreCourt: CADRE_COURT,

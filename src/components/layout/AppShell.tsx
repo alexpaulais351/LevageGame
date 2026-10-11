@@ -11,6 +11,19 @@ import { Topbar } from "./Topbar";
 export function AppShell({ children, utilisateur }: { children: React.ReactNode; utilisateur: Utilisateur | null }) {
   const [menuOuvert, setMenuOuvert] = useState(false);
 
+  // Non connecté ou compte non approuvé : ni navigation ni accès aux pages de l'outil.
+  if (!utilisateur || utilisateur.statut !== "approuve") {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <header className="flex h-14 shrink-0 items-center bg-vinci-bleu px-4 text-white">
+          <span className="text-base font-bold tracking-wide">ADÉQUATION LEVAGE</span>
+        </header>
+        <Disclaimer />
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar open={menuOuvert} onClose={() => setMenuOuvert(false)} utilisateur={utilisateur} />

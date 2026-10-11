@@ -16,16 +16,14 @@ import { MachineVignette } from "../../visuals/SilhouetteSvg";
 import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
 import { ChoixSourceMachines, type SourceMachines } from "../ChoixSourceMachines";
-import { useConnecte } from "../use-connecte";
 
 export function StepMachine() {
-  const connecte = useConnecte();
   const m = useStudy((s) => s.data.machine);
   const patch = useStudy((s) => s.patch);
   const err = useErreurs("machine");
   const sel = m.selection;
   const [source, setSource] = useState<SourceMachines>(sel?.personnelle ? "mine" : "public");
-  const provider = (source === "mine" && getMesMachinesProvider()) || getCatalogProvider();
+  const provider = source === "mine" ? getMesMachinesProvider() : getCatalogProvider();
 
   const [typeId, setTypeId] = useState(sel?.typeId ?? "");
   const [manufId, setManufId] = useState(sel?.manufacturerId ?? "");
@@ -114,7 +112,7 @@ export function StepMachine() {
       titre="Moyen de levage"
       description="Type, constructeur, modèle puis configuration : l'abaque de la configuration est lu tel que publié, sans extrapolation."
     >
-      {connecte && <ChoixSourceMachines valeur={source} onChange={surSource} nom="étape Moyen de levage" />}
+      <ChoixSourceMachines valeur={source} onChange={surSource} nom="étape Moyen de levage" />
       {types.erreur && (
         <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight p-3 text-sm">
           Catalogue indisponible : {types.erreur}
@@ -127,7 +125,6 @@ export function StepMachine() {
             <p className="font-semibold">{MESSAGE_CATALOGUE_VIDE}.</p>
             <p className="mt-1">
               Sans abaque, aucune capacité ne peut être lue : le verdict reste « non adéquat » (donnée manquante).
-              {provider.kind === "statique" && " Supabase n'est pas configuré : catalogue statique de repli utilisé."}
             </p>
           </div>
         </div>

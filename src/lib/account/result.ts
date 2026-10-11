@@ -19,9 +19,21 @@ export interface EtatForm {
   message?: string;
 }
 
-/** Chemin interne sûr pour une redirection (`next`) : relatif, sans `//` ni schéma. */
+/**
+ * Chemin interne sûr pour une redirection (`suivant`) : relatif à l'application, jamais vers un autre
+ * domaine (pas de `//`, de `\\`, de schéma, ni de caractère de contrôle ou d'espace que le navigateur
+ * supprimerait pour reformer `//hôte`).
+ */
 export function cheminInterne(valeur: unknown, defaut = "/projets"): string {
-  if (typeof valeur !== "string") return defaut;
+  if (typeof valeur !== "string" || valeur.length > 2000) return defaut;
   if (!valeur.startsWith("/") || valeur.startsWith("//") || valeur.includes("\\")) return defaut;
-  return valeur;
+  if (/[\u0000-\u0020\u007f]/.test(valeur)) return defaut;
+  const base = "http://interne.invalid";
+  try {
+    const u = new URL(valeur, base);
+    if (u.origin !== base) return defaut;
+    return u.pathname + u.search + u.hash;
+  } catch {
+    return defaut;
+  }
 }

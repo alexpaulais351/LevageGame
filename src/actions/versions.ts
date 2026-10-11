@@ -7,7 +7,7 @@ import { echec, ok, type ActionResult } from "@/lib/account/result";
 import { etudeRefSchema, premiereErreur, versionEnregistrerSchema, versionRefSchema } from "@/lib/account/schemas";
 import { donneesDepuisVersion, verdictDepuisResultat } from "@/lib/account/version";
 import { etudeAutorisee, insererVersion } from "@/lib/supabase/domain";
-import { contexteUtilisateur } from "@/lib/supabase/session";
+import { ACCES_REFUSE, contexteApprouve } from "@/lib/supabase/session";
 import type { StudyData } from "@/lib/study/types";
 
 export interface VersionResume {
@@ -19,7 +19,7 @@ export interface VersionResume {
   auteurMoi: boolean;
 }
 
-const CONNEXION = "Connexion requise.";
+const CONNEXION = ACCES_REFUSE;
 const INTROUVABLE = "Étude introuvable.";
 
 function revalider(projetId: string, etudeId: string) {
@@ -29,7 +29,7 @@ function revalider(projetId: string, etudeId: string) {
 
 /** Enregistre l'état du store comme nouvelle version immuable (indice A, B, C…) et la rend courante. */
 export async function enregistrerVersion(input: unknown): Promise<ActionResult<{ index: number; indice: string }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = versionEnregistrerSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -43,7 +43,7 @@ export async function enregistrerVersion(input: unknown): Promise<ActionResult<{
 
 /** Historique des versions, de la plus récente à la plus ancienne. */
 export async function listerVersions(input: unknown): Promise<ActionResult<VersionResume[]>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = etudeRefSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -72,7 +72,7 @@ export async function listerVersions(input: unknown): Promise<ActionResult<Versi
 
 /** Données d'une version, prêtes à être chargées dans le store (lecture seule : rien n'est modifié). */
 export async function ouvrirVersion(input: unknown): Promise<ActionResult<{ index: number; indice: string; data: StudyData }>> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const p = versionRefSchema.safeParse(input);
   if (!p.success) return echec(premiereErreur(p.error));
@@ -92,7 +92,7 @@ export async function ouvrirVersion(input: unknown): Promise<ActionResult<{ inde
 export async function restaurerVersion(input: unknown): Promise<ActionResult<{ index: number; indice: string }>> {
   const ouverte = await ouvrirVersion(input);
   if (!ouverte.ok) return ouverte;
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return echec(CONNEXION);
   const { etudeId } = versionRefSchema.parse(input);
   const etude = await etudeAutorisee(ctx.supabase, ctx.user.id, etudeId);

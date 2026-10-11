@@ -2,13 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FolderOpen, LogOut, PlusCircle, Truck, X, type LucideIcon } from "lucide-react";
+import { FolderOpen, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
 
 import { deconnexion } from "@/actions/auth";
 import type { Utilisateur } from "@/lib/supabase/session";
 import { cn } from "@/lib/utils";
 
-const LIENS: { href: string; label: string; icon: LucideIcon }[] = [
+interface Lien {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  badge?: number;
+}
+
+const LIENS: Lien[] = [
   { href: "/outil", label: "Nouvelle adéquation", icon: PlusCircle },
   { href: "/projets", label: "Projets", icon: FolderOpen },
   { href: "/machines", label: "Machines", icon: Truck },
@@ -22,6 +29,9 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
   const pathname = usePathname();
+  const liens: Lien[] = utilisateur?.estAdmin
+    ? [...LIENS, { href: "/admin/comptes", label: "Comptes", icon: UsersRound, badge: utilisateur.demandesEnAttente }]
+    : LIENS;
 
   return (
     <>
@@ -54,7 +64,7 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
           </button>
         </div>
         <nav className="flex-1 py-3" aria-label="Navigation principale">
-          {LIENS.map(({ href, label, icon: Icon }) => {
+          {liens.map(({ href, label, icon: Icon, badge }) => {
             const actif = pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
@@ -71,6 +81,15 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
               >
                 <Icon className="size-4 shrink-0" aria-hidden />
                 {label}
+                {badge ? (
+                  <span
+                    className="ml-auto rounded-full bg-vinci-rouge px-2 py-0.5 text-xs font-bold text-white"
+                    aria-label={`${badge} demande${badge > 1 ? "s" : ""} en attente`}
+                    data-testid="badge-demandes"
+                  >
+                    {badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}

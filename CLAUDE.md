@@ -2,7 +2,7 @@
 
 Application web de création et de vérification d'**adéquations de levage** (BTP, France).
 Utilisateurs : directeurs/conducteurs de travaux, chefs de chantier, chefs de manœuvre — PC et tablette en chantier.
-Mode invité complet + comptes. Chaque utilisateur ne voit que ses données ; catalogue machines public en lecture seule.
+Accès sur compte uniquement (pas de mode invité). Toute création de compte est **validée par l'administrateur** avant le moindre accès (statut `en_attente` → `approuve` / `refuse` / `suspendu`). Chaque utilisateur ne voit que ses données ; catalogue machines public en lecture seule pour les comptes approuvés.
 
 Références : `docs/CAHIER-DES-CHARGES.md` (besoin) · `docs/ARCHITECTURE.md` (architecture, schéma) · `docs/PLAN.md` (avancement) · `docs/DECISIONS.md` · `docs/ORCHESTRATION.md` (économie de tokens, sous-agents).
 
@@ -14,7 +14,7 @@ Next.js App Router · TypeScript strict · Tailwind + shadcn/ui · lucide-react
 Supabase : Postgres + RLS, Auth (mdp + lien magique), Storage — via supabase-js / @supabase/ssr
 Mutations : Server Actions + Zod · State : Zustand · Server state : TanStack Query v5
 PDF : @react-pdf/renderer (côté client) · Tests : Vitest · CI : GitHub Actions · Hébergement : Vercel
-Invité : IndexedDB (idb-keyval) — jamais localStorage/sessionStorage
+Étude en cours d'édition : store Zustand en mémoire ; persistance = versions en base. Jamais localStorage/sessionStorage
 ```
 Interdits : Prisma (contourne la RLS) · API Routes custom (sauf callback Auth) · localStorage · WebSocket · Redis · tRPC.
 
@@ -36,14 +36,21 @@ Polices : VINCI Sans / Sans Condensed / Serif — `public/fonts/` + `src/styles/
 8. Mention permanente (app + PDF) : outil d'aide à la rédaction ; validation par une personne compétente sur la doc de la machine réellement présente.
 9. Cadre : arrêté du 1er mars 2004, Code du travail R.4323-22 s., CACES R482/R483/R487/R489/R490.
 
+## Comptes et accès (D25)
+- Pas de mode invité ni d'accès `anon` (aucune lecture, catalogue compris). Routes publiques : `/login`, `/auth/callback` ; connecté non approuvé → `/compte-en-attente`.
+- Toute policy RLS d'accès aux données est combinée à `private.est_approuve()` (policies RESTRICTIVES) ; toute Server Action passe par `contexteApprouve()` / `contexteAdmin()` (`src/lib/supabase/session.ts`).
+- `statut` / `est_admin` / `statut_modifie_*` jamais modifiables par l'utilisateur (trigger de garde). Admin : RPC `admin_lister_comptes`, `admin_definir_statut` ; pages `/admin/comptes[/<id>]`.
+- Désignation de l'admin hors application : `select private.designer_admin('<email>');` (postgres / service_role).
+- Notification e-mail de l'admin : Edge Function `notifier-inscription` (voir `docs/DEPLOIEMENT-EMAILS.md`).
+
 ## Structure
 ```
 src/engine/        moteur de calcul PUR (aucun import React/Supabase) + __tests__
-src/app/           (public) · (auth) · (app)/projets/… · (app)/machines
+src/app/           login · auth/callback · compte-en-attente · outil · projets/… · machines/… · admin/comptes
 src/components/    ui (shadcn CLI only) · layout · modules/{wizard,visuals,pdf}
 src/lib/           supabase/ · design-tokens.ts · utils.ts (formatNombreFR…) · pdf/
 src/actions/ src/stores/ src/types/
-supabase/migrations/   supabase/seed/charts/*.csv + *.source.json
+supabase/migrations/   supabase/functions/   supabase/seed/charts/*.csv + *.source.json
 scripts/import-chart.ts
 ```
 

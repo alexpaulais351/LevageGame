@@ -40,3 +40,7 @@ enable_signup = true
 enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
+
+# Edge Function appelée par le trigger profiles_notifier_inscription (secret partagé, pas de JWT).
+[functions.notifier-inscription]
+verify_jwt = false

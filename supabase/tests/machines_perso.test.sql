@@ -9,6 +9,9 @@ select plan(19);
 insert into auth.users (id, email, aud, role) values
   ('aaaaaaaa-0000-0000-0000-0000000000a1', 'a8@test.local', 'authenticated', 'authenticated'),
   ('bbbbbbbb-0000-0000-0000-0000000000b2', 'b8@test.local', 'authenticated', 'authenticated');
+-- Comptes validés explicitement par l'administrateur (sinon aucun accès, cf. comptes_admin.test.sql).
+update profiles set statut = 'approuve'
+ where id in ('aaaaaaaa-0000-0000-0000-0000000000a1', 'bbbbbbbb-0000-0000-0000-0000000000b2');
 insert into machines (id, type_id, manufacturer_id, model, owner_id) values
   ('44444444-0000-0000-0000-0000000000f0',
    (select id from machine_types where code = 'grue_mobile'),

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, RotateCcw, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 
 import { enregistrerVersion } from "@/actions/versions";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,8 @@ import { computeStudy } from "@/lib/study/compute";
 import { ETAPES } from "@/lib/study/schemas";
 import { thresholds } from "@/lib/study/mapping";
 import type { StudyData } from "@/lib/study/types";
-import { setPersistanceInvite, useStudy } from "@/stores/study";
+import { useStudy } from "@/stores/study";
 
-import { BrouillonInvite } from "../account/BrouillonInvite";
 import { RestaurerVersion } from "../account/RestaurerVersion";
 import { ExportPdfButton, PdfMetaContext } from "../pdf/ExportPdfButton";
 import { ETAPES_VISUELS, VisualsPanel } from "../visuals/VisualsPanel";
@@ -48,63 +47,34 @@ export interface EtudeContexte {
 }
 
 interface WizardProps {
-  etude?: EtudeContexte;
-  /** Utilisateur connecté sur /outil : propose l'enregistrement dans un projet. */
-  connecte?: boolean;
-  /** Seuils du compte, appliqués à une étude vierge. */
-  seuilsCompte?: { vert: number; orange: number } | null;
+  /** Étude d'un projet : toute adéquation appartient à un projet (pas de mode invité). */
+  etude: EtudeContexte;
 }
 
-export function Wizard({ etude, connecte = false, seuilsCompte = null }: WizardProps) {
+export function Wizard({ etude }: WizardProps) {
   const [hydrate, setHydrate] = useState(false);
   const [baseline, setBaseline] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [erreurSave, setErreurSave] = useState<string | null>(null);
   const [enregistrement, demarrerSave] = useTransition();
   // Recharger le store uniquement quand l'étude (ou la version lue) change, pas après un enregistrement.
-  const cleChargement = etude ? `${etude.etudeId}:${etude.lectureSeule ? etude.versionIndex : "edition"}` : null;
+  const cleChargement = `${etude.etudeId}:${etude.lectureSeule ? etude.versionIndex : "edition"}`;
   const data = useStudy((s) => s.data);
   const etape = useStudy((s) => s.etape);
   const setEtape = useStudy((s) => s.setEtape);
-  const reinitialiser = useStudy((s) => s.reinitialiser);
-  const [confirmer, setConfirmer] = useState(false);
   const [toutesErreurs, setToutesErreurs] = useState(false);
 
-  // Étude de projet : chargement dans le store, brouillon invité (IndexedDB) laissé intact.
+  // Chargement de la version dans le store (en mémoire), à chaque changement d'étude ou de version lue.
   useEffect(() => {
-    if (!etude) return;
-    setPersistanceInvite(false);
     useStudy.getState().charger(etude.data);
     setBaseline(jsonStable(useStudy.getState().data));
     setMessage(null);
     setHydrate(true);
-    return () => setPersistanceInvite(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cleChargement]);
 
-  // Hydratation IndexedDB côté client uniquement (mode invité).
-  useEffect(() => {
-    if (etude) return;
-    let actif = true;
-    Promise.resolve(useStudy.persist.rehydrate())
-      .catch(() => undefined)
-      .finally(() => {
-        if (!actif) return;
-        // Étude vierge d'un utilisateur connecté : ses seuils par défaut s'appliquent.
-        const { majLe, data: d } = useStudy.getState();
-        if (seuilsCompte && majLe === null && (d.seuils.vertPct !== seuilsCompte.vert || d.seuils.orangePct !== seuilsCompte.orange)) {
-          useStudy.getState().appliquerSeuilsCompte(seuilsCompte.vert, seuilsCompte.orange);
-        }
-        setHydrate(true);
-      });
-    return () => {
-      actif = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const modifie = useMemo(
-    () => Boolean(etude && !etude.lectureSeule && baseline !== null && jsonStable(data) !== baseline),
+    () => Boolean(!etude.lectureSeule && baseline !== null && jsonStable(data) !== baseline),
     [etude, baseline, data],
   );
 
@@ -121,7 +91,7 @@ export function Wizard({ etude, connecte = false, seuilsCompte = null }: WizardP
       setErreurSave(null);
       setMessage(null);
       const instantane = useStudy.getState().data;
-      const r = await enregistrerVersion({ etudeId: etude!.etudeId, data: instantane });
+      const r = await enregistrerVersion({ etudeId: etude.etudeId, data: instantane });
       if (!r.ok) return setErreurSave(r.error);
       setBaseline(jsonStable(instantane));
       setMessage(`Version ${r.data.indice} enregistrée.`);
@@ -169,52 +139,39 @@ export function Wizard({ etude, connecte = false, seuilsCompte = null }: WizardP
     <StepSynthese key="8" result={result} />,
   ][etape];
 
-  const metaPdf = etude
-    ? {
-        reference: etude.reference ?? undefined,
-        indice: indiceDepuisNumero(etude.versionIndex),
-        redacteur: etude.pdf.redacteur,
-        entreprise: etude.pdf.entreprise,
-        logoUrl: etude.pdf.logoUrl,
-      }
-    : undefined;
+  const metaPdf = {
+    reference: etude.reference ?? undefined,
+    indice: indiceDepuisNumero(etude.versionIndex),
+    redacteur: etude.pdf.redacteur,
+    entreprise: etude.pdf.entreprise,
+    logoUrl: etude.pdf.logoUrl,
+  };
 
   return (
     <PdfMetaContext.Provider value={metaPdf}>
     <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:gap-6">
       <div className="flex min-w-0 flex-col gap-4 pb-4">
         <header className="flex flex-wrap items-start justify-between gap-3">
-          {etude ? (
-            <div className="min-w-64 flex-1">
-              <Link href={`/projets/${etude.projetId}`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                <ChevronLeft className="size-4" aria-hidden /> {etude.projetNom}
-              </Link>
-              <h1 className="break-words text-2xl font-bold text-primary">{etude.titre}</h1>
-              <p className="text-sm text-foreground/70">
-                {etude.reference ?? "Sans référence"} · indice {indiceDepuisNumero(etude.versionIndex)}
-                {etude.lectureSeule ? " (lecture seule)" : ` · version courante ${indiceDepuisNumero(etude.versionCouranteIndex)}`}
-                {modifie && <strong className="ml-2 text-vinci-rouge-dark">Modifications non enregistrées</strong>}
-              </p>
-            </div>
-          ) : (
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Nouvelle adéquation</h1>
-              <p className="text-sm text-foreground/70">
-                {connecte
-                  ? "Étude en cours conservée dans ce navigateur (non enregistrée dans un projet)."
-                  : "Mode invité — étude conservée dans ce navigateur (non enregistrée)."}
-              </p>
-            </div>
-          )}
+          <div className="min-w-64 flex-1">
+            <Link href={`/projets/${etude.projetId}`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+              <ChevronLeft className="size-4" aria-hidden /> {etude.projetNom}
+            </Link>
+            <h1 className="break-words text-2xl font-bold text-primary">{etude.titre}</h1>
+            <p className="text-sm text-foreground/70">
+              {etude.reference ?? "Sans référence"} · indice {indiceDepuisNumero(etude.versionIndex)}
+              {etude.lectureSeule ? " (lecture seule)" : ` · version courante ${indiceDepuisNumero(etude.versionCouranteIndex)}`}
+              {modifie && <strong className="ml-2 text-vinci-rouge-dark">Modifications non enregistrées</strong>}
+            </p>
+          </div>
           <div className="flex flex-wrap items-start gap-2">
           <ExportPdfButton variant="outline" />
-          {etude && !etude.lectureSeule && (
+          {!etude.lectureSeule && (
             <Button type="button" size="lg" onClick={enregistrer} disabled={enregistrement} aria-busy={enregistrement}>
               <Save />
               {enregistrement ? "Enregistrement…" : "Enregistrer une version"}
             </Button>
           )}
-          {etude?.lectureSeule && (
+          {etude.lectureSeule && (
             <>
               <RestaurerVersion etudeId={etude.etudeId} projetId={etude.projetId} index={etude.versionIndex} />
               <Button asChild variant="outline" size="lg">
@@ -222,31 +179,6 @@ export function Wizard({ etude, connecte = false, seuilsCompte = null }: WizardP
               </Button>
             </>
           )}
-          {!etude && (confirmer ? (
-            <div role="alertdialog" aria-label="Confirmer la nouvelle adéquation" className="flex flex-wrap items-center gap-2 rounded-md border border-vinci-rouge bg-vinci-rouge-xlight p-2 text-sm">
-              <span>Effacer l&apos;étude en cours ?</span>
-              <Button
-                type="button"
-                variant="destructive"
-                size="lg"
-                onClick={() => {
-                  reinitialiser();
-                  setConfirmer(false);
-                  setToutesErreurs(false);
-                }}
-              >
-                Confirmer
-              </Button>
-              <Button type="button" variant="outline" size="lg" onClick={() => setConfirmer(false)}>
-                Annuler
-              </Button>
-            </div>
-          ) : (
-            <Button type="button" variant="outline" size="lg" onClick={() => setConfirmer(true)}>
-              <RotateCcw />
-              Nouvelle adéquation
-            </Button>
-          ))}
           </div>
         </header>
         {(message || erreurSave) && (
@@ -257,24 +189,23 @@ export function Wizard({ etude, connecte = false, seuilsCompte = null }: WizardP
             {erreurSave ?? message}
           </p>
         )}
-        {etude?.lectureSeule && (
+        {etude.lectureSeule && (
           <p role="note" className="rounded-md border border-verdict-jaune bg-verdict-jaune-bg px-3 py-2 text-sm text-vinci-bleu-dark">
             Version {indiceDepuisNumero(etude.versionIndex)} ouverte en lecture seule. Pour la reprendre, utilisez « Restaurer cette
             version » : elle deviendra une nouvelle version, l&apos;historique n&apos;est jamais modifié.
           </p>
         )}
-        {!etude && connecte && <BrouillonInvite source="store" variante="bouton" />}
 
         <Stepper courante={etape} completude={result.completude} onSelect={aller} />
 
         {ETAPES_VISUELS.includes(etape) && (
-          <div className={etude?.lectureSeule ? "pointer-events-none" : undefined}>
+          <div className={etude.lectureSeule ? "pointer-events-none" : undefined}>
             <VisualsPanel result={result} seuils={seuils} />
           </div>
         )}
 
         <fieldset
-          disabled={etude?.lectureSeule}
+          disabled={etude.lectureSeule}
           className="m-0 min-w-0 border-0 p-0 [&_input:disabled]:bg-vinci-gris-light [&_input:disabled]:opacity-100 [&_select:disabled]:bg-vinci-gris-light [&_select:disabled]:opacity-100 [&_textarea:disabled]:bg-vinci-gris-light [&_textarea:disabled]:opacity-100"
         >
           <AfficherErreursContext.Provider value={toutesErreurs}>{corps}</AfficherErreursContext.Provider>

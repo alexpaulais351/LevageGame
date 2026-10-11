@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const next = cheminInterne(searchParams.get("next"));
+  const suivant = cheminInterne(searchParams.get("suivant") ?? searchParams.get("next"));
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
     const { error } = code
       ? await supabase.auth.exchangeCodeForSession(code)
       : await supabase.auth.verifyOtp({ type: type!, token_hash: tokenHash! });
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    // Compte non approuvé : le middleware le redirige ensuite vers /compte-en-attente.
+    if (!error) return NextResponse.redirect(`${origin}${suivant}`);
   }
   return NextResponse.redirect(`${origin}/login?erreur=lien`);
 }

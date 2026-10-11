@@ -19,9 +19,12 @@ async function urlSite(): Promise<string> {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
-function lienCallback(site: string, next: string): string {
-  return `${site}/auth/callback?next=${encodeURIComponent(next)}`;
+function lienCallback(site: string, suivant: string): string {
+  return `${site}/auth/callback?suivant=${encodeURIComponent(suivant)}`;
 }
+
+/** Page d'attente affichée tant que l'administrateur n'a pas validé le compte. */
+const PAGE_ATTENTE = "/compte-en-attente";
 
 function messageAuth(message: string): string {
   const m = message.toLowerCase();
@@ -41,32 +44,44 @@ export async function connexion(_prev: EtatForm, formData: FormData): Promise<Et
   const { error } = await supabase.auth.signInWithPassword({ email: p.data.email, password: p.data.motDePasse });
   if (error) return { error: messageAuth(error.message) };
   revalidatePath("/", "layout");
-  redirect(cheminInterne(formData.get("next")));
+  // Le middleware renvoie vers /compte-en-attente si le compte n'est pas (encore) approuvé.
+  redirect(cheminInterne(formData.get("suivant")));
 }
 
+/**
+ * Création de compte : le compte naît `en_attente` (base) et n'accède à rien tant que
+ * l'administrateur ne l'a pas accepté.
+ */
 export async function inscription(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
   if (!supabaseConfigure()) return NON_CONFIGURE;
   const p = inscriptionSchema.safeParse({
     nom: formData.get("nom"),
+    entreprise: formData.get("entreprise"),
     email: formData.get("email"),
     motDePasse: formData.get("motDePasse"),
+    confirmation: formData.get("confirmation"),
   });
   if (!p.success) return { error: premiereErreur(p.error) };
-  const next = cheminInterne(formData.get("next"));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: p.data.email,
     password: p.data.motDePasse,
-    options: { data: { full_name: p.data.nom }, emailRedirectTo: lienCallback(await urlSite(), next) },
+    options: {
+      data: { full_name: p.data.nom, entreprise: p.data.entreprise },
+      emailRedirectTo: lienCallback(await urlSite(), PAGE_ATTENTE),
+    },
   });
   if (error) return { error: messageAuth(error.message) };
   // Adresse déjà inscrite : GoTrue renvoie un utilisateur sans identité (anti-énumération).
   if (data.user && data.user.identities?.length === 0) return { error: "Un compte existe déjà avec cette adresse e-mail." };
   if (data.session) {
     revalidatePath("/", "layout");
-    redirect(next);
+    redirect(`${PAGE_ATTENTE}?nouveau=1`);
   }
-  return { message: "Compte créé. Un e-mail de confirmation vient d'être envoyé : cliquez sur le lien pour activer votre compte." };
+  return {
+    message:
+      "Votre demande a été transmise à l'administrateur. Confirmez d'abord votre adresse e-mail via le lien reçu ; l'accès sera ouvert après validation.",
+  };
 }
 
 export async function lienMagique(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
@@ -76,7 +91,8 @@ export async function lienMagique(_prev: EtatForm, formData: FormData): Promise<
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email: p.data.email,
-    options: { emailRedirectTo: lienCallback(await urlSite(), cheminInterne(formData.get("next"))) },
+    // Un nouvel inscrit par lien magique reste en attente de validation (statut par défaut en base).
+    options: { emailRedirectTo: lienCallback(await urlSite(), cheminInterne(formData.get("suivant"))) },
   });
   if (error) return { error: messageAuth(error.message) };
   return { message: "Si cette adresse est valide, un lien de connexion vient de vous être envoyé." };
@@ -88,5 +104,5 @@ export async function deconnexion(): Promise<void> {
     await supabase.auth.signOut();
   }
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/login");
 }

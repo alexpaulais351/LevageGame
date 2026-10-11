@@ -12,9 +12,7 @@ import { Card } from "@/components/ui/card";
 import { idSchema } from "@/lib/account/schemas";
 import type { LoadChart } from "@/engine";
 import { lireAbaques, lireMachine } from "@/lib/machines/queries";
-import { supabaseConfigure } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
-import { contexteUtilisateur } from "@/lib/supabase/session";
+import { exigerUtilisateur } from "@/lib/supabase/session";
 import { formatMasse, formatNombreFR } from "@/lib/utils";
 
 export const metadata = { title: "Fiche machine — Adéquation levage" };
@@ -50,12 +48,12 @@ function TableauValeurs({ chart }: { chart: LoadChart }) {
 
 export default async function PageFicheMachine({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!idSchema.safeParse(id).success || !supabaseConfigure()) notFound();
-  const ctx = await contexteUtilisateur();
-  const supabase = ctx?.supabase ?? (await createClient());
+  const ctx = await exigerUtilisateur(`/machines/${encodeURIComponent(id)}`);
+  if (!idSchema.safeParse(id).success) notFound();
+  const { supabase } = ctx;
   const m = await lireMachine(supabase, id);
   if (!m) notFound();
-  const proprietaire = m.perso && ctx !== null; // la RLS ne renvoie une machine personnelle qu'à son propriétaire
+  const proprietaire = m.perso; // la RLS ne renvoie une machine personnelle qu'à son propriétaire
   const abaques = await lireAbaques(supabase, m.configurations.map((c) => c.id));
 
   // Lien (URL signée) vers le PDF constructeur joint — bucket privé, propriétaire uniquement.

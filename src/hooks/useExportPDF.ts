@@ -59,10 +59,10 @@ export interface UseExportPDF {
   erreur: string | null;
 }
 
-export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indice" | "redacteur" | "entreprise" | "logoUrl" | "invite">> = {}): UseExportPDF {
+export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indice" | "redacteur" | "entreprise" | "logoUrl">> = {}): UseExportPDF {
   const etatEnCours = useSyncExternalStore(abonner, () => enCours, () => false);
   const etatErreur = useSyncExternalStore(abonner, () => erreur, () => null);
-  const { reference, indice, redacteur, entreprise, logoUrl, invite = true } = options;
+  const { reference, indice, redacteur, entreprise, logoUrl } = options;
 
   const exporter = useCallback(async () => {
     if (enCours) return;
@@ -74,7 +74,7 @@ export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indic
       const maintenant = new Date();
       const sel = data.machine.selection;
       const machinePhotoUrl = sel?.personnelle ? await photoMachine(sel.photoPath) : null;
-      const model = buildPdfModel(data, computeStudy(data), { reference, indice, redacteur, entreprise, logoUrl, machinePhotoUrl, invite, genereLe: maintenant });
+      const model = buildPdfModel(data, computeStudy(data), { reference, indice, redacteur, entreprise, logoUrl, machinePhotoUrl, genereLe: maintenant });
       const { genererFichePdf } = await import("@/lib/pdf/generate");
       const blob = await genererFichePdf(model);
       telecharger(blob, nomFichierPdf({ reference, projet: data.operation.projet, date: maintenant }));
@@ -84,7 +84,7 @@ export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indic
       enCours = false;
       notifier();
     }
-  }, [reference, indice, redacteur, entreprise, logoUrl, invite]);
+  }, [reference, indice, redacteur, entreprise, logoUrl]);
 
   return { exporter, enCours: etatEnCours, erreur: etatErreur };
 }

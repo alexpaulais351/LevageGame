@@ -9,11 +9,13 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 1 | Schéma + migrations + RLS | ✅ 46 tests pgTAP (`npx supabase test db`) |
 | 2 | Moteur de calcul + tests | ✅ 553 tests, couverture 99,8 % |
 | 3 | Abaques MVP (grues mobiles, télescopiques, pelles) | 🟡 3 machines saisies et relues, en ligne, `a_verifier` (GMK3060L, LTM 1060-3.1, Cat 323) ; manquantes : voir docs/ABAQUES.md |
-| 4 | Assistant 9 étapes, mode invité | ✅ /outil, IndexedDB, résultat temps réel |
+| 4 | Assistant 9 étapes (mode invité retiré en 10) | ✅ /outil, IndexedDB, résultat temps réel |
 | 5 | Visuels interactifs + comparateur | ✅ courbe en escalier, élévation (crochet déplaçable), plan, comparateur |
 | 6 | Export PDF | ✅ fiche A4 côté client (police VINCI Sans via TTF convertis) |
 | 7 | Comptes, projets, versions | ✅ auth @supabase/ssr, projets/études/versions (Server Actions + Zod), reprise du brouillon invité, profil/logo/seuils |
 | 8 | Machines perso + import CSV | ✅ /machines (catalogue + Mes machines), CSV/grille, PDF constructeur, vérification ; migration 0500 (suppression de compte) |
 | 9 | Déploiement Vercel | ✅ production = `main` (protégée : PR + CI verte), preview par PR, site https://levagegame.vercel.app |
+
+| 10 | Comptes obligatoires validés par l'administrateur | ✅ mode invité supprimé, /login (connexion + création), /compte-en-attente, /admin/comptes, e-mail de notification (Resend, Edge Function) ; migration 0600 |
 
 **Prochaine tâche** : contrôle humain des abaques et ajout des machines manquantes (docs/ABAQUES.md) ; SMTP Supabase pour le lien magique.

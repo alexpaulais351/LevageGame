@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogIn, Menu, UserRound } from "lucide-react";
+import { Menu, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { Utilisateur } from "@/lib/supabase/session";
@@ -25,19 +25,14 @@ export function Topbar({ onMenuClick, utilisateur }: TopbarProps) {
         </Button>
         <span className="text-sm font-semibold text-primary lg:hidden">ADÉQUATION LEVAGE</span>
       </div>
-      <Button asChild variant="outline" size="sm">
-        {utilisateur ? (
+      {utilisateur && (
+        <Button asChild variant="outline" size="sm">
           <Link href="/profil">
             <UserRound />
             Profil
           </Link>
-        ) : (
-          <Link href="/login">
-            <LogIn />
-            Connexion
-          </Link>
-        )}
-      </Button>
+        </Button>
+      )}
     </header>
   );
 }

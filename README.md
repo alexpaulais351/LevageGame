@@ -1,6 +1,6 @@
 # Adéquation de levage
 
-Application web d'aide à la rédaction des **adéquations de levage** (BTP, France) : choix de la machine, charge, lecture d'abaque constructeur, taux d'utilisation, verdict (ADÉQUAT / ADÉQUAT AVEC RÉSERVES / NON ADÉQUAT) et export PDF. Mode invité (données locales dans IndexedDB) et comptes (Supabase).
+Application web d'aide à la rédaction des **adéquations de levage** (BTP, France) : choix de la machine, charge, lecture d'abaque constructeur, taux d'utilisation, verdict (ADÉQUAT / ADÉQUAT AVEC RÉSERVES / NON ADÉQUAT) et export PDF. Accès sur compte (Supabase) uniquement, chaque compte étant validé par l'administrateur.
 
 Documentation : `CLAUDE.md`, `docs/CAHIER-DES-CHARGES.md`, `docs/ARCHITECTURE.md`, `docs/PLAN.md`, `docs/DECISIONS.md`.
 

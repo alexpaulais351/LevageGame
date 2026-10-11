@@ -6,6 +6,7 @@ import { LogIn, Mail, UserPlus } from "lucide-react";
 import { connexion, inscription, lienMagique } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { EtatForm } from "@/lib/account/result";
 
@@ -13,18 +14,24 @@ import { ChampForm, RetourForm } from "./form-bits";
 
 const VIDE: EtatForm = {};
 
-export function LoginForm({ next, erreurLien }: { next: string; erreurLien: boolean }) {
+export function LoginForm({
+  suivant,
+  erreurLien,
+  ongletInitial = "connexion",
+}: {
+  suivant: string;
+  erreurLien: boolean;
+  ongletInitial?: "connexion" | "inscription";
+}) {
   const [etatCo, actionCo, enCoursCo] = useActionState(connexion, VIDE);
   const [etatIns, actionIns, enCoursIns] = useActionState(inscription, VIDE);
   const [etatLien, actionLien, enCoursLien] = useActionState(lienMagique, VIDE);
 
   return (
-    <Card className="mx-auto w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-primary">Compte</CardTitle>
-        <CardDescription>
-          Connectez-vous pour enregistrer vos adéquations dans des projets. Le mode invité reste disponible sans compte.
-        </CardDescription>
+        <CardDescription>Connectez-vous, ou créez un compte : votre demande sera transmise à l&apos;administrateur.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {erreurLien && (
@@ -32,16 +39,19 @@ export function LoginForm({ next, erreurLien }: { next: string; erreurLien: bool
             Ce lien de connexion est invalide ou a expiré. Demandez-en un nouveau.
           </p>
         )}
-        <Tabs defaultValue="connexion">
-          <TabsList className="grid h-auto w-full grid-cols-3">
-            <TabsTrigger value="connexion" className="min-h-10">Connexion</TabsTrigger>
-            <TabsTrigger value="inscription" className="min-h-10">Inscription</TabsTrigger>
-            <TabsTrigger value="lien" className="min-h-10">Lien magique</TabsTrigger>
+        <Tabs defaultValue={ongletInitial}>
+          <TabsList className="grid h-auto w-full grid-cols-2">
+            <TabsTrigger value="connexion" className="min-h-10">
+              Connexion
+            </TabsTrigger>
+            <TabsTrigger value="inscription" className="min-h-10">
+              Créer un compte
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="connexion">
+          <TabsContent value="connexion" className="flex flex-col gap-4">
             <form action={actionCo} className="flex flex-col gap-4" aria-label="Connexion">
-              <input type="hidden" name="next" value={next} />
+              <input type="hidden" name="suivant" value={suivant} />
               <ChampForm label="Adresse e-mail" name="email" type="email" autoComplete="email" required />
               <ChampForm label="Mot de passe" name="motDePasse" type="password" autoComplete="current-password" required />
               <RetourForm etat={etatCo} />
@@ -50,12 +60,31 @@ export function LoginForm({ next, erreurLien }: { next: string; erreurLien: bool
                 {enCoursCo ? "Connexion…" : "Se connecter"}
               </Button>
             </form>
+
+            <Separator />
+
+            <form action={actionLien} className="flex flex-col gap-4" aria-label="Lien magique">
+              <input type="hidden" name="suivant" value={suivant} />
+              <ChampForm
+                label="Connexion sans mot de passe"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                hint="Saisissez votre adresse : vous recevrez un lien de connexion à usage unique."
+              />
+              <RetourForm etat={etatLien} />
+              <Button type="submit" size="lg" variant="outline" disabled={enCoursLien}>
+                <Mail />
+                {enCoursLien ? "Envoi…" : "Recevoir un lien de connexion"}
+              </Button>
+            </form>
           </TabsContent>
 
           <TabsContent value="inscription">
-            <form action={actionIns} className="flex flex-col gap-4" aria-label="Inscription">
-              <input type="hidden" name="next" value={next} />
+            <form action={actionIns} className="flex flex-col gap-4" aria-label="Créer un compte">
               <ChampForm label="Nom complet" name="nom" autoComplete="name" required />
+              <ChampForm label="Entreprise" name="entreprise" autoComplete="organization" required />
               <ChampForm label="Adresse e-mail" name="email" type="email" autoComplete="email" required />
               <ChampForm
                 label="Mot de passe"
@@ -66,29 +95,21 @@ export function LoginForm({ next, erreurLien }: { next: string; erreurLien: bool
                 minLength={8}
                 hint="8 caractères minimum."
               />
+              <ChampForm
+                label="Confirmation du mot de passe"
+                name="confirmation"
+                type="password"
+                autoComplete="new-password"
+                required
+                minLength={8}
+              />
+              <p className="text-xs text-foreground/70">
+                Votre compte sera actif après validation par l&apos;administrateur. Aucune donnée n&apos;est accessible avant.
+              </p>
               <RetourForm etat={etatIns} />
               <Button type="submit" size="lg" disabled={enCoursIns}>
                 <UserPlus />
-                {enCoursIns ? "Création…" : "Créer mon compte"}
-              </Button>
-            </form>
-          </TabsContent>
-
-          <TabsContent value="lien">
-            <form action={actionLien} className="flex flex-col gap-4" aria-label="Lien magique">
-              <input type="hidden" name="next" value={next} />
-              <ChampForm
-                label="Adresse e-mail"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                hint="Vous recevrez un lien de connexion à usage unique, sans mot de passe."
-              />
-              <RetourForm etat={etatLien} />
-              <Button type="submit" size="lg" disabled={enCoursLien}>
-                <Mail />
-                {enCoursLien ? "Envoi…" : "Recevoir le lien"}
+                {enCoursIns ? "Envoi de la demande…" : "Demander la création du compte"}
               </Button>
             </form>
           </TabsContent>

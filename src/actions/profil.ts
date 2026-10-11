@@ -11,9 +11,9 @@ import {
   profilSchema,
   seuilsUtilisateurSchema,
 } from "@/lib/account/schemas";
-import { contexteUtilisateur } from "@/lib/supabase/session";
+import { ACCES_REFUSE, contexteApprouve } from "@/lib/supabase/session";
 
-const NON_CONNECTE: EtatForm = { error: "Connexion requise." };
+const NON_CONNECTE: EtatForm = { error: ACCES_REFUSE };
 const ECHEC: EtatForm = { error: "L'enregistrement a échoué. Réessayez." };
 
 function refresh() {
@@ -23,7 +23,7 @@ function refresh() {
 
 /** Nom, fonction et téléphone du rédacteur (ligne profiles de l'utilisateur uniquement). */
 export async function majProfil(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return NON_CONNECTE;
   const p = profilSchema.safeParse({
     nom: formData.get("nom"),
@@ -42,7 +42,7 @@ export async function majProfil(_prev: EtatForm, formData: FormData): Promise<Et
 
 /** Entreprise (nom, adresse) et logo, rangé dans user-files/<uid>/logo.<ext>. */
 export async function majEntreprise(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return NON_CONNECTE;
   const { supabase, user } = ctx;
   const p = entrepriseSchema.safeParse({ nom: formData.get("nom"), adresse: formData.get("adresse") ?? undefined });
@@ -107,7 +107,7 @@ export async function majEntreprise(_prev: EtatForm, formData: FormData): Promis
 
 /** Seuils du verdict (vert / orange, en %) appliqués aux nouvelles études. */
 export async function majSeuils(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
-  const ctx = await contexteUtilisateur();
+  const ctx = await contexteApprouve();
   if (!ctx) return NON_CONNECTE;
   const nombre = (k: string) => {
     const v = String(formData.get(k) ?? "").replace(",", ".").trim();
