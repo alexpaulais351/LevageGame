@@ -1,0 +1,61 @@
+# CLAUDE.md — Adéquation de levage (LevageGame)
+
+Application web de création et de vérification d'**adéquations de levage** (BTP, France).
+Utilisateurs : directeurs/conducteurs de travaux, chefs de chantier, chefs de manœuvre — PC et tablette en chantier.
+Mode invité complet + comptes. Chaque utilisateur ne voit que ses données ; catalogue machines public en lecture seule.
+
+Références : `docs/CAHIER-DES-CHARGES.md` (besoin) · `docs/ARCHITECTURE.md` (architecture, schéma) · `docs/PLAN.md` (avancement) · `docs/DECISIONS.md` · `docs/ORCHESTRATION.md` (économie de tokens, sous-agents).
+
+> Statut : architecture **en attente de validation** — ne pas écrire de code applicatif avant.
+
+## Stack (proposée, voir DECISIONS)
+```
+Next.js App Router · TypeScript strict · Tailwind + shadcn/ui · lucide-react
+Supabase : Postgres + RLS, Auth (mdp + lien magique), Storage — via supabase-js / @supabase/ssr
+Mutations : Server Actions + Zod · State : Zustand · Server state : TanStack Query v5
+PDF : @react-pdf/renderer (côté client) · Tests : Vitest · CI : GitHub Actions · Hébergement : Vercel
+Invité : IndexedDB (idb-keyval) — jamais localStorage/sessionStorage
+```
+Interdits : Prisma (contourne la RLS) · API Routes custom (sauf callback Auth) · localStorage · WebSocket · Redis · tRPC.
+
+## Charte VINCI
+Reprise du modèle Conduc Rail : couleurs uniquement depuis `src/lib/design-tokens.ts` (`VINCI`, `VINCI_PDF`).
+Primaire #004489 · foncé #003370 · rouge #E20025 · gris #B5ABA1 / #F0F0F0 / #DCDCDC.
+Verdict : vert #7AA536 · jaune #F2AB1B · rouge #E20025. Jamais de couleur hors palette.
+Tables : en-tête #004489 blanc gras, lignes alternées blanc/#F0F0F0. PDF : bande #004489, pied #003370.
+Police : VINCI Sans si fournie (`public/fonts/`), sinon Arial.
+
+## Règles métier incontournables
+1. **Aucune valeur d'abaque inventée ni extrapolée.** Toute donnée vient d'une doc constructeur, avec source, norme, date, statut `a_verifier`/`verifie`.
+2. Lecture d'abaque : hors tableau → NON ADÉQUAT. Entre deux nœuds → valeur la plus défavorable, sauf `interpolation_allowed` explicite.
+3. Abaque `a_verifier` → signalé à l'écran et sur le PDF.
+4. Charge totale = charge + accessoires + moufle/crochet (+ fléchette repliée).
+5. Taux = charge totale / capacité, position la plus défavorable. Seuils paramétrables (défaut 80 / 100 %).
+6. Verdict : ADÉQUAT / ADÉQUAT AVEC RÉSERVES / NON ADÉQUAT + points bloquants.
+7. Tout calcul affiche formule, valeurs, source.
+8. Mention permanente (app + PDF) : outil d'aide à la rédaction ; validation par une personne compétente sur la doc de la machine réellement présente.
+9. Cadre : arrêté du 1er mars 2004, Code du travail R.4323-22 s., CACES R482/R483/R487/R489/R490.
+
+## Structure
+```
+src/engine/        moteur de calcul PUR (aucun import React/Supabase) + __tests__
+src/app/           (public) · (auth) · (app)/projets/… · (app)/machines
+src/components/    ui (shadcn CLI only) · layout · modules/{wizard,visuals,pdf}
+src/lib/           supabase/ · design-tokens.ts · utils.ts (formatNombreFR…) · pdf/
+src/actions/ src/stores/ src/types/
+supabase/migrations/   supabase/seed/charts/*.csv + *.source.json
+scripts/import-chart.ts
+```
+
+## Commandes (à confirmer étape 0)
+```
+npm run dev | build | lint | typecheck | test
+supabase start | supabase db reset | supabase gen types typescript --local > src/types/db.ts
+```
+
+## Conventions
+- Interface et libellés en français ; nombres via `formatNombreFR`, jamais `toLocaleString`.
+- Unités internes : kg, m, kN, kPa ; affichage en t si ≥ 1000 kg.
+- Migrations SQL versionnées uniquement, jamais de modif manuelle en prod.
+- Export PDF via `useExportPDF` uniquement.
+- Branche `main` protégée, travail par PR.
