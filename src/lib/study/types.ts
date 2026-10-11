@@ -56,6 +56,10 @@ export interface MachineSelection {
   chart: LoadChart | null;
   /** Emprise des stabilisateurs (paramètres de configuration), absente tant que le catalogue ne la fournit pas. */
   calage?: CalageDimensions | null;
+  /** Machine personnelle de l'utilisateur (hors catalogue public). */
+  personnelle?: boolean;
+  /** Photo de la machine réelle (user-files/<uid>/machines/<id>/photo.*), jointe au PDF si présente. */
+  photoPath?: string | null;
 }
 
 export type ModeAppui = "stabilisateurs" | "chenilles" | "non_applicable";

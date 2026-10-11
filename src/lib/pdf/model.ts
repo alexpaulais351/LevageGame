@@ -51,6 +51,8 @@ export interface PdfMeta {
   entreprise?: string;
   /** URL ou data-URI du logo entreprise ; rien en mode invité. */
   logoUrl?: string | null;
+  /** Data-URI de la photo de la machine personnelle sélectionnée (section Machine), si présente. */
+  machinePhotoUrl?: string | null;
   invite: boolean;
   /** Date de génération (injectée : fonction pure). */
   genereLe: Date;
@@ -133,7 +135,7 @@ export interface PdfModel {
   operation: { champs: Champ[]; description: string; intervenants: string };
   charge: { champs: Champ[] };
   accessoires: { champs: Champ[]; lignes: AccessoireLigne[]; calc: CalcBloc };
-  machine: { champs: Champ[]; chargeTotale: Champ[]; abaque: AbaqueModel | null };
+  machine: { champs: Champ[]; chargeTotale: Champ[]; abaque: AbaqueModel | null; photoUrl: string | null; personnelle: boolean };
   schemas: Schema[];
   calculs: CalcBloc[];
   taux: { tauxMax: number | null; tauxTexte: string; zone: Zone | null; seuilVert: number; seuilOrange: number; lignes: TauxLigne[] };
@@ -453,6 +455,8 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
         ["Charge totale", chargeTotale === null ? "non calculable" : masse(chargeTotale)],
       ),
       abaque,
+      photoUrl: sel?.personnelle ? (meta.machinePhotoUrl ?? null) : null,
+      personnelle: Boolean(sel?.personnelle),
     },
     schemas: construireSchemas(data, result, seuils),
     calculs,

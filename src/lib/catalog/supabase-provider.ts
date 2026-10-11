@@ -21,6 +21,13 @@ export interface ChartRow {
   points: { x: number | string; y: number | string; capacity_kg: number | string | null }[];
 }
 
+/** Emprise des stabilisateurs saisie sur une machine personnelle (`specs.calage`), sinon `null`. */
+export function calageDepuisSpecs(specs: unknown): { longueurM: number; largeurM: number } | null {
+  const c = (specs && typeof specs === "object" ? (specs as { calage?: unknown }).calage : null) as { longueurM?: unknown; largeurM?: unknown } | null;
+  const ok = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v > 0;
+  return c && ok(c.longueurM) && ok(c.largeurM) ? { longueurM: c.longueurM, largeurM: c.largeurM } : null;
+}
+
 /** Convertit une ligne Supabase en abaque du moteur (y = 0 ⇒ null quand l'abaque n'a pas d'axe Y). */
 export function mapChartRow(row: ChartRow): LoadChart {
   const points: ChartPoint[] = row.points
@@ -48,8 +55,17 @@ export function mapChartRow(row: ChartRow): LoadChart {
   };
 }
 
-/** Lecture seule du catalogue public avec la clé anon (RLS : owner_id IS NULL). */
-export function createSupabaseProvider(): CatalogProvider {
+/**
+ * `public` : catalogue public (owner_id IS NULL), lisible par l'invité (clé anon).
+ * `mine`   : machines personnelles ; la RLS ne renvoie que celles de l'utilisateur connecté (rien pour un invité).
+ */
+export type PorteeCatalogue = "public" | "mine";
+
+/** Lecture seule du catalogue (RLS : le client porte la session éventuelle). */
+export function createSupabaseProvider(portee: PorteeCatalogue = "public"): CatalogProvider {
+  const mine = portee === "mine";
+  const proprietaire = <Q extends { is: (c: string, v: null) => Q; not: (c: string, o: string, v: null) => Q }>(q: Q): Q =>
+    mine ? q.not("owner_id", "is", null) : q.is("owner_id", null);
   let client: ReturnType<typeof createClient> | null = null;
   const db = () => (client ??= createClient());
   const ou = <T>(r: { data: T | null; error: { message: string } | null }): T => {
@@ -60,16 +76,23 @@ export function createSupabaseProvider(): CatalogProvider {
   return {
     kind: "supabase",
     async listTypes() {
+      if (mine) {
+        const rows = ou(await proprietaire(db().from("machines").select("type:machine_types(id, code, label)"))) as unknown as {
+          type: CatalogType | CatalogType[] | null;
+        }[];
+        const uniques = new Map<string, CatalogType>();
+        for (const r of rows) {
+          const t = Array.isArray(r.type) ? r.type[0] : r.type;
+          if (t) uniques.set(t.id, t);
+        }
+        return [...uniques.values()].sort((a, b) => a.label.localeCompare(b.label, "fr"));
+      }
       const rows = ou(await db().from("machine_types").select("id, code, label").order("label"));
       return (rows as CatalogType[]) ?? [];
     },
     async listManufacturers(typeId) {
       const rows = ou(
-        await db()
-          .from("machines")
-          .select("manufacturer:manufacturers(id, name)")
-          .eq("type_id", typeId)
-          .is("owner_id", null),
+        await proprietaire(db().from("machines").select("manufacturer:manufacturers(id, name)").eq("type_id", typeId)),
       ) as unknown as { manufacturer: CatalogManufacturer | CatalogManufacturer[] | null }[];
       const uniques = new Map<string, CatalogManufacturer>();
       for (const r of rows) {
@@ -80,19 +103,27 @@ export function createSupabaseProvider(): CatalogProvider {
     },
     async listModels(typeId, manufacturerId) {
       const rows = ou(
-        await db()
-          .from("machines")
-          .select("id, type_id, manufacturer_id, model")
-          .eq("type_id", typeId)
-          .eq("manufacturer_id", manufacturerId)
-          .is("owner_id", null)
-          .order("model"),
-      ) as { id: string; type_id: string; manufacturer_id: string; model: string }[];
+        await proprietaire(
+          db().from("machines").select("id, type_id, manufacturer_id, model, specs").eq("type_id", typeId).eq("manufacturer_id", manufacturerId),
+        ).order("model"),
+      ) as { id: string; type_id: string; manufacturer_id: string; model: string; specs: unknown }[];
+      const photos = new Map<string, string>();
+      if (mine && rows.length) {
+        const pj = ou(
+          await db()
+            .from("attachments")
+            .select("machine_id, file_path")
+            .eq("kind", "photo")
+            .in("machine_id", rows.map((r) => r.id)),
+        ) as { machine_id: string; file_path: string }[];
+        for (const a of pj) photos.set(a.machine_id, a.file_path);
+      }
       return rows.map<CatalogModel>((r) => ({
         id: r.id,
         typeId: r.type_id,
         manufacturerId: r.manufacturer_id,
         model: r.model,
+        ...(mine ? { calage: calageDepuisSpecs(r.specs), photoPath: photos.get(r.id) ?? null } : {}),
       }));
     },
     async listConfigurations(machineId) {

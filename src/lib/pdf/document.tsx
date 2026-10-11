@@ -398,6 +398,13 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
         <Section s={s} titre="4. Machine et configuration" rompre>
           {m.abaqueAVerifier && <AlerteAbaque s={s} />}
           <Champs s={s} items={m.machine.champs} />
+          {m.machine.photoUrl && (
+            <View style={{ marginTop: 4, marginBottom: 2 }} wrap={false}>
+              <PhotoMachine src={m.machine.photoUrl} />
+              <Text style={s.muted}>Photo de la machine réelle (fournie par l&apos;utilisateur) — indicative.</Text>
+            </View>
+          )}
+          {m.machine.personnelle && <Text style={s.muted}>Machine personnelle de l&apos;utilisateur (hors catalogue public) : données saisies par l&apos;utilisateur d&apos;après le document constructeur joint.</Text>}
           <Text style={s.sousTitre}>Charge totale</Text>
           <Champs s={s} items={m.machine.chargeTotale} />
           {a ? (
@@ -523,6 +530,11 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
       </Page>
     </Document>
   );
+}
+
+function PhotoMachine({ src }: { src: string }) {
+  // eslint-disable-next-line jsx-a11y/alt-text -- <Image> de @react-pdf (PDF), pas un <img> HTML
+  return <Image src={src} style={{ width: 150, height: 112, objectFit: "contain", borderWidth: 0.5, borderColor: "#DCDCDC" }} />;
 }
 
 function Logo({ s, src }: { s: Styles; src: string }) {

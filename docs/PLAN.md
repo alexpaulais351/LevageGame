@@ -13,7 +13,7 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 5 | Visuels interactifs + comparateur | ✅ courbe en escalier, élévation (crochet déplaçable), plan, comparateur |
 | 6 | Export PDF | ✅ fiche A4 côté client (Helvetica, polices VINCI à convertir en TTF) |
 | 7 | Comptes, projets, versions | ✅ auth @supabase/ssr, projets/études/versions (Server Actions + Zod), reprise du brouillon invité, profil/logo/seuils |
-| 8 | Machines perso + import CSV | à faire |
+| 8 | Machines perso + import CSV | ✅ /machines (catalogue + Mes machines), CSV/grille, PDF constructeur, vérification ; migration 0500 (suppression de compte) |
 | 9 | Déploiement Vercel | à faire |
 
 **Prochaine tâche** : validation des arbitrages (`DECISIONS.md` D1–D4), puis étape 0.

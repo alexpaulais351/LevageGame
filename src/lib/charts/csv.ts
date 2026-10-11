@@ -1,4 +1,4 @@
-import type { ChartAxisY, ChartPoint } from "../../src/engine/types";
+import type { ChartAxisY, ChartPoint } from "../../engine/types";
 
 export const CSV_HEADER = "radius_m,y,capacity";
 

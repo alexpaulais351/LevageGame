@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
-import { validateChart } from "../../src/engine/chart";
 import type { LoadChart } from "../../src/engine/types";
-import { parseChartCsv } from "./csv";
-import { machineSchema, type ConfigurationFile, type MachineFile } from "./schema";
+import { parseChartCsv } from "../../src/lib/charts/csv";
+import { analyserAbaque } from "../../src/lib/charts/validate";
+import { machineSchema, type ConfigurationFile, type MachineFile } from "../../src/lib/charts/schema";
 
 export const CHARTS_DIR = path.resolve(__dirname, "../../data/charts");
 export const SEED_FILE = path.resolve(__dirname, "../../supabase/seed.sql");
@@ -41,8 +41,6 @@ export function readSeedRefs(file = SEED_FILE): SeedRefs | null {
   for (const s of (t?.[0] ?? "").matchAll(/^\s*\('([a-z][a-z0-9_]*)'\s*,/gm)) typeCodes.add(s[1]);
   return { manufacturers, typeCodes };
 }
-
-const decimals = (v: number) => (Number.isInteger(v) ? 0 : (String(v).split(".")[1] ?? "").length);
 
 export function loadMachineDir(dirPath: string, refs: SeedRefs | null = readSeedRefs()): MachineReport {
   const dir = path.basename(dirPath);
@@ -90,30 +88,22 @@ function loadConfig(dirPath: string, machine: MachineFile, config: Configuration
     return rep;
   }
   const { points, errors } = parseChartCsv(readFileSync(csvPath, "utf8"), config.chart.axis_y, config.chart.unit);
-  rep.errors.push(...errors);
   const c = config.chart;
-  const chart: LoadChart = {
-    id: `${path.basename(dirPath)}/${config.slug}`,
-    axisX: "radius_m",
-    axisY: c.axis_y,
-    points,
-    interpolationAllowed: c.interpolation_allowed,
-    status: "a_verifier",
-    standard: c.standard ?? "",
-    deductionsIncluded: c.deductions_included,
-    source: {
-      title: machine.source.document_title,
-      reference: machine.source.reference ?? "",
-      edition: machine.source.edition ?? "",
-      url: machine.source.url ?? "",
+  const r = analyserAbaque(
+    {
+      id: `${path.basename(dirPath)}/${config.slug}`,
+      points,
+      axisY: c.axis_y,
+      interpolationAllowed: c.interpolation_allowed,
+      standard: c.standard,
+      deductionsIncluded: c.deductions_included,
+      source: { title: machine.source.document_title, reference: machine.source.reference, edition: machine.source.edition, url: machine.source.url },
     },
-  };
-  const v = validateChart(chart);
-  rep.errors.push(...v.errors);
-  rep.warnings.push(...v.warnings);
-  // Précision acceptée par la BDD : x,y numeric(_,2) ; capacity_kg numeric(_,1).
-  if (points.some((p) => decimals(p.x) > 2 || (p.y !== null && decimals(p.y) > 2))) rep.errors.push("portée/y : plus de 2 décimales (non stockable)");
-  if (points.some((p) => p.capacityKg !== null && decimals(p.capacityKg) > 1)) rep.errors.push("capacité (kg) : plus de 1 décimale après conversion (non stockable)");
+    errors,
+  );
+  rep.errors.push(...r.errors);
+  rep.warnings.push(...r.warnings);
+  const chart = r.chart;
   rep.chart = chart;
   return rep;
 }

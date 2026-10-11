@@ -20,6 +20,10 @@ export interface CatalogModel {
   typeId: string;
   manufacturerId: string;
   model: string;
+  /** Emprise des stabilisateurs (machines personnelles : saisie par l'utilisateur), si connue. */
+  calage?: { longueurM: number; largeurM: number } | null;
+  /** Photo de la machine réelle (bucket privé user-files), machines personnelles uniquement. */
+  photoPath?: string | null;
 }
 
 export interface CatalogConfiguration {

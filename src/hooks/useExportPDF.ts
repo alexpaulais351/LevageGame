@@ -11,6 +11,7 @@ import { computeStudy } from "@/lib/study/compute";
 import type { StudyData } from "@/lib/study/types";
 import { buildPdfModel, type PdfMeta } from "@/lib/pdf/model";
 import { nomFichierPdf } from "@/lib/pdf/filename";
+import { createClient } from "@/lib/supabase/client";
 import { useStudy } from "@/stores/study";
 
 let enCours = false;
@@ -23,6 +24,23 @@ const abonner = (f: () => void) => {
     abonnes.delete(f);
   };
 };
+
+/** Photo de la machine personnelle (bucket privé, session de l'utilisateur) en data-URI ; `null` si absente ou illisible. */
+async function photoMachine(chemin: string | null | undefined): Promise<string | null> {
+  if (!chemin) return null;
+  try {
+    const { data, error } = await createClient().storage.from("user-files").download(chemin);
+    if (error || !data) return null;
+    return await new Promise<string | null>((resolve) => {
+      const lecteur = new FileReader();
+      lecteur.onload = () => resolve(typeof lecteur.result === "string" ? lecteur.result : null);
+      lecteur.onerror = () => resolve(null);
+      lecteur.readAsDataURL(data);
+    });
+  } catch {
+    return null;
+  }
+}
 
 function telecharger(blob: Blob, nom: string) {
   const url = URL.createObjectURL(blob);
@@ -54,7 +72,9 @@ export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indic
     try {
       const data: StudyData = useStudy.getState().data;
       const maintenant = new Date();
-      const model = buildPdfModel(data, computeStudy(data), { reference, indice, redacteur, entreprise, logoUrl, invite, genereLe: maintenant });
+      const sel = data.machine.selection;
+      const machinePhotoUrl = sel?.personnelle ? await photoMachine(sel.photoPath) : null;
+      const model = buildPdfModel(data, computeStudy(data), { reference, indice, redacteur, entreprise, logoUrl, machinePhotoUrl, invite, genereLe: maintenant });
       const { genererFichePdf } = await import("@/lib/pdf/generate");
       const blob = await genererFichePdf(model);
       telecharger(blob, nomFichierPdf({ reference, projet: data.operation.projet, date: maintenant }));

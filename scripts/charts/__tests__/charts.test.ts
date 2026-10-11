@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { parseChartCsv } from "../csv";
+import { parseChartCsv } from "../../../src/lib/charts/csv";
 import { loadMachineDir, readSeedRefs } from "../load";
-import { machineSchema } from "../schema";
+import { machineSchema } from "../../../src/lib/charts/schema";
 import { generateSql } from "../sql";
 
 const EX = path.resolve(__dirname, "../../../data/charts/_exemple-fictif");

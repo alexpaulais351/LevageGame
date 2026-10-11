@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Info, ShieldAlert } from "lucide-react";
 
 import { chartSourceLabel, type LoadChart } from "@/engine";
-import { getCatalogProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
+import { getCatalogProvider, getMesMachinesProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
 import { formatMasse } from "@/lib/utils";
 import { useStudy } from "@/stores/study";
 import { LIBELLE_TYPE, typeMachineDepuis } from "@/lib/visuals/silhouettes";
@@ -14,13 +15,17 @@ import { SelectField, UNITES_MASSE, UnitNumberField } from "../fields";
 import { MachineVignette } from "../../visuals/SilhouetteSvg";
 import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
+import { ChoixSourceMachines, type SourceMachines } from "../ChoixSourceMachines";
+import { useConnecte } from "../use-connecte";
 
 export function StepMachine() {
-  const provider = getCatalogProvider();
+  const connecte = useConnecte();
   const m = useStudy((s) => s.data.machine);
   const patch = useStudy((s) => s.patch);
   const err = useErreurs("machine");
   const sel = m.selection;
+  const [source, setSource] = useState<SourceMachines>(sel?.personnelle ? "mine" : "public");
+  const provider = (source === "mine" && getMesMachinesProvider()) || getCatalogProvider();
 
   const [typeId, setTypeId] = useState(sel?.typeId ?? "");
   const [manufId, setManufId] = useState(sel?.manufacturerId ?? "");
@@ -29,14 +34,22 @@ export function StepMachine() {
   const [chargementAbaque, setChargementAbaque] = useState(false);
   const [erreurAbaque, setErreurAbaque] = useState<string | null>(null);
 
-  const types = useCatalogList("types", () => provider.listTypes());
-  const manufs = useCatalogList(typeId ? `m:${typeId}` : null, () => provider.listManufacturers(typeId));
-  const modeles = useCatalogList(typeId && manufId ? `d:${typeId}:${manufId}` : null, () =>
+  const types = useCatalogList(`${source}:types`, () => provider.listTypes());
+  const manufs = useCatalogList(typeId ? `${source}:m:${typeId}` : null, () => provider.listManufacturers(typeId));
+  const modeles = useCatalogList(typeId && manufId ? `${source}:d:${typeId}:${manufId}` : null, () =>
     provider.listModels(typeId, manufId),
   );
-  const configs = useCatalogList(machineId ? `c:${machineId}` : null, () => provider.listConfigurations(machineId));
+  const configs = useCatalogList(machineId ? `${source}:c:${machineId}` : null, () => provider.listConfigurations(machineId));
 
   const efface = () => patch("machine", { selection: null });
+  const surSource = (v: SourceMachines) => {
+    setSource(v);
+    setTypeId("");
+    setManufId("");
+    setMachineId("");
+    setConfigId("");
+    efface();
+  };
   const surType = (v: string) => {
     setTypeId(v);
     setManufId("");
@@ -77,6 +90,7 @@ export function StepMachine() {
           configurationId: v,
           configurationLabel: conf.label,
           chart,
+          ...(source === "mine" ? { personnelle: true, calage: mod.calage ?? null, photoPath: mod.photoPath ?? null } : {}),
         },
         ...(conf.hookBlockMassKg !== null ? { moufleCrochetKg: conf.hookBlockMassKg } : {}),
       });
@@ -87,7 +101,8 @@ export function StepMachine() {
     }
   };
 
-  const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0;
+  const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0 && source === "public";
+  const aucuneMachinePerso = source === "mine" && !types.chargement && !types.erreur && types.items.length === 0;
   const opt = <T,>(l: T[], v: (x: T) => string, t: (x: T) => string) => l.map((x) => ({ value: v(x), label: t(x) }));
   const chart: LoadChart | null = sel?.chart ?? null;
   const typeCourant = types.items.find((t) => t.id === typeId);
@@ -99,6 +114,7 @@ export function StepMachine() {
       titre="Moyen de levage"
       description="Type, constructeur, modèle puis configuration : l'abaque de la configuration est lu tel que publié, sans extrapolation."
     >
+      {connecte && <ChoixSourceMachines valeur={source} onChange={surSource} nom="étape Moyen de levage" />}
       {types.erreur && (
         <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight p-3 text-sm">
           Catalogue indisponible : {types.erreur}
@@ -115,6 +131,14 @@ export function StepMachine() {
             </p>
           </div>
         </div>
+      )}
+      {aucuneMachinePerso && (
+        <p role="status" className="flex gap-2 rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm" data-testid="aucune-machine-perso">
+          <Info className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+          <span>
+            Aucune machine personnelle. Créez-en une depuis la page <Link className="font-semibold underline" href="/machines?vue=mes" target="_blank">Machines</Link> avec son abaque et le PDF constructeur.
+          </span>
+        </p>
       )}
       {typeVisuel && (
         <div className="flex items-center gap-3" data-testid="apercu-type">

@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { supabaseConfigure } from "./env";
 
 /** Chemins réservés aux utilisateurs connectés. */
-const PREFIXES_PROTEGES = ["/projets", "/profil"];
+const PREFIXES_PROTEGES = ["/projets", "/profil", "/machines/nouvelle"];
 
 /**
  * Rafraîchit la session Supabase (cookies) à chaque requête et protège les pages privées.

@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Logo d'entreprise (≤ 1 Mo) envoyé via Server Action : marge pour l'enveloppe multipart.
-  experimental: { serverActions: { bodySizeLimit: "2mb" } },
+  // Fichiers envoyés via Server Action (logo ≤ 1 Mo, photo ≤ 2 Mo, PDF constructeur ≤ 15 Mo) : marge pour l'enveloppe multipart.
+  experimental: { serverActions: { bodySizeLimit: "20mb" } },
 };
 
 export default nextConfig;
