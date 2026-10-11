@@ -2,6 +2,101 @@
 -- Idempotent. Tous les abaques arrivent en 'a_verifier', owner_id NULL (catalogue public).
 -- Les cellules vides du CSV ne sont pas insérées (capacity_kg NOT NULL) : absence de nœud = hors abaque.
 
+-- caterpillar-323
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'pelle_chenilles';
+  if v_type is null then raise exception 'type_code inconnu : pelle_chenilles'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Caterpillar');
+  if v_manu is null then raise exception 'constructeur inconnu : Caterpillar'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'Technical Specifications for 323 Hydraulic Excavator'
+    and reference is not distinct from 'AEXQ3516-01' and edition is not distinct from '10-2023 (Build Number 07G)';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'Technical Specifications for 323 Hydraulic Excavator', 'AEXQ3516-01', '10-2023 (Build Number 07G)', 'https://s7d2.scene7.com/is/content/Caterpillar/CM20220922-a569b-2ce04', 'Caterpillar (CDN officiel scene7 Caterpillar)') returning id into v_src;
+  else update public.chart_sources set url = 'https://s7d2.scene7.com/is/content/Caterpillar/CM20220922-a569b-2ce04', publisher = 'Caterpillar (CDN officiel scene7 Caterpillar)', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('323');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, '323', null, '{"operating_weight_kg":24600,"operating_weight_config":"Long undercarriage, 5.7 m HD Reach boom, HD R2.9 stick, 1.30 m3 HD bucket, 600 mm HD triple grouser shoes, 5.4 mt counterweight","contrepoids_disponibles_kg":[4200,5400]}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"operating_weight_kg":24600,"operating_weight_config":"Long undercarriage, 5.7 m HD Reach boom, HD R2.9 stick, 1.30 m3 HD bucket, 600 mm HD triple grouser shoes, 5.4 mt counterweight","contrepoids_disponibles_kg":[4200,5400]}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration hd-reach-5-7-r2-9-cw5-4t-600-triple-front
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'hd-reach-5-7-r2-9-cw5-4t-600-triple-front';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche HD 5,7 m, balancier R2.9 2,9 m, contrepoids 5,4 t, patins 600 mm, Heavy Lift On – axial (au-dessus de l''avant)', '{"fleche":"HD Reach 5,7 m (18''8\")","longueur_fleche_m":5.7,"balancier":"HD R2.9B1 (2,9 m)","longueur_balancier_m":2.9,"contrepoids_kg":5400,"patins":"600 mm HD Triple Grouser Track Shoes with SD Roller","largeur_patins_mm":600,"chassis":"long undercarriage (3650 mm / 4450 mm, voie 2380 mm)","godet":"sans godet (without Bucket)","heavy_lift":"On","zone":"axial (over front, 1er pictogramme)","slug":"hd-reach-5-7-r2-9-cw5-4t-600-triple-front"}'::jsonb, null, 'Table p. 9 (1re table de la page) : « HD Reach Boom Lift Capacities – Counterweight: 5.4 mt (11,900 lb) – without Bucket – Heavy Lift: On », flèche HD 5,7 m, balancier HD R2.9B1 2,9 m, patins 600 mm HD Triple Grouser with SD Roller, châssis long. Valeurs kg de la ligne « kg » (lignes lb ignorées). ISO 10567:2007 ; pied de table : « * Indicates that the load is limited by hydraulic lifting capacity rather than tipping load » ; ne dépassent pas 87 % de la capacité hydraulique ni 75 % de la charge de basculement ; le poids de tous les accessoires de levage doit être déduit (deductions_included=false) ; sol ferme et uniforme ; « Lift capacity stays with ±5% for all available track shoes ». y = hauteur du point de charge (lignes 7500 à 0 mm). LIGNES SOUS LE SOL (-1500, -3000, -4500 mm) NON SAISIES : le format refuse une hauteur négative (validateChart) ; elles existent dans la table imprimée. Colonne « portée max » : chaque ligne imprime sa propre portée (colonne mm/in) ; le point est saisi à cette portée réelle (mm/1000), pas d''extrapolation. Cellules vides du tableau = capacité vide dans le CSV. Attribution des colonnes : pas de légende textuelle ; chaque paire de colonnes porte deux pictogrammes vus de dessus imprimés en tête de colonne : le 1er montre la flèche dans l''axe des chenilles (au-dessus de l''avant), le 2e la tourelle tournée de 90° flèche perpendiculaire aux chenilles (au-dessus du côté) ; cohérent avec les valeurs (avant ≥ côté sur toutes les cellules). Contrôle : diff intégral cellule par cellule (117 cellules kg + portées max des 9 lignes, y compris lignes négatives) entre extraction pdfplumber par coordonnées (colonnes délimitées par les filets verticaux du tableau) et lecture visuelle du rendu PNG 250 dpi : 0 écart. PDF sha256 3fe1d2836239aa875060009af10941f8d81e7ae3fb86e1ff311d5cae85ce96d5. Valeurs marquées * (limitées hydrauliquement) saisies telles quelles, astérisque retiré : 19 points (portée m ; hauteur m) = (6;7.5) (6.15;7.5) (6;6) (7.29;6) (6;4.5) (7.5;4.5) (7.99;4.5) (4.5;3) (6;3) (7.5;3) (8.36;3) (4.5;1.5) (6;1.5) (7.5;1.5) (8.45;1.5) (3;0) (4.5;0) (6;0) (8.26;0). | Pages : p. 2 : poids en ordre de marche (config. contrepoids 5,4 t, patins 600 mm) ; p. 8 : tables contrepoids 4,2 t ; p. 9 : table saisie (1re table, patins 600 mm HD Triple Grouser) ; p. 9-12 : autres patins/balanciers 5,4 t ; p. 13-14 : Super Long Reach') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche HD 5,7 m, balancier R2.9 2,9 m, contrepoids 5,4 t, patins 600 mm, Heavy Lift On – axial (au-dessus de l''avant)', params = '{"fleche":"HD Reach 5,7 m (18''8\")","longueur_fleche_m":5.7,"balancier":"HD R2.9B1 (2,9 m)","longueur_balancier_m":2.9,"contrepoids_kg":5400,"patins":"600 mm HD Triple Grouser Track Shoes with SD Roller","largeur_patins_mm":600,"chassis":"long undercarriage (3650 mm / 4450 mm, voie 2380 mm)","godet":"sans godet (without Bucket)","heavy_lift":"On","zone":"axial (over front, 1er pictogramme)","slug":"hd-reach-5-7-r2-9-cw5-4t-600-triple-front"}'::jsonb, hook_block_mass_kg = null, notes = 'Table p. 9 (1re table de la page) : « HD Reach Boom Lift Capacities – Counterweight: 5.4 mt (11,900 lb) – without Bucket – Heavy Lift: On », flèche HD 5,7 m, balancier HD R2.9B1 2,9 m, patins 600 mm HD Triple Grouser with SD Roller, châssis long. Valeurs kg de la ligne « kg » (lignes lb ignorées). ISO 10567:2007 ; pied de table : « * Indicates that the load is limited by hydraulic lifting capacity rather than tipping load » ; ne dépassent pas 87 % de la capacité hydraulique ni 75 % de la charge de basculement ; le poids de tous les accessoires de levage doit être déduit (deductions_included=false) ; sol ferme et uniforme ; « Lift capacity stays with ±5% for all available track shoes ». y = hauteur du point de charge (lignes 7500 à 0 mm). LIGNES SOUS LE SOL (-1500, -3000, -4500 mm) NON SAISIES : le format refuse une hauteur négative (validateChart) ; elles existent dans la table imprimée. Colonne « portée max » : chaque ligne imprime sa propre portée (colonne mm/in) ; le point est saisi à cette portée réelle (mm/1000), pas d''extrapolation. Cellules vides du tableau = capacité vide dans le CSV. Attribution des colonnes : pas de légende textuelle ; chaque paire de colonnes porte deux pictogrammes vus de dessus imprimés en tête de colonne : le 1er montre la flèche dans l''axe des chenilles (au-dessus de l''avant), le 2e la tourelle tournée de 90° flèche perpendiculaire aux chenilles (au-dessus du côté) ; cohérent avec les valeurs (avant ≥ côté sur toutes les cellules). Contrôle : diff intégral cellule par cellule (117 cellules kg + portées max des 9 lignes, y compris lignes négatives) entre extraction pdfplumber par coordonnées (colonnes délimitées par les filets verticaux du tableau) et lecture visuelle du rendu PNG 250 dpi : 0 écart. PDF sha256 3fe1d2836239aa875060009af10941f8d81e7ae3fb86e1ff311d5cae85ce96d5. Valeurs marquées * (limitées hydrauliquement) saisies telles quelles, astérisque retiré : 19 points (portée m ; hauteur m) = (6;7.5) (6.15;7.5) (6;6) (7.29;6) (6;4.5) (7.5;4.5) (7.99;4.5) (4.5;3) (6;3) (7.5;3) (8.36;3) (4.5;1.5) (6;1.5) (7.5;1.5) (8.45;1.5) (3;0) (4.5;0) (6;0) (8.26;0). | Pages : p. 2 : poids en ordre de marche (config. contrepoids 5,4 t, patins 600 mm) ; p. 8 : tables contrepoids 4,2 t ; p. 9 : table saisie (1re table, patins 600 mm HD Triple Grouser) ; p. 9-12 : autres patins/balanciers 5,4 t ; p. 13-14 : Super Long Reach', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'height_m', 'kg', 'ISO 10567:2007', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'height_m', standard = 'ISO 10567:2007', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 6, 7.5, 4900),
+    (v_chart, 6.15, 7.5, 4250),
+    (v_chart, 6, 6, 5300),
+    (v_chart, 7.29, 6, 3900),
+    (v_chart, 6, 4.5, 5850),
+    (v_chart, 7.5, 4.5, 5500),
+    (v_chart, 7.99, 4.5, 3850),
+    (v_chart, 4.5, 3, 8550),
+    (v_chart, 6, 3, 6700),
+    (v_chart, 7.5, 3, 5850),
+    (v_chart, 8.36, 3, 3950),
+    (v_chart, 4.5, 1.5, 10350),
+    (v_chart, 6, 1.5, 7600),
+    (v_chart, 7.5, 1.5, 6300),
+    (v_chart, 8.45, 1.5, 4150),
+    (v_chart, 3, 0, 6550),
+    (v_chart, 4.5, 0, 11300),
+    (v_chart, 6, 0, 8250),
+    (v_chart, 7.5, 0, 6250),
+    (v_chart, 8.26, 0, 4600);
+  -- configuration hd-reach-5-7-r2-9-cw5-4t-600-triple-side
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'hd-reach-5-7-r2-9-cw5-4t-600-triple-side';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche HD 5,7 m, balancier R2.9 2,9 m, contrepoids 5,4 t, patins 600 mm, Heavy Lift On – transversal (au-dessus du côté)', '{"fleche":"HD Reach 5,7 m (18''8\")","longueur_fleche_m":5.7,"balancier":"HD R2.9B1 (2,9 m)","longueur_balancier_m":2.9,"contrepoids_kg":5400,"patins":"600 mm HD Triple Grouser Track Shoes with SD Roller","largeur_patins_mm":600,"chassis":"long undercarriage (3650 mm / 4450 mm, voie 2380 mm)","godet":"sans godet (without Bucket)","heavy_lift":"On","zone":"transversal (over side 90°, 2e pictogramme)","slug":"hd-reach-5-7-r2-9-cw5-4t-600-triple-side"}'::jsonb, null, 'Table p. 9 (1re table de la page) : « HD Reach Boom Lift Capacities – Counterweight: 5.4 mt (11,900 lb) – without Bucket – Heavy Lift: On », flèche HD 5,7 m, balancier HD R2.9B1 2,9 m, patins 600 mm HD Triple Grouser with SD Roller, châssis long. Valeurs kg de la ligne « kg » (lignes lb ignorées). ISO 10567:2007 ; pied de table : « * Indicates that the load is limited by hydraulic lifting capacity rather than tipping load » ; ne dépassent pas 87 % de la capacité hydraulique ni 75 % de la charge de basculement ; le poids de tous les accessoires de levage doit être déduit (deductions_included=false) ; sol ferme et uniforme ; « Lift capacity stays with ±5% for all available track shoes ». y = hauteur du point de charge (lignes 7500 à 0 mm). LIGNES SOUS LE SOL (-1500, -3000, -4500 mm) NON SAISIES : le format refuse une hauteur négative (validateChart) ; elles existent dans la table imprimée. Colonne « portée max » : chaque ligne imprime sa propre portée (colonne mm/in) ; le point est saisi à cette portée réelle (mm/1000), pas d''extrapolation. Cellules vides du tableau = capacité vide dans le CSV. Attribution des colonnes : pas de légende textuelle ; chaque paire de colonnes porte deux pictogrammes vus de dessus imprimés en tête de colonne : le 1er montre la flèche dans l''axe des chenilles (au-dessus de l''avant), le 2e la tourelle tournée de 90° flèche perpendiculaire aux chenilles (au-dessus du côté) ; cohérent avec les valeurs (avant ≥ côté sur toutes les cellules). Contrôle : diff intégral cellule par cellule (117 cellules kg + portées max des 9 lignes, y compris lignes négatives) entre extraction pdfplumber par coordonnées (colonnes délimitées par les filets verticaux du tableau) et lecture visuelle du rendu PNG 250 dpi : 0 écart. PDF sha256 3fe1d2836239aa875060009af10941f8d81e7ae3fb86e1ff311d5cae85ce96d5. Valeurs marquées * (limitées hydrauliquement) saisies telles quelles, astérisque retiré : 8 points (portée m ; hauteur m) = (6;7.5) (6.15;7.5) (6;6) (7.29;6) (6;4.5) (7.99;4.5) (4.5;3) (3;0). | Pages : p. 2 : poids en ordre de marche (config. contrepoids 5,4 t, patins 600 mm) ; p. 8 : tables contrepoids 4,2 t ; p. 9 : table saisie (1re table, patins 600 mm HD Triple Grouser) ; p. 9-12 : autres patins/balanciers 5,4 t ; p. 13-14 : Super Long Reach') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche HD 5,7 m, balancier R2.9 2,9 m, contrepoids 5,4 t, patins 600 mm, Heavy Lift On – transversal (au-dessus du côté)', params = '{"fleche":"HD Reach 5,7 m (18''8\")","longueur_fleche_m":5.7,"balancier":"HD R2.9B1 (2,9 m)","longueur_balancier_m":2.9,"contrepoids_kg":5400,"patins":"600 mm HD Triple Grouser Track Shoes with SD Roller","largeur_patins_mm":600,"chassis":"long undercarriage (3650 mm / 4450 mm, voie 2380 mm)","godet":"sans godet (without Bucket)","heavy_lift":"On","zone":"transversal (over side 90°, 2e pictogramme)","slug":"hd-reach-5-7-r2-9-cw5-4t-600-triple-side"}'::jsonb, hook_block_mass_kg = null, notes = 'Table p. 9 (1re table de la page) : « HD Reach Boom Lift Capacities – Counterweight: 5.4 mt (11,900 lb) – without Bucket – Heavy Lift: On », flèche HD 5,7 m, balancier HD R2.9B1 2,9 m, patins 600 mm HD Triple Grouser with SD Roller, châssis long. Valeurs kg de la ligne « kg » (lignes lb ignorées). ISO 10567:2007 ; pied de table : « * Indicates that the load is limited by hydraulic lifting capacity rather than tipping load » ; ne dépassent pas 87 % de la capacité hydraulique ni 75 % de la charge de basculement ; le poids de tous les accessoires de levage doit être déduit (deductions_included=false) ; sol ferme et uniforme ; « Lift capacity stays with ±5% for all available track shoes ». y = hauteur du point de charge (lignes 7500 à 0 mm). LIGNES SOUS LE SOL (-1500, -3000, -4500 mm) NON SAISIES : le format refuse une hauteur négative (validateChart) ; elles existent dans la table imprimée. Colonne « portée max » : chaque ligne imprime sa propre portée (colonne mm/in) ; le point est saisi à cette portée réelle (mm/1000), pas d''extrapolation. Cellules vides du tableau = capacité vide dans le CSV. Attribution des colonnes : pas de légende textuelle ; chaque paire de colonnes porte deux pictogrammes vus de dessus imprimés en tête de colonne : le 1er montre la flèche dans l''axe des chenilles (au-dessus de l''avant), le 2e la tourelle tournée de 90° flèche perpendiculaire aux chenilles (au-dessus du côté) ; cohérent avec les valeurs (avant ≥ côté sur toutes les cellules). Contrôle : diff intégral cellule par cellule (117 cellules kg + portées max des 9 lignes, y compris lignes négatives) entre extraction pdfplumber par coordonnées (colonnes délimitées par les filets verticaux du tableau) et lecture visuelle du rendu PNG 250 dpi : 0 écart. PDF sha256 3fe1d2836239aa875060009af10941f8d81e7ae3fb86e1ff311d5cae85ce96d5. Valeurs marquées * (limitées hydrauliquement) saisies telles quelles, astérisque retiré : 8 points (portée m ; hauteur m) = (6;7.5) (6.15;7.5) (6;6) (7.29;6) (6;4.5) (7.99;4.5) (4.5;3) (3;0). | Pages : p. 2 : poids en ordre de marche (config. contrepoids 5,4 t, patins 600 mm) ; p. 8 : tables contrepoids 4,2 t ; p. 9 : table saisie (1re table, patins 600 mm HD Triple Grouser) ; p. 9-12 : autres patins/balanciers 5,4 t ; p. 13-14 : Super Long Reach', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'height_m', 'kg', 'ISO 10567:2007', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'height_m', standard = 'ISO 10567:2007', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 6, 7.5, 4900),
+    (v_chart, 6.15, 7.5, 4250),
+    (v_chart, 6, 6, 5300),
+    (v_chart, 7.29, 6, 3900),
+    (v_chart, 6, 4.5, 5850),
+    (v_chart, 7.5, 4.5, 4400),
+    (v_chart, 7.99, 4.5, 3850),
+    (v_chart, 4.5, 3, 8550),
+    (v_chart, 6, 3, 5950),
+    (v_chart, 7.5, 3, 4300),
+    (v_chart, 8.36, 3, 3650),
+    (v_chart, 4.5, 1.5, 8450),
+    (v_chart, 6, 1.5, 5650),
+    (v_chart, 7.5, 1.5, 4150),
+    (v_chart, 8.45, 1.5, 3500),
+    (v_chart, 3, 0, 6550),
+    (v_chart, 4.5, 0, 8150),
+    (v_chart, 6, 0, 5500),
+    (v_chart, 7.5, 0, 4050),
+    (v_chart, 8.26, 0, 3550);
+end $charts$;
+
 -- grove-gmk3060l
 do $charts$
 declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
