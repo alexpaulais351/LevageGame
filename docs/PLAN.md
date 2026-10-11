@@ -14,6 +14,6 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 6 | Export PDF | ✅ fiche A4 côté client (police VINCI Sans via TTF convertis) |
 | 7 | Comptes, projets, versions | ✅ auth @supabase/ssr, projets/études/versions (Server Actions + Zod), reprise du brouillon invité, profil/logo/seuils |
 | 8 | Machines perso + import CSV | ✅ /machines (catalogue + Mes machines), CSV/grille, PDF constructeur, vérification ; migration 0500 (suppression de compte) |
-| 9 | Déploiement Vercel | 🟡 site en ligne (levagegame.vercel.app) ; CI complète (dont job base de données) ; branche `main`, protection et production sur `main` à créer par l'utilisateur |
+| 9 | Déploiement Vercel | ✅ production = `main` (protégée : PR + CI verte), preview par PR, site https://levagegame.vercel.app |
 
-**Prochaine tâche** : création de `main` (utilisateur), puis contrôle humain des abaques et ajout des machines manquantes (docs/ABAQUES.md).
+**Prochaine tâche** : contrôle humain des abaques et ajout des machines manquantes (docs/ABAQUES.md) ; SMTP Supabase pour le lien magique.

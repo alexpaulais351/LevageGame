@@ -58,4 +58,4 @@ supabase start | supabase db reset | supabase gen types typescript --local > src
 - Unités internes : kg, m, kN, kPa ; affichage en t si ≥ 1000 kg.
 - Migrations SQL versionnées uniquement, jamais de modif manuelle en prod.
 - Export PDF via `useExportPDF` uniquement.
-- Branche `main` protégée, travail par PR.
+- Branche `main` protégée (PR + CI verte) = production Vercel ; travail sur branche dédiée, preview par PR.
