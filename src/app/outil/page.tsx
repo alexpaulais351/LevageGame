@@ -1,5 +1,5 @@
-import { PagePlaceholder } from "@/components/layout/PagePlaceholder";
+import { Wizard } from "@/components/modules/wizard/Wizard";
 
 export default function PageOutil() {
-  return <PagePlaceholder titre="Nouvelle adéquation" />;
+  return <Wizard />;
 }

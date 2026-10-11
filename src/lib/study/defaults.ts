@@ -1,0 +1,94 @@
+import type { AccessoireSaisie, PositionSaisie, SectionKey, StudyData } from "./types";
+
+export function nouvelId(): string {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
+
+export function accessoireVide(): AccessoireSaisie {
+  return {
+    id: nouvelId(),
+    type: "elingue",
+    label: "",
+    masseKg: null,
+    cmuDirectKg: null,
+    facteurMode: null,
+    sollicitation: "brin",
+  };
+}
+
+export function positionVide(nom = ""): PositionSaisie {
+  return { id: nouvelId(), nom, porteeM: null, yM: null };
+}
+
+export function createInitialData(): StudyData {
+  return {
+    operation: { projet: "", lieu: "", date: "", description: "", intervenants: "", redacteur: "" },
+    charge: {
+      designation: "",
+      masseKg: null,
+      longueurM: null,
+      largeurM: null,
+      hauteurM: null,
+      centreGravite: "",
+      surfaceVentM2: null,
+    },
+    accessoires: { liste: [], nbBrins: null, angleBetaDeg: null, equilibrageDeclare: false },
+    machine: { selection: null, moufleCrochetKg: null, flechetteReplieeKg: null, autresKg: null },
+    geometrie: {
+      positions: [
+        { id: "prise", nom: "Prise", porteeM: null, yM: null },
+        { id: "rotation", nom: "Rotation", porteeM: null, yM: null },
+        { id: "pose", nom: "Pose", porteeM: null, yM: null },
+      ],
+      hauteurSousCrochetM: null,
+      obstacles: "",
+    },
+    sol: {
+      mode: null,
+      effortMaxKN: null,
+      typeSurface: "plaque",
+      plaqueLongueurM: null,
+      plaqueLargeurM: null,
+      patinSurfaceM2: null,
+      chenilleLongueurM: null,
+      chenilleTuileM: null,
+      portanceKPa: null,
+      proximites: "",
+    },
+    environnement: {
+      uniteVent: "ms",
+      ventPrevu: null,
+      ventLimiteMachine: null,
+      chargeFortePriseAuVent: false,
+      ventLimiteCharge: null,
+      lignes: null,
+      ligneDistancePrevueM: null,
+      ligneDistanceSeuilM: null,
+      ligneTensionKV: null,
+      voiesEtInterferences: "",
+    },
+    personnel: {
+      conducteur: "",
+      caces: "",
+      autorisationConduite: false,
+      chefManoeuvre: "",
+      elingueur: "",
+      vgpEngin: false,
+      vgpAccessoires: false,
+    },
+    seuils: { vertPct: 80, orangePct: 100 },
+    reserves: { liste: [] },
+  };
+}
+
+/** Complète les sections absentes d'une sauvegarde plus ancienne avec les valeurs par défaut. */
+export function fusionnerAvecDefauts(sauvegarde: Partial<StudyData> | undefined): StudyData {
+  const base = createInitialData();
+  if (!sauvegarde) return base;
+  const out = { ...base } as Record<string, unknown>;
+  for (const k of Object.keys(base) as SectionKey[]) {
+    const s = sauvegarde[k];
+    if (s && typeof s === "object") out[k] = { ...(base[k] as object), ...(s as object) };
+  }
+  return out as unknown as StudyData;
+}
