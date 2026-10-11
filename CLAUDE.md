@@ -23,7 +23,7 @@ Reprise du modèle Conduc Rail : couleurs uniquement depuis `src/lib/design-toke
 Primaire #004489 · foncé #003370 · rouge #E20025 · gris #B5ABA1 / #F0F0F0 / #DCDCDC.
 Verdict : vert #7AA536 · jaune #F2AB1B · rouge #E20025. Jamais de couleur hors palette.
 Tables : en-tête #004489 blanc gras, lignes alternées blanc/#F0F0F0. PDF : bande #004489, pied #003370.
-Police : VINCI Sans si fournie (`public/fonts/`), sinon Arial.
+Polices : VINCI Sans / Sans Condensed / Serif — `public/fonts/` + `src/styles/vinci-fonts.css` (fallback Arial).
 
 ## Règles métier incontournables
 1. **Aucune valeur d'abaque inventée ni extrapolée.** Toute donnée vient d'une doc constructeur, avec source, norme, date, statut `a_verifier`/`verifie`.
@@ -47,9 +47,9 @@ supabase/migrations/   supabase/seed/charts/*.csv + *.source.json
 scripts/import-chart.ts
 ```
 
-## Commandes (à confirmer étape 0)
+## Commandes
 ```
-npm run dev | build | lint | typecheck | test
+npm run dev | build | start | lint | typecheck | test   (test = vitest run ; CI : lint, typecheck, test, build)
 supabase start | supabase db reset | supabase gen types typescript --local > src/types/db.ts
 ```
 
