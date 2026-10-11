@@ -37,6 +37,16 @@ describe("mapping store ↔ version", () => {
     expect(donneesDepuisVersion(null).accessoires.liste).toEqual([]);
     expect(donneesDepuisVersion([1, 2]).geometrie.positions).toHaveLength(3);
   });
+  it("version stockée avant D29 : réserve « abaque à vérifier » seule ignorée à l'affichage", () => {
+    const res = (reserves: { code: string }[], bloquants: { code: string }[] = []) => ({
+      verdict: { value: { verdict: "ADEQUAT_AVEC_RESERVES", reserves, bloquants } },
+    });
+    expect(verdictDepuisResultat(res([{ code: "ABAQUE_A_VERIFIER" }]))).toBe("ADEQUAT");
+    expect(verdictDepuisResultat(res([{ code: "ABAQUE_A_VERIFIER" }, { code: "ZONE_ORANGE" }]))).toBe("ADEQUAT_AVEC_RESERVES");
+    expect(verdictDepuisResultat(res([{ code: "ZONE_ORANGE" }]))).toBe("ADEQUAT_AVEC_RESERVES");
+    expect(verdictDepuisResultat({ verdict: { value: { verdict: "ADEQUAT_AVEC_RESERVES" } } })).toBe("ADEQUAT_AVEC_RESERVES");
+    expect(verdictDepuisResultat({ verdict: { value: { verdict: "NON_ADEQUAT", reserves: [{ code: "ABAQUE_A_VERIFIER" }], bloquants: [{ code: "HORS_ABAQUE" }] } } })).toBe("NON_ADEQUAT");
+  });
   it("verdict illisible → null", () => {
     expect(verdictDepuisResultat(null)).toBeNull();
     expect(verdictDepuisResultat({ verdict: { value: { verdict: "AUTRE" } } })).toBeNull();

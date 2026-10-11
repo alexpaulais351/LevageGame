@@ -27,7 +27,7 @@ export function chartSourceLabel(chart: LoadChart): string {
   const parts = [s.title, s.reference, s.edition ? `éd. ${s.edition}` : "", chart.standard, s.url].filter(
     (p) => p && p.trim() !== "",
   );
-  const statut = chart.status === "verifie" ? "vérifié" : "À VÉRIFIER";
+  const statut = chart.status === "verifie" ? "vérifié" : "à vérifier";
   return `Abaque ${chart.id} — ${parts.join(" · ")} — statut : ${statut}`;
 }
 
@@ -108,7 +108,6 @@ export function readCapacity(chart: LoadChart, x: number, y?: number | null): Ca
     inputs.y = { value: isFiniteNumber(y) ? y : "non renseigné", unit: "m", label: yLabel };
   }
   const warnings: string[] = [];
-  if (chart.status === "a_verifier") warnings.push("Abaque à vérifier : valeurs non contrôlées contre le document constructeur.");
   const source = chartSourceLabel(chart);
   const modeFormule = chart.interpolationAllowed
     ? "interpolation linéaire en portée entre nœuds encadrants (autorisée par le constructeur)"

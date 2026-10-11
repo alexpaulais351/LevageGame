@@ -31,9 +31,22 @@ export function donneesDepuisVersion(json: unknown): StudyData {
   return fusionnerAvecDefauts(json as Partial<StudyData>);
 }
 
-/** Verdict (code moteur) stocké dans `result`, s'il est lisible. */
+/** Code de l'ancienne réserve « abaque à vérifier », retirée du moteur (D29) mais présente dans des versions stockées. */
+export const RESERVE_OBSOLETE_ABAQUE = "ABAQUE_A_VERIFIER";
+
+/**
+ * Verdict (code moteur) stocké dans `result`, s'il est lisible.
+ * Les versions sont immuables (D11) : une version enregistrée avant D29 dont la SEULE raison de réserve était
+ * l'abaque « à vérifier » (aucun bloquant, aucune autre réserve) est affichée ADEQUAT, comme le donnerait un recalcul.
+ */
 export function verdictDepuisResultat(result: unknown): "ADEQUAT" | "ADEQUAT_AVEC_RESERVES" | "NON_ADEQUAT" | null {
-  const v = (result as { verdict?: { value?: { verdict?: unknown } } } | null)?.verdict?.value?.verdict;
+  const val = (result as { verdict?: { value?: { verdict?: unknown; reserves?: unknown; bloquants?: unknown } } } | null)?.verdict?.value;
+  const v = val?.verdict;
+  if (v === "ADEQUAT_AVEC_RESERVES" && Array.isArray(val?.reserves) && val.reserves.length > 0) {
+    const bloquants = Array.isArray(val.bloquants) ? val.bloquants : [];
+    const seulementObsolete = val.reserves.every((r) => (r as { code?: unknown } | null)?.code === RESERVE_OBSOLETE_ABAQUE);
+    if (seulementObsolete && bloquants.length === 0) return "ADEQUAT";
+  }
   return v === "ADEQUAT" || v === "ADEQUAT_AVEC_RESERVES" || v === "NON_ADEQUAT" ? v : null;
 }
 

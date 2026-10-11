@@ -51,18 +51,18 @@ export async function listerVersions(input: unknown): Promise<ActionResult<Versi
   if (!etude) return echec(INTROUVABLE);
   const { data, error } = await ctx.supabase
     .from("study_versions")
-    .select("id,index,created_at,author_id,verdict:result->verdict->value->>verdict")
+    .select("id,index,created_at,author_id,verdict:result->verdict->value->>verdict,reserves:result->verdict->value->reserves")
     .eq("study_id", etude.id)
     .order("index", { ascending: false });
   if (error) return echec("Impossible de charger l'historique.");
   return ok(
     (data ?? []).map((v) => {
-      const verdict = (v as unknown as { verdict: unknown }).verdict;
+      const { verdict, reserves } = v as unknown as { verdict: unknown; reserves: unknown };
       return {
         index: v.index as number,
         indice: indiceDepuisNumero(v.index as number),
         creeeLe: v.created_at as string,
-        verdict: verdictDepuisResultat({ verdict: { value: { verdict } } }),
+        verdict: verdictDepuisResultat({ verdict: { value: { verdict, reserves } } }),
         courante: v.id === etude.current_version_id,
         auteurMoi: v.author_id === ctx.user.id,
       };

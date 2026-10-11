@@ -184,9 +184,6 @@ export function Comparateur({ data, result, onAdopter }: Props) {
               data={etudeAvecAlternative(data, alt)}
             />
           </div>
-          {alt.selection.chart?.status === "a_verifier" && (
-            <p className="text-xs text-foreground/70">Abaque de la configuration testée « à vérifier » : contrôle humain obligatoire.</p>
-          )}
           {axeYIncompatible(data, alt.selection.chart) && (
             <p className="text-xs text-foreground/70">
               Cet abaque demande une longueur de flèche / une hauteur que vos positions ne renseignent pas : capacités « hors abaque » jusqu&apos;à saisie à l&apos;étape 5.

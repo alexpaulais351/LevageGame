@@ -87,20 +87,23 @@ describe("buildPdfModel", () => {
     expect(m.cadre).toContain("R.4323-22");
     expect(m.signatures).toEqual(["Rédacteur", "Chef de manœuvre", "Conducteur", "Responsable chantier"]);
   });
-  it("abaque à vérifier : drapeau et source complète", () => {
+  it("abaque à vérifier : statut en information neutre, source complète, aucune réserve (D29)", () => {
     const m = modele("a_verifier");
-    expect(m.abaqueAVerifier).toBe(true);
     const a = m.machine.abaque;
-    expect(a?.statutLibelle).toBe("À VÉRIFIER");
+    expect(a?.statutLibelle).toBe("À vérifier");
     expect(a?.source.map((c) => c.label)).toEqual(["Titre", "Référence", "Édition", "URL", "Norme de calcul", "Statut"]);
     expect(a?.source.find((c) => c.label === "URL")?.valeur).toBe("https://exemple.invalid/abaque-fictif.pdf");
     expect(a?.extrait.colonnes).toEqual([8, 10, 12, 14]);
-    expect(m.conclusion.reserves.join(" ")).toContain("à vérifier");
+    expect(m.conclusion.reserves.join(" ")).not.toMatch(/à vérifier/i);
+    expect(m.verdict.code).toBe(modele("verifie").verdict.code);
   });
-  it("abaque vérifié : pas d'encadré", () => {
-    const m = modele("verifie");
-    expect(m.abaqueAVerifier).toBe(false);
-    expect(m.machine.abaque?.statutLibelle).toBe("Vérifié");
+  it("paragraphe sobre sur l'abaque utilisé, quel que soit le statut", () => {
+    for (const statut of ["a_verifier", "verifie"] as const) {
+      const m = modele(statut);
+      expect(m.noteAbaque).toMatch(/^Abaque utilisé : .+, source : .+\. Les valeurs ont été saisies depuis la documentation du constructeur\./);
+      expect(m.noteAbaque).toContain("réellement présente sur le chantier (modèle, configuration, contrepoids, calage)");
+    }
+    expect(modele("verifie").machine.abaque?.statutLibelle).toBe("Vérifié");
   });
   it("en-tête du compte : logo seulement s'il est fourni ; aucune mention « non enregistré »", () => {
     expect(modele().entete.logoUrl).toBeNull();

@@ -34,7 +34,6 @@ export type Severity = "bloquant" | "reserve";
 export type IssueCode =
   | "HORS_ABAQUE"
   | "ABAQUE_INVALIDE"
-  | "ABAQUE_A_VERIFIER"
   | "TAUX_DEPASSE"
   | "ZONE_ORANGE"
   | "SEUILS_INVALIDES"

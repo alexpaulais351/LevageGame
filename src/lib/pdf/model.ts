@@ -18,7 +18,6 @@ export const MENTION_PERMANENTE =
   "Outil d'aide à la rédaction. L'adéquation doit être validée par une personne compétente, sur la base de la documentation constructeur de la machine réellement présente sur le chantier.";
 export const CADRE_REGLEMENTAIRE = "Examen d'adéquation : arrêté du 1er mars 2004 ; Code du travail, art. R.4323-22 et suivants.";
 export const CADRE_COURT = "Arrêté du 1er mars 2004 · Code du travail R.4323-22 s.";
-export const LIBELLE_ABAQUE_A_VERIFIER = "ABAQUE À VÉRIFIER";
 export const SIGNATAIRES = ["Rédacteur", "Chef de manœuvre", "Conducteur", "Responsable chantier"] as const;
 
 export const VERDICT_LIBELLE: Record<VerdictGlobal, string> = {
@@ -128,7 +127,8 @@ export interface PdfModel {
     nbBloquants: number;
     nbReserves: number;
   };
-  abaqueAVerifier: boolean;
+  /** Paragraphe sobre « abaque utilisé + source + vérification sur chantier » (D29), null sans abaque. */
+  noteAbaque: string | null;
   operation: { champs: Champ[]; description: string; intervenants: string };
   charge: { champs: Champ[] };
   accessoires: { champs: Champ[]; lignes: AccessoireLigne[]; calc: CalcBloc };
@@ -214,7 +214,6 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
   const sel = data.machine.selection;
   const chart = sel?.chart ?? null;
   const axeY = chart?.axisY ?? "none";
-  const aVerifier = chart?.status === "a_verifier" || v.reserves.some((r) => r.code === "ABAQUE_A_VERIFIER");
   const th = thresholds(data);
   const seuils = {
     vert: Number.isFinite(th.greenMax) ? th.greenMax : 0.8,
@@ -245,14 +244,14 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
     ? {
         id: chart.id,
         statut: chart.status,
-        statutLibelle: chart.status === "verifie" ? "Vérifié" : "À VÉRIFIER",
+        statutLibelle: chart.status === "verifie" ? "Vérifié" : "À vérifier",
         source: champs(
           ["Titre", txt(chart.source.title)],
           ["Référence", txt(chart.source.reference)],
           ["Édition", txt(chart.source.edition)],
           ["URL", txt(chart.source.url)],
           ["Norme de calcul", txt(chart.standard)],
-          ["Statut", chart.status === "verifie" ? "Vérifié" : "À VÉRIFIER"],
+          ["Statut", chart.status === "verifie" ? "Vérifié" : "À vérifier"],
         ),
         interpolation: chart.interpolationAllowed
           ? "Interpolation linéaire en portée autorisée par le constructeur."
@@ -403,7 +402,7 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
       nbBloquants: v.bloquants.length,
       nbReserves: v.reserves.length,
     },
-    abaqueAVerifier: aVerifier,
+    noteAbaque: noteAbaque(data),
     operation: {
       champs: champs(["Projet / chantier", txt(o.projet)], ["Lieu", txt(o.lieu)], ["Date du levage", o.date ? dateFR(o.date) : TIRET], ["Rédacteur", txt(redacteur)]),
       description: txt(o.description),
@@ -474,6 +473,22 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
     },
     signatures: [...SIGNATAIRES],
   };
+}
+
+/** Paragraphe de rappel sur l'abaque utilisé (D29 : le statut de l'abaque n'influe pas sur le verdict). */
+export function noteAbaque(data: StudyData): string | null {
+  const sel = data.machine.selection;
+  const chart = sel?.chart;
+  if (!sel || !chart) return null;
+  const machine = [sel.manufacturerName, sel.model].map((x) => (x ?? "").trim()).filter(Boolean).join(" ");
+  const nom = [machine, (sel.configurationLabel ?? "").trim()].filter(Boolean).join(" – ") || chart.id;
+  const src = chart.source;
+  const source = [src.title, src.reference, src.edition ? `éd. ${src.edition}` : ""].map((x) => (x ?? "").trim()).filter(Boolean).join(", ");
+  return pdfTexte(
+    `Abaque utilisé : ${nom}${source ? `, source : ${source}` : ""}. Les valeurs ont été saisies depuis la documentation du constructeur. ` +
+      "Avant le levage, vérifier que l'abaque correspond à la machine réellement présente sur le chantier (modèle, configuration, contrepoids, calage) " +
+      "et à sa documentation constructeur à jour.",
+  );
 }
 
 /** Format d'un pourcentage de seuil pour la légende de jauge. */

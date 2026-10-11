@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Info, ShieldAlert } from "lucide-react";
+import { Info } from "lucide-react";
 
 import { chartSourceLabel, type LoadChart } from "@/engine";
 import { getCatalogProvider, getMesMachinesProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
@@ -196,7 +196,6 @@ export function StepMachine() {
       {chart && (
         <div className="rounded-md border border-border p-4 text-sm">
           <div className="flex items-start gap-2">
-            {chart.status === "a_verifier" && <ShieldAlert className="mt-0.5 size-5 shrink-0 text-verdict-jaune" aria-hidden />}
             <div>
               <p className="font-semibold text-primary">
                 {sel?.manufacturerName} {sel?.model} — {sel?.configurationLabel}
