@@ -16,3 +16,10 @@
 - D14 — `machine_types` et `manufacturers` : référentiels en lecture seule hors `service_role`.
 - D15 — Passage d'un abaque perso en `verifie` : `verified_by`/`verified_at` forcés par trigger à l'utilisateur courant ; un abaque public n'est modifiable que par `service_role`.
 - D16 — Fonctions utilitaires/triggers dans un schéma `private` non exposé, `search_path = ''` ; seuils verdict contraints 0 < vert < orange ≤ 100.
+- D17 — Moteur : domaine de lecture d'une ligne d'abaque = [x min ; x max] de CETTE ligne ; y intermédiaire ⇒ les deux lignes encadrantes doivent couvrir la portée, sinon hors abaque ; cellule `capacityKg: null` touchée ⇒ hors abaque.
+- D18 — Moteur : bornes des zones (tolérance 1e-9) vert si taux < seuil vert, orange si seuil vert ≤ taux ≤ seuil orange (80 % et 100 % exacts = orange), rouge au-delà ; taux > 100 % toujours bloquant ; seuils valides si 0 < vert ≤ orange ≤ 1.
+- D19 — Moteur : élingage 3 ou 4 brins ⇒ 2 brins porteurs sauf palonnier/équilibrage déclaré ; β ≤ 45° conforme, 45° < β ≤ 60° réserve, β > 60° bloquant.
+- D20 — Moteur : aucun facteur de mode normatif codé ; CMU utile = CMU direct × facteur de mode saisi, comparée à l'effort par brin (sollicitation « brin ») ou à la masse suspendue totale (sollicitation « ensemble » : palonnier, crochet, élingue multibrins dont la CMU par mode inclut l'angle).
+- D21 — Moteur : portance du sol, limites de vent et distance minimale aux lignes électriques sont des entrées sans valeur par défaut (absentes ⇒ bloquant « donnée manquante ») ; égalité au seuil acceptée.
+- D22 — Moteur : vent en m/s en interne (helper km/h → m/s) ; masses en kg, efforts en kN (g = 9,81) ; aucun arrondi interne, formules symboliques.
+- D23 — Moteur : champ `flechetteReplieeKg` sans accent (identifiant ASCII) ; contrôles renvoient `Check<T>` = `Calc<T>` + `issues[]` (bloquant/réserve) agrégés par `computeVerdict`.
