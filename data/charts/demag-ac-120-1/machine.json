@@ -1,0 +1,46 @@
+{
+  "manufacturer": "Demag",
+  "type_code": "grue_mobile",
+  "model": "AC 120-1",
+  "specs": {
+    "capacite_max_t": 120,
+    "fleche_principale_m": "12,5 - 60",
+    "fleche_treillis_m": "9,1 ou 17",
+    "contrepoids_max_t": 40.4
+  },
+  "source": {
+    "document_title": "TEREX DEMAG AC 120-1 - 120 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 120-1 »)",
+    "reference": "120T-TEREX DEMAG AC 120-1.pdf sha256:525df53cabddc81f",
+    "edition": "Fiche FOSELEV (impression 31/03/11)",
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "PDF p. 3 (page catalogue 104) : tableau « Flèche principale / Telescopic boom », de 12,5 m à 60 m, calage MAX, contrepoids 40,4 t, 360°, DIN ISO, 75 %."
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw40-4t",
+      "label": "Flèche principale 12,5-60 m, calage MAX, 360°, contrepoids 40,4 t",
+      "params": {
+        "longueur_fleche_m": "12,5 - 60",
+        "contrepoids_t": 40.4,
+        "calage": "MAX",
+        "zone": "360°",
+        "flechette": false,
+        "stabilite_pct": 75
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw40-4t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN ISO",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau complet : 8 colonnes de flèche (12,5 à 60 m) × 21 lignes de portée (3 à 56 m), 98 valeurs. Autres longueurs (16,8 / 34,3 / 46,9 m) mentionnées « également disponibles » mais sans valeurs : non saisies. Valeur à 36 m / flèche 38,3 m (3,7 t, contre 7,3 t à 32 m et 5,9 t sur 42,6 m) reproduite telle qu'imprimée, à confirmer sur la doc constructeur. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l'image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 207 cellules (en-têtes, portées, cellules vides incluses), 0 écart. sha256 complet : 525df53cabddc81f7e8073565814ec6eb669319081153014be72edf81180e304 RELECTURE 2026-10-11 : diff intégral visuel des 8 colonnes contre le rendu 200 dpi p. 3 : 0 écart (98 valeurs)."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

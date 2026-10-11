@@ -1,0 +1,45 @@
+{
+  "manufacturer": "Grove",
+  "type_code": "grue_mobile",
+  "model": "GMK 3050-1",
+  "specs": {
+    "capacite_max_t": 50,
+    "contrepoids_t": 11.6,
+    "fleche_principale_m": "9,6 - 38,0",
+    "base_calage_m": 6.2
+  },
+  "source": {
+    "document_title": "GROVE GMK 3050-1 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 3 pages)",
+    "reference": "50T-GROVE GMK 3050-1.pdf ; sha256:693c8704b9a7d79f",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : tableau flèche principale 9,6-38,0 m, base 6,2 m, 360°, 11,6 t, EN 13000 ; renvoi « * En arrière »"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw11t6",
+      "label": "Flèche principale 9,6-38,0 m, calage 6,2 m, 360°, contrepoids 11,6 t",
+      "params": {
+        "contrepoids_t": 11.6,
+        "base_calage_m": 6.2,
+        "zone": "360°",
+        "flechette": false,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "gmk3050-360-11t6-fleche-principale.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3, 9 colonnes de flèche (9,6 à 38,0 m), 23 lignes de portée (3 à 34 m). Cellule portée 3 m / flèche 9,6 m imprimée « 50,0*/45,0 » (valeur en arrière / valeur 360°, ambiguë) : NON saisie (donc hors abaque, plus défavorable). Les en-têtes de flèche et portées ne sont pas du texte extractible : lus visuellement sur rendu PNG (130 et 220 dpi). Diff intégral : 207 cellules, 0 écart (pdfplumber + pdftotext -layout + lecture visuelle). Courbes p. 2 non utilisées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d'une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) + relecture visuelle de 5 colonnes complètes sur rendu 200 dpi p. 3 : 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

@@ -1,0 +1,47 @@
+{
+  "manufacturer": "Demag",
+  "type_code": "grue_mobile",
+  "model": "AC 50-1",
+  "specs": {
+    "capacite_max_t": 50,
+    "fleche_principale_m": "10,1 - 40",
+    "contrepoids": "9,5 t",
+    "extension_treillis": "Extension treillis (swingaway) 9,2 m ou 17,6 m, 0°/40° (fléchette également disponible en inclinaison 20°)"
+  },
+  "source": {
+    "document_title": "TEREX DEMAG AC 50-1 50 TONNES – Capacité de levage (fiche loueur FOSELEV)",
+    "reference": "50T-TEREX DEMAG AC 50-1.pdf sha256:35326c2a10e53a95",
+    "edition": "mise en page « intérieur de page 31/03/11 »",
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 du PDF (Page 52) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:35326c2a10e53a95ad358c89589dde4486113e4588c1fb07bdb844333feadb67"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw9-5t",
+      "label": "Flèche principale 10,1 - 40 m, calage, 360°, contrepoids 9,5 t",
+      "params": {
+        "longueur_fleche_m": "10,1 - 40",
+        "contrepoids_t": 9.5,
+        "contrepoids": "9,5 t",
+        "base_calage_m": null,
+        "zone": "360°",
+        "flechette": false,
+        "mouflage": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw9-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (75 %)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 52 du catalogue), pictogrammes : flèche de 10,1 m à 40 m, contrepoids « 9,5 t », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 7 colonnes de longueur de flèche x 22 lignes de portée = 154 cellules dont 95 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l'EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu'imprimées. PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 183 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

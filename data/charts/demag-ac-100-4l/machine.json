@@ -1,0 +1,44 @@
+{
+  "manufacturer": "Demag",
+  "type_code": "grue_mobile",
+  "model": "AC 100-4L",
+  "specs": {
+    "capacite_max_t": 100,
+    "contrepoids_t": 24.5,
+    "base_calage_m": "8,10 x 7,20"
+  },
+  "source": {
+    "document_title": "TEREX DEMAG AC 100-4L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 100 tonnes)",
+    "reference": "100T-TEREX DEMAG AC 100-4L.pdf (sha256 0864ab21506c0e96)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : tableau « Flèche principale », 24,5 t / 8,10 m x 7,20 m / 360° / ISO. PDF sha256:0864ab21506c0e966f8eb7c0552cfe90581081b8321d05f6ccf722e0e4b949c4"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw24-5t",
+      "label": "Flèche principale 12,0-59,4 m, calage 8,10 x 7,20 m, 360°, contrepoids 24,5 t",
+      "params": {
+        "longueur_fleche_m": "12,0 - 59,4",
+        "contrepoids_t": 24.5,
+        "base_calage_m": "8,10 x 7,20",
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw24-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "ISO",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l'utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 24,5 t / 8,10 m x 7,20 m / 360° / ISO). 14 colonnes de flèche (12,0 à 59,4 m ; 12,0 ; 16,3 ; 20,5 ; 24,8 ; 29,1 ; 33,4 ; 37,6 ; 40,4 ; 44,7 ; 49,9 ; 50,4 ; 50,9 ; 54,6 ; 59,4) x 28 lignes de portée (3 à 50 m) ; 227 valeurs, cellules « - » = vides non saisies. EXCLUS : la 1re colonne « 12,0 m » surmontée de « (0°) » (avec la ligne « 100,0* » = classe de capacité, sans portée ; secteur restreint probable, non précisé dans la fiche, incompatible avec une config 360°). La 2e colonne 12,0 m est saisie. Aucune donnée sur le poids du crochet/de la moufle ni sur les déductions dans la page saisie (hook_block_mass_kg = null). Mention « ISO » telle qu'imprimée ; norme précise non indiquée. Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (227 cellules, 0 écart) + échantillon visuel 10 cellules (2 en bord de domaine) sur rendu 200 dpi : 0 écart ; colonne « (0°) 12,0 m » bien exclue."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

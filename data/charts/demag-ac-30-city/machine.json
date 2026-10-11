@@ -1,0 +1,47 @@
+{
+  "manufacturer": "Demag",
+  "type_code": "grue_mobile",
+  "model": "AC 30 City",
+  "specs": {
+    "capacite_max_t": 30,
+    "fleche_principale_m": "7,5 - 25",
+    "contrepoids": "Intégré",
+    "extension_treillis": "Extension treillis (swingaway) 7,1 m ou 13 m, 0°/30°"
+  },
+  "source": {
+    "document_title": "TEREX DEMAG AC 30 City 30 TONNES – Capacité de levage (fiche loueur FOSELEV)",
+    "reference": "30T-TEREX DEMAG AC 30 CITY.pdf sha256:afa2763575bb8ccc",
+    "edition": "mise en page « intérieur de page 31/03/11 »",
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 du PDF (Page 12) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:afa2763575bb8ccc659a676c818b3c188479976c953f570eeb9da24c0a6b5c57"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw-integre",
+      "label": "Flèche principale 7,5 - 25 m, calage, 360°, contrepoids intégré",
+      "params": {
+        "longueur_fleche_m": "7,5 - 25",
+        "contrepoids_t": null,
+        "contrepoids": "Intégré",
+        "base_calage_m": null,
+        "zone": "360°",
+        "flechette": false,
+        "mouflage": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw-integre.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (75 %)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 12 du catalogue), pictogrammes : flèche de 7,5 m à 25 m, contrepoids « Intégré », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 5 colonnes de longueur de flèche x 22 lignes de portée = 110 cellules dont 58 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l'EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu'imprimées. PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 137 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel des 5 colonnes contre le rendu 200 dpi p. 3 : 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

@@ -1,0 +1,44 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "LTM 1030-2.1",
+  "specs": {
+    "capacite_max_t": 35,
+    "fleche_telescopique_m": "9,2 - 30",
+    "contrepoids_t": 5.5
+  },
+  "source": {
+    "document_title": "LIEBHERR LTM 1030-2.1 – 35 tonnes – Capacité de levage (fiche FOSELEV)",
+    "reference": "35T-LIEBHERR LTM 1030-2.1.pdf — sha256:8593a747151637cf",
+    "edition": "Catalogue FOSELEV, pages datées 31/03/11",
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur (Document constructeur fourni par l'utilisateur, mis en page par FOSELEV)",
+    "page_refs": "p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 36 ») : Flèche principale (Telescopic boom) 9,2-30 m, 5,5 t, et Extension treillis (Swingaway). PDF sha256:8593a747151637cf23c3d4407da94d9080d54e6d5b75a16880aed513d29cda86"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw5-5t",
+      "label": "Flèche télescopique 9,2-30 m, calage, 360°, contrepoids 5,5 t",
+      "params": {
+        "longueur_fleche_m": "9,2 - 30",
+        "contrepoids_t": 5.5,
+        "base_calage_mm": null,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw5-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (75 %)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau « Flèche principale » p. 3 du PDF (pictos flèche MAX de 9,2 à 30 m, calage, 5,5 t, 360°). Table entière : 6 colonnes de flèche x 22 lignes de portée (3 à 26 m) = 132 cellules, 86 valeurs, 46 vides. Diff intégral des deux passes : 132 cellules, 0 écart. Seul contrepoids imprimé dans la fiche : 5,5 t. NON saisi : tableau Extension treillis (fléchette 8,6/15 m, 0°/40°) — combinaison flèche+fléchette+angle non représentable sur un seul axe y. Capacités croissant avec la portée sur certaines colonnes (ex. 14,4 m de 3 à 5 m) : reproduites telles qu'imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d'interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

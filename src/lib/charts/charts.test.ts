@@ -73,14 +73,14 @@ describe("grille → points (mêmes règles que le CSV)", () => {
 
 describe("construireAbaque (aperçu client = validation serveur)", () => {
   it("CSV valide : pas d'erreur, abaque a_verifier, avertissements classés", () => {
-    const csv = "radius_m,y,capacity\n3,10,5\n4,10,\n5,10,6\n";
+    const csv = "radius_m,y,capacity\n2,10,\n3,10,5\n5,10,6\n";
     const r = construireAbaque({ ...base, csv }, SRC);
     expect(r.errors).toEqual([]);
     expect(r.chart.status).toBe("a_verifier");
     expect(r.chart.points).toHaveLength(3);
     const w = classerAvertissements(r.warnings);
     expect(w.cellulesVides).toHaveLength(1);
-    expect(w.capaciteCroissante).toHaveLength(1); // 5 t à 3 m → 6 t à 5 m (la cellule vide est sautée)
+    expect(w.capaciteCroissante).toHaveLength(1); // 5 t à 3 m → 6 t à 5 m
     expect(w.autres).toEqual([]);
   });
   it("erreurs bloquantes : doublon, en-tête, précision non stockable", () => {
@@ -113,5 +113,46 @@ describe("analyserAbaque", () => {
       ["erreur amont"],
     );
     expect(r.errors).toEqual(["erreur amont"]);
+  });
+});
+
+describe("règle « case vide intérieure » (sécurité)", () => {
+  const entree = (points: { x: number; y: number | null; capacityKg: number | null }[], axisY: "boom_length_m" | "height_m" | "none" = "boom_length_m") =>
+    analyserAbaque({ id: "x", points, axisY, interpolationAllowed: false, standard: "EN 13000", deductionsIncluded: false, source: SRC });
+  const ligne = (y: number, vals: [number, number | null][]) => vals.map(([x, c]) => ({ x, y, capacityKg: c }));
+
+  it("aperçu client : la case vide intérieure est bloquante", () => {
+    const r = construireAbaque({ ...base, csv: "radius_m,y,capacity\n3,10,5\n4,10,\n5,10,4\n" }, SRC);
+    expect(r.errors.some((e) => e.includes("case vide ou absente"))).toBe(true);
+  });
+  it("case laissée vide (« - ») entre deux nœuds renseignés ⇒ erreur", () => {
+    const r = entree(ligne(10, [[3, 5000], [4, null], [5, 4000]]));
+    expect(r.errors.some((e) => e.includes("case vide ou absente") && e.includes("4"))).toBe(true);
+  });
+  it("case OMISE du CSV (portée présente sur une autre ligne) ⇒ erreur", () => {
+    const r = entree([...ligne(10, [[3, 5000], [4, 4500], [5, 4000]]), ...ligne(20, [[3, 3000], [5, 2000]])]);
+    expect(r.errors).toHaveLength(1);
+    expect(r.errors[0]).toContain("ligne y=20 m");
+    expect(r.errors[0]).toContain("4 m");
+  });
+  it("cases vides aux extrémités d'une ligne (début ou fin de domaine) : pas d'erreur", () => {
+    const r = entree([...ligne(10, [[3, 5000], [4, 4500], [5, 4000], [6, null]]), ...ligne(20, [[3, null], [4, 3000], [5, 2000]])]);
+    expect(r.errors).toEqual([]);
+  });
+  it("ligne qui s'arrête avant les autres (portées absentes au-delà) : pas d'erreur", () => {
+    const r = entree([...ligne(10, [[3, 5000], [4, 4500]]), ...ligne(20, [[3, 3000], [4, 2500], [5, 2000]])]);
+    expect(r.errors).toEqual([]);
+  });
+  it("axe 'none' : case vide intérieure ⇒ erreur", () => {
+    const r = entree([{ x: 3, y: null, capacityKg: 10 }, { x: 4, y: null, capacityKg: null }, { x: 5, y: null, capacityKg: 8 }], "none");
+    expect(r.errors.some((e) => e.startsWith("ligne unique"))).toBe(true);
+  });
+  it("height_m (ISO 10567) : la portée max propre à chaque ligne n'est pas une colonne de la grille", () => {
+    const r = entree([...ligne(3, [[3, 8000], [4.5, 6000], [5.8, 4000]]), ...ligne(1.5, [[3, 9000], [4.5, 7000], [6, 5000], [7.29, 4000]])], "height_m");
+    expect(r.errors).toEqual([]);
+  });
+  it("height_m : un « - » dans une colonne de portée fixe reste une erreur", () => {
+    const r = entree([...ligne(3, [[3, 8000], [4.5, null], [6, 5000], [7.6, 4000]]), ...ligne(1.5, [[3, 9000], [4.5, 7000], [6, 5000], [7.5, 4500]])], "height_m");
+    expect(r.errors.some((e) => e.includes("ligne y=3 m") && e.includes("4.5"))).toBe(true);
   });
 });

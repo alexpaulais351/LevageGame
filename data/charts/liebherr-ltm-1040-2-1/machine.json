@@ -1,0 +1,70 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "LTM 1040-2.1",
+  "specs": {
+    "capacite_max_t": 35,
+    "contrepoids_t": 6.5,
+    "fleche_telescopique_m": "10,5 - 35",
+    "flechette_m": 9.5
+  },
+  "source": {
+    "document_title": "LIEBHERR LTM 1040-2.1 – 35 TONNES – Flèche principale / Extension treillis (fiche FOSELEV, 4 p.)",
+    "reference": "35T-LIEBHERR LTM 1040-2.1.pdf (sha256:6df1cb148de6aa83)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 4 haut : « Flèche principale de 10,5 m à 35 m », 6,5 T ; p. 4 bas : « Extension treillis » 9,5 m, de 10,5 m à 35 m, 6,5 T. PDF sha256 complet : 6df1cb148de6aa830fff78ec52f04543232600d8ed7c86b23b357b23fb60e502"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-cw6-5t",
+      "label": "[Zone non précisée] Flèche télescopique 10,5-35 m, contrepoids 6,5 t (colonnes statiques)",
+      "params": {
+        "longueur_fleche_m": "10,5 - 35",
+        "contrepoids_t": 6.5,
+        "zone": "non précisée sur la fiche",
+        "base_calage_mm": null,
+        "flechette": false,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-cw6-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau métrique en tonnes (portées en m). Aucune édition/date ni norme (EN/DIN) imprimée sur la fiche ; pictogramme de calage présent mais sans cote de base, aucun picto 360° sur cette fiche : zone et base de calage non renseignées (null). Contrepoids 6,5 T imprimé. Chaque longueur de flèche a deux sous-colonnes ; la sous-colonne « ** capacités de levage en télescopage » est EXCLUE (autre situation de levage) ; pour 10,5 m, la sous-colonne « * en arrière » (secteur restreint) est EXCLUE. Cellules vides = vides dans le tableau. Saisi : 7 longueurs (10,5 ; 15,4 ; 20,3 ; 25,2 ; 30,1 ; 32,6 ; 35 m) x 32 portées (2,5 à 31 m) = 224 cellules. Poids du crochet/moufle : aucune indication de déduction sur la fiche (deductions_included=false par prudence). Diff intégral : extraction pdfplumber vs poppler -bbox vs pdftotext -layout (séquence de cellules par ligne), 32 lignes x 14 colonnes, 0 écart. RELECTURE 2026-10-11 : aucun pictogramme ni indice 360° imprimé pour ces tableaux (p. 4) ⇒ params.zone = « non précisée sur la fiche » et label préfixé « [Zone non précisée] » ; la grue ne doit être utilisée sur cette base que dans la zone d'orientation confirmée par la documentation de la machine réellement présente. Diff intégral contre le rendu 200 dpi p. 4 : 0 écart (sous-colonne 10,5 m non étoilée confirmée ; « * en arrière » exclue)."
+      }
+    },
+    {
+      "slug": "flechette-9-5m-0deg",
+      "label": "[Zone non précisée] Flèche télescopique + fléchette 9,5 m, angle 0°, contrepoids 6,5 t",
+      "params": {
+        "longueur_fleche_m": "10,5 / 25,2 / 30,1",
+        "contrepoids_t": 6.5,
+        "zone": "non précisée sur la fiche",
+        "base_calage_mm": null,
+        "flechette": true,
+        "longueur_flechette_m": 9.5,
+        "angle_flechette_deg": 0,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "flechette-9-5m-0deg.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau métrique en tonnes (portées en m). Aucune édition/date ni norme (EN/DIN) imprimée sur la fiche ; pictogramme de calage présent mais sans cote de base, aucun picto 360° sur cette fiche : zone et base de calage non renseignées (null). Contrepoids 6,5 T imprimé. Chaque longueur de flèche a deux sous-colonnes ; la sous-colonne « ** capacités de levage en télescopage » est EXCLUE (autre situation de levage) ; pour 10,5 m, la sous-colonne « * en arrière » (secteur restreint) est EXCLUE. Cellules vides = vides dans le tableau. Tableau « Extension treillis » 9,5 m : seule la colonne angle 0° (non « ** ») des flèches 10,5 ; 25,2 ; 30,1 m est saisie = 3 longueurs x 36 portées (3 à 36 m) = 108 cellules. Angles 20°/40°/60° et colonnes « ** » non saisis. Diff intégral : 36 lignes x 20 colonnes (toutes colonnes imprimées du tableau), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : aucun pictogramme ni indice 360° imprimé pour ces tableaux (p. 4) ⇒ params.zone = « non précisée sur la fiche » et label préfixé « [Zone non précisée] » ; la grue ne doit être utilisée sur cette base que dans la zone d'orientation confirmée par la documentation de la machine réellement présente. Diff intégral contre le rendu 200 dpi p. 4 : 0 écart (sous-colonne 10,5 m non étoilée confirmée ; « * en arrière » exclue)."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

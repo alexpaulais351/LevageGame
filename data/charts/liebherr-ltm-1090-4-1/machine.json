@@ -1,0 +1,44 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "LTM 1090-4.1",
+  "specs": {
+    "capacite_max_t": 90,
+    "contrepoids_t": 21,
+    "fleche_telescopique_m": "11,1 - 50"
+  },
+  "source": {
+    "document_title": "LIEBHERR LTM 1090-4.1 – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)",
+    "reference": "90T-LIEBHERR LTM 1090-4.1.pdf (sha256 c7e9472d0d5f1dae)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : tableau « Flèche principale », 11,1-50 m / 360° / 21 t / DIN ISO. PDF sha256:c7e9472d0d5f1daeea8acb38c70efdf486729f723c2e16383bcddc73dda63952"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw21t",
+      "label": "Flèche télescopique 11,1-50 m, 360°, contrepoids 21 t",
+      "params": {
+        "longueur_fleche_m": "11,1 - 50",
+        "contrepoids_t": 21,
+        "base_calage_m": null,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw21t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN / ISO",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l'utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 11,1-50 m / 360° / 21 t / DIN ISO). 12 colonnes de flèche (11,1 à 50 m) x 29 lignes de portée (3 à 46 m) ; 192 valeurs ; cellules vides du tableau non saisies. EXCLUE : la sous-colonne « * » de la colonne 11,1 m (« * en arrière » = secteur restreint arrière, incompatible avec 360°) ; la sous-colonne normale 11,1 m est saisie. Base de calage non cotée sur le tableau (pictogramme seulement ; null). Pas de donnée crochet/moufle (hook_block_mass_kg = null). Norme imprimée « DIN ISO » (non précisée). Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; sous-colonne « * » de 11,1 m bien exclue."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

@@ -1,0 +1,65 @@
+{
+  "manufacturer": "Grove",
+  "type_code": "grue_mobile",
+  "model": "GMK 5200",
+  "specs": {
+    "capacite_nominale_t": 200,
+    "fleche_principale_m": "13,5 - 60",
+    "contrepoids_t": "70 ; 44"
+  },
+  "source": {
+    "document_title": "GROVE GMK 5200 — 200 tonnes : Cotation, Capacité de levage, Flèche principale, Extension treillis (fiche FOSELEV, 5 pages, pages catalogue 124-128)",
+    "reference": "200T-GROVE GMK 5200.pdf ; sha256:717f58372544fde1",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 (page catalogue 126) : deux tableaux « Flèche principale » 13,5-60 m, 360°, DIN ISO 75 % — haut : contrepoids 70 t ; bas : 44 t. PDF sha256:717f58372544fde126b5188737d73b8f856078c8a8f5bd3df6af090ce964e9b4"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw70t",
+      "label": "Flèche principale 13,5-60 m, calage max, 360°, contrepoids 70 t",
+      "params": {
+        "longueur_fleche_m_plage": "13,5 - 60",
+        "contrepoids_t": 70,
+        "zone": "360°",
+        "flechette": false,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "gmk5200-fleche-principale-360-cw70t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (pictogramme fiche FOSELEV), 75 %",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 haut (page catalogue 126), 10 colonnes de flèche (13,5 à 60 m) x 22 lignes de portée (2,5 à 56 m), toutes saisies. Base de calage non cotée sur le tableau (picto calage). Mention : également disponible en 27,5 m de flèche principale (non tabulé). Capacités non monotones entre longueurs de flèche reproduites telles qu'imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d'une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. DÉCISION DE SÉCURITÉ : la cellule 2,5 m / flèche 13,5 m imprimée « 200 » (identique dans les tableaux 70 t et 44 t, égale à la classe de la grue, sans renvoi explicatif) est interprétée comme une classe de capacité et RETIRÉE ; en dessous de 3 m la lecture est hors abaque. À confirmer sur la doc constructeur."
+      }
+    },
+    {
+      "slug": "fleche-principale-360-cw44t",
+      "label": "Flèche principale 13,5-60 m, calage max, 360°, contrepoids 44 t",
+      "params": {
+        "longueur_fleche_m_plage": "13,5 - 60",
+        "contrepoids_t": 44,
+        "zone": "360°",
+        "flechette": false,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "gmk5200-fleche-principale-360-cw44t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (pictogramme fiche FOSELEV), 75 %",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 bas (page catalogue 126), 10 colonnes de flèche (13,5 à 60 m) x 22 lignes de portée (2,5 à 56 m), toutes saisies (cellules sans tiret des colonnes 36,8 et 46,1 m = vides). Base de calage non cotée sur le tableau. Mention : également disponible en 27,5 m de flèche principale (non tabulé). Capacités non monotones reproduites telles qu'imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d'une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. DÉCISION DE SÉCURITÉ : la cellule 2,5 m / flèche 13,5 m imprimée « 200 » (identique dans les tableaux 70 t et 44 t, égale à la classe de la grue, sans renvoi explicatif) est interprétée comme une classe de capacité et RETIRÉE ; en dessous de 3 m la lecture est hors abaque. À confirmer sur la doc constructeur."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

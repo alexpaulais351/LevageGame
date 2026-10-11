@@ -1,0 +1,67 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_tour",
+  "model": "MK 140",
+  "specs": {
+    "capacite_max_t": 8,
+    "categorie": "grue mobile de chantier",
+    "capacite_max_kg": 8000
+  },
+  "source": {
+    "document_title": "LIEBHERR MK 140 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)",
+    "reference": "8T-LIEBHERR MK 140.pdf (sha256 9f3b74a35845402e…)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 du PDF : premier tableau 8,20 x 8,25 m (icône +9 t), flèche 0°, 58,5 m. PDF sha256 complet : 9f3b74a35845402e7ef856ab47b9f797943cce8df5728f8747f935a8e86e1871"
+  },
+  "configurations": [
+    {
+      "slug": "9t-8-20x8-25-0deg-ligne1",
+      "label": "Calage 8,20 x 8,25 m, +9 t, flèche 0° — pictogramme manche à air pendante",
+      "params": {
+        "categorie": "grue mobile de chantier",
+        "calage_m": "8,20 x 8,25",
+        "lest_icone": "+9 t",
+        "angle_fleche_deg": 0,
+        "ligne_tableau": 1,
+        "vent_icone": "manche à air pendante (limite non imprimée)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "9t-8-20x8-25-0deg-ligne1.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 13,4 / 8000 » ; colonnes = portées 3,0 à 58,5 m ; la cellule fusionnée 8000 (3,0 à 12,0 m) est répétée sur les 4 colonnes couvertes. y=0. Lignes 15°, 30°, 45°, « Plus* 2 » et autres calages non saisis. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 3 : 0 écart. Labels explicités d'après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft (20 m/s) » ; limite de vent non imprimée ici). CORRECTION DE SÉCURITÉ : le 1er nœud est placé à 3,3 m (portée minimale imprimée « 3,3 - 13,4 » / « 3,3 - 12,0 ») au lieu de 3,0 m (début de la cellule fusionnée) : aucune capacité sous la portée minimale."
+      }
+    },
+    {
+      "slug": "9t-8-20x8-25-0deg-ligne2",
+      "label": "Calage 8,20 x 8,25 m, +9 t, flèche 0° — pictogramme manche à air horizontale (vent)",
+      "params": {
+        "categorie": "grue mobile de chantier",
+        "calage_m": "8,20 x 8,25",
+        "lest_icone": "+9 t",
+        "angle_fleche_deg": 0,
+        "ligne_tableau": 2,
+        "vent_icone": "manche à air horizontale (même icône que « max. 8,0 Bft » sur la fiche MK 110 ; non légendée ici)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "9t-8-20x8-25-0deg-ligne2.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 12,0 / 8000 » ; même structure que la ligne 1 (cellule fusionnée 3,0 à 12,0 m répétée). RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 3 : 0 écart. Labels explicités d'après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft (20 m/s) » ; limite de vent non imprimée ici). CORRECTION DE SÉCURITÉ : le 1er nœud est placé à 3,3 m (portée minimale imprimée « 3,3 - 13,4 » / « 3,3 - 12,0 ») au lieu de 3,0 m (début de la cellule fusionnée) : aucune capacité sous la portée minimale."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

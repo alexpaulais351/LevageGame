@@ -1,0 +1,43 @@
+{
+ "manufacturer": "Galizia",
+ "type_code": "grue_mobile",
+ "model": "G100E",
+ "specs": {
+  "capacite_max_t": 12,
+  "categorie": "grue automotrice pick-and-carry"
+ },
+ "source": {
+  "document_title": "GALIZIA G100E – 12 TONNES – Cotation / Hauteurs et capacités de levage (fiche FOSELEV)",
+  "reference": "12T-GALIZIA G 100 E.pdf (sha256 5f9a212d5d51dc62…)",
+  "edition": null,
+  "url": null,
+  "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+  "page_refs": "p. 2 : tableau flèche principale (longueur de flèche × portée). PDF sha256 complet : 5f9a212d5d51dc62847455e5e4b469467899a30c2c7ac634358ba44c4c103ccb"
+ },
+ "configurations": [
+  {
+   "slug": "fleche-principale",
+   "label": "Flèche principale 4,05-9,25 m (tableau longueur de flèche × portée)",
+   "params": {
+    "categorie": "grue automotrice pick-and-carry",
+    "fleche": "principale",
+    "flechette": false,
+    "contrepoids": null,
+    "calage": null
+   },
+   "hook_block_mass_kg": null,
+   "chart": {
+    "file": "principale.csv",
+    "axis_y": "boom_length_m",
+    "unit": "t",
+    "standard": null,
+    "deductions_included": false,
+    "interpolation_allowed": false,
+    "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Colonnes = longueurs de flèche imprimées (4,05 à 9,25 m ; le diagramme les rattache à la flèche, pas à la hauteur de crochet) saisies en y (axis_y=boom_length_m, corrigé en relecture le 2026-10-11 : la saisie initiale indiquait height_m) ; lignes = portées 0,8 à 6 m ; capacités en tonnes. Les « - » du tableau sont laissés vides (cellule non renseignée). Conditions (calage, stabilisation, déplacement en charge) non indiquées dans la fiche. Tableau fléchette 2,5 m (p. 3) NON saisi : étiquettes de ligne gauche/droite incohérentes (ligne « 3 » à gauche, « 2 » à droite) -> portée douteuse. RELECTURE 2026-10-11 : diff intégral des 64 cellules contre le rendu 200 dpi p. 2 : 0 écart. Règle case vide intérieure : flèche 5,25 m, « - » imprimé à 1,5 m entre 8,5 t (1 m) et 6 t (2 m) ; ligne coupée au trou : la valeur 6 t à 2 m est retirée (cellule vide), la flèche 5,25 m n'est utilisable qu'à 1 m (sens de la sécurité). Le tableau ne donne que des points isolés (une à quatre portées par flèche) : lecture limitée aux portées imprimées encadrées. Norme non imprimée."
+   }
+  }
+ ],
+ "entered_at": "2026-10-11",
+ "entered_by": "agent-saisie",
+ "status": "a_verifier"
+}

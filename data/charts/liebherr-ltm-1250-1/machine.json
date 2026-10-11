@@ -1,0 +1,65 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "LTM 1250-1",
+  "specs": {
+    "capacite_max_t": 250,
+    "fleche_telescopique_m": "15,5 - 72",
+    "contrepoids_tableaux_t": "97,5 / 72,5"
+  },
+  "source": {
+    "document_title": "LIEBHERR LTM 1250-1 – 250 tonnes – Capacité de levage (fiche FOSELEV)",
+    "reference": "250T-LIEBHERR LTM 1250-1.pdf — sha256:7494d54bdbf938e0",
+    "edition": "Catalogue FOSELEV, pages datées 31/03/11",
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur (Document constructeur fourni par l'utilisateur, mis en page par FOSELEV)",
+    "page_refs": "p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 144 ») : Flèche principale 15,5-72 m, tableau du haut 97,5 t, tableau du bas 72,5 t ; p. 5 : Extension treillis ; p. 6-7 : Volée variable. PDF sha256:7494d54bdbf938e0e97b0547b17168a278a8e1e8930542f66f118feb9941742c"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw97-5t",
+      "label": "Flèche télescopique 15,5-72 m, calage, 360°, contrepoids 97,5 t",
+      "params": {
+        "longueur_fleche_m": "15,5 - 72",
+        "contrepoids_t": 97.5,
+        "base_calage_mm": null,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw97-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (75 %)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau du haut p. 3 du PDF (pictos flèche MAX de 15,5 à 72 m, calage, 97,5 t, 360°). Table entière : 10 colonnes de flèche x 24 lignes de portée (3 à 66 m) = 240 cellules, 137 valeurs, 103 vides. EXCLU : cellule 3 m / 15,5 m imprimée « 250* » — astérisque sans légende dans la fiche (habituellement secteur/équipement particulier) : laissée vide dans cette config 360°, à vérifier sur la doc constructeur. Mention « Egalement disponible en 25m900 & 41m500 de flèche principale » (pas de valeurs : non saisi). Diff intégral des deux passes : 240 cellules, 0 écart. Capacités croissant avec la portée/la longueur sur certaines cellules (ex. 12 m : 15,5 m < 20,7 m) : reproduites telles qu'imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d'interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. Chute imprimée flèche 20,7 m : 49,5/45 t à 16 m puis 25,8 t à 18 m (fidèle à la fiche, à vérifier)."
+      }
+    },
+    {
+      "slug": "telescopique-360-cw72-5t",
+      "label": "Flèche télescopique 15,5-72 m, calage, 360°, contrepoids 72,5 t",
+      "params": {
+        "longueur_fleche_m": "15,5 - 72",
+        "contrepoids_t": 72.5,
+        "base_calage_mm": null,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw72-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (75 %)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau du bas p. 3 du PDF (pictos flèche MAX de 15,5 à 72 m, calage, 72,5 t, 360°). Table entière : 10 colonnes x 24 lignes (3 à 66 m) = 240 cellules, 138 valeurs, 102 vides. Diff intégral des deux passes : 240 cellules, 0 écart. Capacités croissant avec la portée/la longueur sur certaines cellules (ex. 42 m : 46,7 m < 51,9 m ; 58 m : 67,5 m < 72 m) : reproduites telles qu'imprimées. NON saisis : Extension treillis (p. 5) et Volée variable (p. 6-7). Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d'interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. Chute imprimée flèche 20,7 m : 49,5/45 t à 16 m puis 25,8 t à 18 m (fidèle à la fiche, à vérifier)."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

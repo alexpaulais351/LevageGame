@@ -1,0 +1,45 @@
+{
+  "manufacturer": "Terex",
+  "type_code": "grue_mobile_chenilles",
+  "model": "TCC 45",
+  "specs": {
+    "capacite_max_t": 44,
+    "contrepoids_t": 9.2,
+    "largeur_pictogramme_m": "4,50"
+  },
+  "source": {
+    "document_title": "TEREX TCC 45 – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 44 tonnes)",
+    "reference": "44T-TEREX TCC 45.pdf (sha256 6f32051acd425f63)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : tableau « Flèche principale », 9,2 t / 4,50 m / 360° / 9,8 m/s / EN 13000. PDF sha256:6f32051acd425f63919f8b7ad6e724936cf718bebfef6a0f70c8e44ec6d5ebc8"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw9-2t",
+      "label": "Flèche télescopique 9,50-37,40 m, 360°, contrepoids 9,2 t (grue sur chenilles)",
+      "params": {
+        "longueur_fleche_m": "9,50 - 37,40",
+        "contrepoids_t": 9.2,
+        "chenilles_pictogramme_m": "4,50",
+        "zone": "360°",
+        "vent_max_m_s": 9.8,
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw9-2t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l'utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 9,2 t / 4,50 m / 360° / 9,8 m/s / EN 13000). 9 colonnes de flèche (9,50 à 37,40 m) x 34 lignes de portée (2,5 à 32 m) ; 151 valeurs ; cellules « - » = vides non saisies. ATTENTION : les cellules du tableau sont colorées « Mode 1 » (orange clair) / « Mode 2 » (orange foncé) selon la légende de la fiche ; le mode de chaque cellule n'est PAS repris dans le CSV (une seule valeur par portée/flèche imprimée) - se référer à la fiche pour le mode de télescopage applicable. Lignes « min » (angle minimal de flèche, ex. « 10° stop ») non saisies. Signification du pictogramme « 4,50 m » non précisée dans la fiche (non interprétée). Pas de donnée crochet/moufle (hook_block_mass_kg = null). Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. EXCLU DE LA MISE EN LIGNE (relecture 2026-10-11, décision de sécurité) : dossier renommé _exclu-… (ignoré par charts:sql) — voir docs/ABAQUES.md."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}
