@@ -74,11 +74,11 @@ describe("readCapacity — ABAQUE_TEST_FICTIF_FLECHE (sans interpolation)", () =
     horsAbaque(readCapacity(abaqueTestFictifFleche({ points: [{ x: 5, y: null, capacityKg: 1 }] }), 5, 20));
   });
 
-  it("abaque à vérifier ⇒ avertissement", () => {
+  it("abaque à vérifier : lecture identique, statut en simple information de source (D29)", () => {
     const r = readCapacity(abaqueTestFictifFleche({ status: "a_verifier" }), 5, 20);
     expect(r.value).toBe(7500);
-    expect(r.warnings[0]).toMatch(/à vérifier/);
-    expect(r.source).toContain("À VÉRIFIER");
+    expect(r.warnings.some((w) => /à vérifier/i.test(w))).toBe(false);
+    expect(r.source).toContain("statut : à vérifier");
   });
 });
 

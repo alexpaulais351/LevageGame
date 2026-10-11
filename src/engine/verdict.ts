@@ -114,9 +114,6 @@ export function computeVerdict(input: VerdictInput): Calc<VerdictResult> {
   if (!chart) {
     bloque("DONNEE_MANQUANTE", "Donnée manquante : abaque de la machine.");
   } else {
-    if (chart.status === "a_verifier") {
-      reserve("ABAQUE_A_VERIFIER", `Abaque « ${chart.id} » à vérifier : contrôle humain obligatoire contre la documentation constructeur.`);
-    }
     const v = validateChart(chart);
     v.errors.forEach((e) => bloque("ABAQUE_INVALIDE", `Abaque incohérent : ${e}`));
     warnings.push(...v.warnings);

@@ -6,7 +6,6 @@ import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
 import { formatMasse } from "@/lib/utils";
 
 import {
-  LIBELLE_ABAQUE_A_VERIFIER,
   pct,
   pdfTexte,
   type AbaqueModel,
@@ -53,9 +52,6 @@ function creerStyles(ff: string) {
     ligneFoot: { flexDirection: "row", backgroundColor: VINCI_PDF.footerBg },
     celluleFoot: { color: VINCI_PDF.footerText, fontWeight: 700, fontSize: 8, paddingVertical: 3, paddingHorizontal: 4 },
     // Encadrés
-    alerte: { borderWidth: 2, borderColor: VERDICT.jaune, backgroundColor: VERDICT.jauneBg, padding: 7, marginBottom: 8, flexDirection: "row", alignItems: "center" },
-    alerteTitre: { fontSize: 12, fontWeight: 700, color: VINCI.rougeDark, letterSpacing: 0.5 },
-    alerteTexte: { fontSize: 8, marginTop: 2, lineHeight: 1.3 },
     mention: { borderWidth: 0.75, borderColor: VINCI.bleu, backgroundColor: VINCI.bleuXLight, padding: 6, marginBottom: 8 },
     mentionTexte: { fontSize: 8, lineHeight: 1.35 },
     verdictBandeau: { borderLeftWidth: 8, paddingVertical: 8, paddingHorizontal: 10, marginBottom: 8 },
@@ -145,16 +141,11 @@ function Tableau({ s, cols, lignes, pied, gras }: { s: Styles; cols: Col[]; lign
   );
 }
 
-function AlerteAbaque({ s }: { s: Styles }) {
+function NoteAbaque({ s, texte }: { s: Styles; texte: string }) {
   return (
-    <View style={s.alerte} wrap={false}>
-      <View>
-        <Text style={s.alerteTitre}>{LIBELLE_ABAQUE_A_VERIFIER}</Text>
-        <Text style={s.alerteTexte}>
-          Les valeurs de l&apos;abaque utilisé n&apos;ont pas été contrôlées contre la documentation constructeur. Contrôle humain obligatoire avant tout usage de ce résultat.
-        </Text>
-      </View>
-    </View>
+    <Text style={[s.paragraphe, { marginBottom: 8 }]} wrap={false}>
+      {texte}
+    </Text>
   );
 }
 
@@ -343,7 +334,7 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
             Charge totale : {m.verdict.chargeTotale}  ·  {m.verdict.nbBloquants} point(s) bloquant(s)  ·  {m.verdict.nbReserves} réserve(s)
           </Text>
         </View>
-        {m.abaqueAVerifier && <AlerteAbaque s={s} />}
+        {m.noteAbaque && <NoteAbaque s={s} texte={m.noteAbaque} />}
         <View style={s.mention} wrap={false}>
           <Text style={s.mentionTexte}>
             <Text style={{ fontWeight: 700 }}>Mention : </Text>
@@ -388,7 +379,6 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
         </Section>
 
         <Section s={s} titre="4. Machine et configuration" rompre>
-          {m.abaqueAVerifier && <AlerteAbaque s={s} />}
           <Champs s={s} items={m.machine.champs} />
           {m.machine.photoUrl && (
             <View style={{ marginTop: 4, marginBottom: 2 }} wrap={false}>
@@ -492,7 +482,6 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
               {m.verdict.positionDefavorable !== "—" ? ` — « ${m.verdict.positionDefavorable} »` : ""}
             </Text>
           </View>
-          {m.abaqueAVerifier && <AlerteAbaque s={s} />}
           <Text style={s.sousTitre}>Points bloquants ({m.conclusion.bloquants.length})</Text>
           {m.conclusion.bloquants.length === 0 ? <Text style={s.muted}>Aucun.</Text> : m.conclusion.bloquants.map((x, i) => <Puce key={i} s={s} texte={x} couleur={VERDICT.rouge} fond={VERDICT.rougeBg} />)}
           <Text style={s.sousTitre}>Réserves ({m.conclusion.reserves.length + m.conclusion.reservesLibres.length})</Text>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronUp, CircleAlert, ShieldAlert, TriangleAlert } from "lucide-react";
+import { ChevronUp, CircleAlert, TriangleAlert } from "lucide-react";
 
 import type { Issue, VerdictGlobal, Zone } from "@/engine";
 import { formatTaux } from "@/lib/study/format";
@@ -57,20 +57,10 @@ export function ResultPanel({ result, seuils, variante }: Props) {
   const v = result.verdict.value;
   const style = VERDICT_STYLE[v.verdict];
   const worst = v.positionDefavorable;
-  const aVerifier = result.verdict.value.reserves.some((r) => r.code === "ABAQUE_A_VERIFIER");
   const zone: Zone | null = v.zone;
 
   const corps = (
     <div className="flex flex-col gap-4">
-      {aVerifier && (
-        <div role="alert" className="flex gap-2 rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm">
-          <ShieldAlert className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
-          <p>
-            <strong>Abaque à vérifier</strong> — valeurs non contrôlées contre la documentation constructeur. Contrôle
-            humain obligatoire avant tout usage.
-          </p>
-        </div>
-      )}
       <Gauge taux={v.tauxMax} zone={zone} seuilVert={seuils.vert} seuilOrange={seuils.orange} />
       <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
         <dt className="text-foreground/70">Charge totale</dt>

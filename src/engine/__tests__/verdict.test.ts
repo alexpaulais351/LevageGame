@@ -118,10 +118,14 @@ describe("computeVerdict — positions multiples", () => {
 });
 
 describe("computeVerdict — agrégation des contrôles", () => {
-  it("abaque à vérifier ⇒ réserve obligatoire", () => {
-    const r = at6(100, { chart: abaqueTestFictifSimple({ status: "a_verifier" }) });
-    expect(r.value.verdict).toBe("ADEQUAT_AVEC_RESERVES");
-    expect(r.value.reserves.map((i) => i.code)).toContain("ABAQUE_A_VERIFIER");
+  it("statut d'abaque sans effet sur le verdict (D29) : a_verifier + taux 50 % ⇒ ADÉQUAT, aucune réserve", () => {
+    const ref = at6(100, { chart: abaqueTestFictifSimple({ status: "verifie" }) });
+    const cap = ref.value.positions[0].capacite.value as number;
+    const r = at6(cap / 2, { chart: abaqueTestFictifSimple({ status: "a_verifier" }) });
+    expect(r.value.tauxMax).toBeCloseTo(0.5, 9);
+    expect(r.value.verdict).toBe("ADEQUAT");
+    expect(r.value.reserves).toEqual([]);
+    expect(r.value.bloquants).toEqual([]);
   });
   it("abaque incohérent ⇒ bloquant ; avertissements remontés", () => {
     const r = at6(100, {
@@ -199,9 +203,10 @@ describe("chaîne complète (exemple fictif)", () => {
       chargeTotaleKg: q.value,
     });
     expect(q.value).toBe(2700);
-    // capacité prise = 2800 kg ⇒ taux 96,4 % (orange) ; abaque à vérifier ⇒ réserve
+    // capacité prise = 2800 kg ⇒ taux 96,4 % (orange) ⇒ réserve ZONE_ORANGE (le statut de l'abaque est sans effet)
     expect(r.value.positionDefavorable?.id).toBe("prise");
     expect(r.value.verdict).toBe("ADEQUAT_AVEC_RESERVES");
+    expect(r.value.reserves.map((i) => i.code)).toEqual(["ZONE_ORANGE"]);
     expect(engine.G).toBe(9.81);
     expect(engine.EPS).toBe(1e-9);
   });

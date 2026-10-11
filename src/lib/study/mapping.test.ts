@@ -160,13 +160,18 @@ describe("computeStudy", () => {
     expect(r.verdict.value.verdict).toBe("NON_ADEQUAT");
     expect(r.verdict.value.bloquants.some((i) => i.code === "HORS_ABAQUE")).toBe(true);
   });
-  it("réserve si l'abaque est à vérifier ou si les VGP ne sont pas confirmées", () => {
+  it("abaque à vérifier sans effet sur le verdict (D29)", () => {
     const d = etudeComplete();
     d.machine.selection!.chart = abaqueTestFictifFleche({ status: "a_verifier" });
+    const r = computeStudy(d);
+    expect(r.verdict.value.verdict).toBe("ADEQUAT");
+    expect(r.verdict.value.reserves).toEqual([]);
+  });
+  it("réserve si les VGP ne sont pas confirmées", () => {
+    const d = etudeComplete();
     d.personnel.vgpEngin = false;
     const r = computeStudy(d);
     expect(r.verdict.value.verdict).toBe("ADEQUAT_AVEC_RESERVES");
-    expect(r.verdict.value.reserves.some((i) => i.code === "ABAQUE_A_VERIFIER")).toBe(true);
   });
   it("étude vierge : NON ADEQUAT avec données manquantes, sans exception", () => {
     const r = computeStudy(createInitialData());
