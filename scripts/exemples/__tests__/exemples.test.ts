@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { donneesDepuisVersion, jsonStable, payloadVersion } from "../../../src/lib/account/version";
@@ -12,7 +14,11 @@ import {
   lireFichier,
   resumeVerdict,
   STATUTS,
+  sqlAttendu,
   substituer,
+  TABLE_MODELES,
+  TABLE_MODELES_V1,
+  tableDeMigration,
   valeursEssai,
 } from "../modeles";
 
@@ -64,6 +70,19 @@ describe("modèles des projets d'exemple", () => {
   it("la dernière migration de modèles est à jour (sinon : npm run exemples:sql)", () => {
     const f = derniereMigrationModeles();
     expect(f).not.toBeNull();
-    expect(lireFichier(f!)).toBe(genererSql(modeles));
+    const contenu = lireFichier(f!);
+    expect(contenu).toBe(sqlAttendu(modeles, contenu));
+  });
+
+  it("les migrations générées ciblent private.modeles_exemples_v2 (la 0800 seule reste sur la v1)", () => {
+    const sql = genererSql(modeles);
+    expect(TABLE_MODELES).toBe("private.modeles_exemples_v2");
+    expect(tableDeMigration(sql)).toBe(TABLE_MODELES);
+    expect(sql).toContain("insert into private.modeles_exemples_v2 (ordre, nom, adresse, client, etudes) values");
+    expect(sql).not.toMatch(/private\.modeles_exemples[ ;(]/);
+    const f = derniereMigrationModeles()!;
+    const table = tableDeMigration(lireFichier(f));
+    if (path.basename(f) <= "20261011000800_projets_exemples_modeles.sql") expect(table).toBe(TABLE_MODELES_V1);
+    else expect(table).toBe(TABLE_MODELES);
   });
 });

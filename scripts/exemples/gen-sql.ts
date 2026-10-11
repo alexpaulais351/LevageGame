@@ -1,13 +1,15 @@
 /**
  * `npm run exemples:sql` : régénère les modèles des projets d'exemple (D30).
- *  - à jour  : la dernière migration *_projets_exemples_modeles.sql est identique → rien n'est écrit ;
- *  - sinon   : écrit une NOUVELLE migration datée (les migrations déjà appliquées ne sont jamais modifiées) ;
+ *  - à jour  : la dernière migration *_projets_exemples_modeles.sql a le même contenu (pour la table qu'elle
+ *              cible : 20261011000800 remplit la v1, recopiée dans la v2 par 20261011000900) → rien n'est écrit ;
+ *  - sinon   : écrit une NOUVELLE migration datée, ciblant private.modeles_exemples_v2 (les migrations déjà
+ *              appliquées ne sont jamais modifiées) ;
  *  - `--sortie <fichier>` : écrit à cet emplacement (ex. réécriture d'une migration pas encore appliquée).
  */
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { construireModeles, derniereMigrationModeles, genererSql, lireFichier, MIGRATIONS_DIR, SUFFIXE_MIGRATION } from "./modeles";
+import { construireModeles, derniereMigrationModeles, genererSql, lireFichier, MIGRATIONS_DIR, sqlAttendu, SUFFIXE_MIGRATION } from "./modeles";
 
 const args = process.argv.slice(2);
 const iSortie = args.indexOf("--sortie");
@@ -21,7 +23,8 @@ if (iSortie >= 0) {
   console.log(`Écrit : ${path.relative(process.cwd(), out)}`);
 } else {
   const derniere = derniereMigrationModeles();
-  if (derniere && lireFichier(derniere) === sql) {
+  const contenu = derniere ? lireFichier(derniere) : null;
+  if (derniere && contenu !== null && contenu === sqlAttendu(modeles, contenu)) {
     console.log(`Modèles à jour (${path.basename(derniere)}).`);
   } else {
     const d = new Date();
