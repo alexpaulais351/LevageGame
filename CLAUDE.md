@@ -66,3 +66,4 @@ supabase start | supabase db reset | supabase gen types typescript --local > src
 - Migrations SQL versionnées uniquement, jamais de modif manuelle en prod.
 - Export PDF via `useExportPDF` uniquement.
 - Branche `main` protégée (PR + CI verte) = production Vercel ; travail sur branche dédiée, preview par PR.
+- Projets d'exemple (D30) : abaque, moteur ou `scripts/exemples/etudes.ts` modifié ⇒ `npm run exemples:sql` (nouvelle migration de modèles).
