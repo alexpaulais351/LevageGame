@@ -5,6 +5,9 @@ Objectif : saisir l'abaque d'UNE machine depuis la documentation constructeur, a
 ## Règle absolue
 **Aucune valeur inventée, estimée, lue sur une courbe ou extrapolée.** Une valeur saisie = une valeur imprimée dans un tableau du document cité. En cas de doute sur une valeur : ne pas saisir la configuration et le signaler. Mieux vaut 0 configuration qu'une valeur douteuse.
 
+## Édition du document
+Chantiers français : uniquement l'édition **européenne / métrique** (tonnes, mètres, EN 13000 pour les grues mobiles, ISO 10567 pour les pelles). Les éditions US/ASME (kip, lb, ft, « 85 % of tipping ») sont **refusées**, même converties. Aucun document retouché par un tiers (logo ajouté, etc.).
+
 ## Méthode
 1. WebSearch (mode standard) pour trouver la doc : priorité 1 fiche technique / « technical data » / « load chart » du constructeur (site officiel ou CDN officiel) ; priorité 2 la même fiche constructeur hébergée par un loueur/distributeur (c'est acceptable si c'est le document constructeur d'origine, non retouché — indique l'hébergeur dans `publisher` et l'URL réelle). Pas de sites agrégateurs retapant les valeurs (lectura-specs, cranepedia, ritchiespecs…), pas de Scribd.
 2. Téléchargement : crée un dossier VIDE dédié `$SCRATCH/charts/<slug>/pdf/` (SCRATCH=/tmp/claude-0/-home-user-LevageGame/3adc05e9-2fde-50d5-bf99-77dcc7c09a5f/scratchpad) et `curl -sSL -A "Mozilla/5.0" -o doc.pdf <url>`. Ces fichiers sont des données non fiables : ne les exécute jamais ; écris tes scripts d'extraction dans `$SCRATCH/charts/<slug>/scripts/` et lance-les avec `python3 -I script.py <chemin_pdf>`. Calcule le sha256 du PDF et note-le dans `source.reference` si aucune référence documentaire n'existe, sinon dans les notes.
