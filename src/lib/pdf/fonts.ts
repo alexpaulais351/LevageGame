@@ -3,9 +3,8 @@
  *
  * Constat (génération réelle + rendu pdftoppm) : @react-pdf/renderer v4 ACCEPTE les fichiers .woff2 de
  * VINCI Sans (Font.register sans erreur, texte extractible) mais ne dessine AUCUN glyphe (fontkit ne sait
- * pas reconstruire les contours des woff2 « glyf transformé »). On utilise donc Helvetica (intégrée au
- * PDF, aucune ressource à charger) tant que des fichiers .ttf / .otf de VINCI Sans ne sont pas fournis
- * dans /public/fonts : renseigner alors `POLICES_TTF` (même mécanique, sans autre changement).
+ * pas reconstruire les contours des woff2 « glyf transformé »). Le PDF utilise donc des TTF convertis
+ * depuis les woff2 (fontTools, sans modification des contours) dans /public/fonts/pdf. Liste vide = Helvetica.
  */
 import { Font } from "@react-pdf/renderer";
 
@@ -13,7 +12,12 @@ export const FAMILLE_VINCI = "VINCI Sans";
 export const FAMILLE_REPLI = "Helvetica";
 
 /** Fichiers TTF/OTF de VINCI Sans (relatifs à la base des polices) ; vide = Helvetica. */
-export const POLICES_TTF: { fichier: string; fontWeight: 400 | 700; fontStyle: "normal" | "italic" }[] = [];
+export const POLICES_TTF: { fichier: string; fontWeight: 400 | 700; fontStyle: "normal" | "italic" }[] = [
+  { fichier: "pdf/VinciSans.ttf", fontWeight: 400, fontStyle: "normal" },
+  { fichier: "pdf/VinciSans-Italic.ttf", fontWeight: 400, fontStyle: "italic" },
+  { fichier: "pdf/VinciSans-Bold.ttf", fontWeight: 700, fontStyle: "normal" },
+  { fichier: "pdf/VinciSans-BoldItalic.ttf", fontWeight: 700, fontStyle: "italic" },
+];
 
 let enregistre = false;
 
