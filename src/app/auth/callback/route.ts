@@ -23,6 +23,10 @@ export async function GET(request: NextRequest) {
       : await supabase.auth.verifyOtp({ type: type!, token_hash: tokenHash! });
     // Compte non approuvé : le middleware le redirige ensuite vers /compte-en-attente.
     if (!error) return NextResponse.redirect(`${origin}${suivant}`);
+    // Supabase n'émet un `code` qu'après avoir vérifié le lien : l'adresse est donc confirmée. L'échange
+    // échoue seulement quand le lien est ouvert dans un autre navigateur que celui de l'inscription
+    // (vérificateur PKCE absent) : on invite à se connecter au lieu d'afficher une erreur.
+    if (code) return NextResponse.redirect(`${origin}/login?info=confirme`);
   }
   return NextResponse.redirect(`${origin}/login?erreur=lien`);
 }
