@@ -10,6 +10,7 @@ import { erreursZod, seuilsSchema } from "@/lib/study/schemas";
 import { cn, formatMasse } from "@/lib/utils";
 import { useStudy } from "@/stores/study";
 
+import { ExportPdfButton } from "../../pdf/ExportPdfButton";
 import { CalcDetail } from "../CalcDetail";
 import { NumberField, TextAreaField } from "../fields";
 import { ZONE_FOND } from "../Gauge";
@@ -51,6 +52,8 @@ export function StepSynthese({ result }: { result: StudyResult }) {
           {v.positionDefavorable && <> — « {v.positionDefavorable.label} »</>}
         </p>
       </div>
+
+      <ExportPdfButton />
 
       <dl className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Resume libelle="Projet" valeur={data.operation.projet} />

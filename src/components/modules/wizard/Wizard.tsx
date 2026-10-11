@@ -9,6 +9,7 @@ import { ETAPES } from "@/lib/study/schemas";
 import { thresholds } from "@/lib/study/mapping";
 import { useStudy } from "@/stores/study";
 
+import { ExportPdfButton } from "../pdf/ExportPdfButton";
 import { ETAPES_VISUELS, VisualsPanel } from "../visuals/VisualsPanel";
 import { AfficherErreursContext } from "./fields";
 import { ResultPanel } from "./ResultPanel";
@@ -97,6 +98,8 @@ export function Wizard() {
               Mode invité — étude conservée dans ce navigateur (non enregistrée).
             </p>
           </div>
+          <div className="flex flex-wrap items-start gap-2">
+          <ExportPdfButton variant="outline" />
           {confirmer ? (
             <div role="alertdialog" aria-label="Confirmer la nouvelle adéquation" className="flex flex-wrap items-center gap-2 rounded-md border border-vinci-rouge bg-vinci-rouge-xlight p-2 text-sm">
               <span>Effacer l&apos;étude en cours ?</span>
@@ -122,6 +125,7 @@ export function Wizard() {
               Nouvelle adéquation
             </Button>
           )}
+          </div>
         </header>
 
         <Stepper courante={etape} completude={result.completude} onSelect={aller} />
