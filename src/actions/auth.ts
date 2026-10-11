@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { cheminInterne, type EtatForm } from "@/lib/account/result";
-import { connexionSchema, inscriptionSchema, lienMagiqueSchema, premiereErreur } from "@/lib/account/schemas";
+import { connexionSchema, inscriptionSchema, premiereErreur } from "@/lib/account/schemas";
 import { supabaseConfigure } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -82,20 +82,6 @@ export async function inscription(_prev: EtatForm, formData: FormData): Promise<
     message:
       "Votre demande a été transmise à l'administrateur. Confirmez d'abord votre adresse e-mail via le lien reçu ; l'accès sera ouvert après validation.",
   };
-}
-
-export async function lienMagique(_prev: EtatForm, formData: FormData): Promise<EtatForm> {
-  if (!supabaseConfigure()) return NON_CONFIGURE;
-  const p = lienMagiqueSchema.safeParse({ email: formData.get("email") });
-  if (!p.success) return { error: premiereErreur(p.error) };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email: p.data.email,
-    // Un nouvel inscrit par lien magique reste en attente de validation (statut par défaut en base).
-    options: { emailRedirectTo: lienCallback(await urlSite(), cheminInterne(formData.get("suivant"))) },
-  });
-  if (error) return { error: messageAuth(error.message) };
-  return { message: "Si cette adresse est valide, un lien de connexion vient de vous être envoyé." };
 }
 
 export async function deconnexion(): Promise<void> {

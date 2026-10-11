@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 
 /**
  * Callback Auth Supabase (seule route handler de l'application) :
- * échange le code (PKCE) ou vérifie le jeton OTP du lien magique / de confirmation, puis redirige.
+ * échange le code (PKCE) ou vérifie le jeton OTP du lien de confirmation d'e-mail, puis redirige.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
