@@ -1,0 +1,68 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "LTM 1060-3.1",
+  "specs": {
+    "capacite_max_t": 60,
+    "fleche_telescopique_m": "10,3 - 48",
+    "contrepoids_max_t": 12.8,
+    "contrepoids_base_t": 5.5,
+    "contrepoids_additionnel_t": 7.3,
+    "base_calage_mm": "7359 x 6298 (vue de dessus p. 3)"
+  },
+  "source": {
+    "document_title": "Liebherr LTM 1060-3.1 – Technische Daten / Technical data / Caractéristiques techniques [m/t] (édition métrique, EN 13000)",
+    "reference": "lwe-td-250-04-defisr12-2025",
+    "edition": "12-2025 (td-250-04)",
+    "url": "https://assets-cdn.liebherr.com/versions/0a2bf980-365f-43a7-a1a0-1f361f9be062/original/",
+    "publisher": "Liebherr-Werk Ehingen GmbH (CDN officiel assets-cdn.liebherr.com, lien « Technical Data - Mobile crane LTM 1060-3.1 [m/t] metric » de la page produit liebherr.com/en-int)",
+    "page_refs": "p. 3 : cotes de calage 7359 x 6298 mm ; p. 8 : moufles ; p. 11 (haut) : flèche télescopique T 10,3-48 m, 360°, 12,8 t, tableau t_250_00101_00_000 / t_250_00501_00_000 ; p. 13 (haut) : idem 8 t, tableau t_250_00507_01_000 ; p. 31 : remarques (EN 13000, moufle à déduire). PDF sha256:a418a54881b39a5403c57dea991609b415a8d29ec08944bb5d9ec7c422565f4b"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw12-8t",
+      "label": "Flèche télescopique 10,3-48 m, calage max, 360°, contrepoids 12,8 t",
+      "params": {
+        "longueur_fleche_m": "10,3 - 48",
+        "contrepoids_t": 12.8,
+        "base_calage_mm": "7359 x 6298",
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw12-8t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 11 (haut) « Traglasten », pictos T 10,3-48 m / calage sorti / 360° / 12,8 t / EN. Table entière saisie : 12 colonnes de flèche (10,3 à 48 m) x 43 lignes de portée (2,1 à 40 m) = 516 cellules dont 281 valeurs et 235 cellules vides (vides dans le tableau). EXCLU : la sous-colonne « * » de la colonne 10,3 m (« * nach hinten / over rear / sur arrière » = secteur restreint arrière, incompatible avec une config 360°) ; seule la sous-colonne non marquée de 10,3 m est saisie (vide aux portées 2,1-2,5 m). La base de calage n'est pas cotée sur le tableau (picto calage sorti, seul calage proposé pour la flèche télescopique hors « sur pneus ») : base max 7359 x 6298 mm d'après la vue de dessus p. 3 (6298 sans VarioBase ; 2318-6298 avec VarioBase). Remarques p. 31 : EN 13000 ; vent 9 m/s, 1 m²/t, cw 1,2 ; classement ISO 4301-1 A1 ; charges en t ; poids du crochet/de la moufle fait partie de la charge et doit être DÉDUIT (non déduit ici) ; portées depuis l'axe de rotation ; longueurs de flèche maximales ; valable fléchette démontée ; charges > 42,3 t uniquement avec moufle additionnelle. Moufles p. 8 (capacité -> masse) : 60 t -> 0,40 t ; 46,1 t -> 0,40 t ; 30,2 t -> 0,28 t ; 13,3 t -> 0,20 t ; 4,5 t -> 0,10 t ; masse non fixée car dépend de la moufle (hook_block_mass_kg = null). Contrôle renforcé : extraction A = pdfplumber (mots + filets vectoriels du tableau) ; extraction B indépendante = poppler pdftotext -bbox (colonnes déduites des centres des en-têtes, sans filets) ; diff intégral sur la table complète (en-têtes, sous-en-têtes, colonne « * » incluse, cellules vides incluses) : 628 cellules, 0 écart ; CSV relu contre B : 516 cellules, 0 écart ; contrôle visuel du rendu PNG (pdftoppm) de l'affectation des sous-colonnes 10,3 m. Capacités croissant avec la portée à faible portée sur certaines longueurs (warnings charts:check) : reproduites telles qu'imprimées."
+      }
+    },
+    {
+      "slug": "telescopique-360-cw8t",
+      "label": "Flèche télescopique 10,3-48 m, calage max, 360°, contrepoids 8 t",
+      "params": {
+        "longueur_fleche_m": "10,3 - 48",
+        "contrepoids_t": 8,
+        "base_calage_mm": "7359 x 6298",
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw8t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 13 (haut, t_250_00507_01_000), pictos T 10,3-48 m / calage sorti / 360° / 8 t / EN ; 8 t = contrepoids imprimé immédiatement inférieur à 12,8 t (tables imprimées : 12,8 / 8 / 5,5 / 4,9 t). Le tableau du bas de la même page (±10°, 8 t) n'est PAS saisi. Table entière : 12 colonnes (10,3 à 48 m) x 35 lignes (3 à 35 m) = 420 cellules dont 263 valeurs et 157 vides (vides dans le tableau). Aucune colonne/ligne marquée secteur restreint dans ce tableau. Base de calage non cotée sur le tableau : 7359 x 6298 mm d'après p. 3 (voir config 12,8 t). Remarques p. 31 : EN 13000 ; moufle/crochet à DÉDUIRE (non déduit ici) ; valable fléchette démontée ; > 42,3 t seulement avec moufle additionnelle. Moufles p. 8 : 60 t -> 0,40 t ; 46,1 t -> 0,40 t ; 30,2 t -> 0,28 t ; 13,3 t -> 0,20 t ; 4,5 t -> 0,10 t (hook_block_mass_kg = null). Contrôle renforcé : pdfplumber (mots + filets) vs poppler pdftotext -bbox (centres d'en-têtes) ; diff intégral (en-têtes et cellules vides inclus) : 479 cellules, 0 écart ; CSV relu contre B : 420 cellules, 0 écart. Capacités croissant avec la portée à faible portée sur certaines longueurs (warnings charts:check) : reproduites telles qu'imprimées."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}
