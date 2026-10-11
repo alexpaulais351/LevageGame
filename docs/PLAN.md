@@ -10,7 +10,7 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 2 | Moteur de calcul + tests | ✅ 553 tests, couverture 99,8 % |
 | 3 | Abaques MVP (grues mobiles, télescopiques, pelles) | 🟡 format + import prêts ; saisie bloquée : réseau de l'environnement (PDF non téléchargeables) |
 | 4 | Assistant 9 étapes, mode invité | ✅ /outil, IndexedDB, résultat temps réel |
-| 5 | Visuels interactifs + comparateur | à faire |
+| 5 | Visuels interactifs + comparateur | ✅ courbe en escalier, élévation (crochet déplaçable), plan, comparateur |
 | 6 | Export PDF | à faire |
 | 7 | Comptes, projets, versions | à faire |
 | 8 | Machines perso + import CSV | à faire |

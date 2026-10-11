@@ -25,6 +25,22 @@ export interface PositionSaisie {
   porteeM: number | null;
   /** Longueur de flèche ou hauteur, selon l'axe Y de l'abaque. */
   yM: number | null;
+  /** Direction de la position dans le plan (degrés, 0 = haut du plan, sens horaire) ; `null` = non saisi. */
+  angleDeg?: number | null;
+}
+
+/** Obstacle saisi pour le schéma en élévation (distance depuis l'axe de rotation, hauteur au sol). */
+export interface ObstacleSaisie {
+  id: string;
+  nom: string;
+  distanceM: number | null;
+  hauteurM: number | null;
+}
+
+/** Dimensions de calage (emprise des stabilisateurs), si connues pour la configuration. */
+export interface CalageDimensions {
+  longueurM: number;
+  largeurM: number;
 }
 
 export interface MachineSelection {
@@ -38,6 +54,8 @@ export interface MachineSelection {
   configurationLabel: string;
   /** Instantané de l'abaque au moment du choix (traçabilité de l'étude). */
   chart: LoadChart | null;
+  /** Emprise des stabilisateurs (paramètres de configuration), absente tant que le catalogue ne la fournit pas. */
+  calage?: CalageDimensions | null;
 }
 
 export type ModeAppui = "stabilisateurs" | "chenilles" | "non_applicable";
@@ -78,6 +96,8 @@ export interface StudyData {
     positions: PositionSaisie[];
     hauteurSousCrochetM: number | null;
     obstacles: string;
+    /** Obstacles chiffrés (nom, distance, hauteur) affichés sur le schéma. */
+    obstaclesSaisis: ObstacleSaisie[];
   };
   sol: {
     mode: ModeAppui | null;

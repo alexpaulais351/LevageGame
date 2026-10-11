@@ -1,4 +1,4 @@
-import type { AccessoireSaisie, PositionSaisie, SectionKey, StudyData } from "./types";
+import type { AccessoireSaisie, ObstacleSaisie, PositionSaisie, SectionKey, StudyData } from "./types";
 
 export function nouvelId(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
@@ -17,7 +17,11 @@ export function accessoireVide(): AccessoireSaisie {
 }
 
 export function positionVide(nom = ""): PositionSaisie {
-  return { id: nouvelId(), nom, porteeM: null, yM: null };
+  return { id: nouvelId(), nom, porteeM: null, yM: null, angleDeg: null };
+}
+
+export function obstacleVide(): ObstacleSaisie {
+  return { id: nouvelId(), nom: "", distanceM: null, hauteurM: null };
 }
 
 export function createInitialData(): StudyData {
@@ -36,12 +40,13 @@ export function createInitialData(): StudyData {
     machine: { selection: null, moufleCrochetKg: null, flechetteReplieeKg: null, autresKg: null },
     geometrie: {
       positions: [
-        { id: "prise", nom: "Prise", porteeM: null, yM: null },
-        { id: "rotation", nom: "Rotation", porteeM: null, yM: null },
-        { id: "pose", nom: "Pose", porteeM: null, yM: null },
+        { id: "prise", nom: "Prise", porteeM: null, yM: null, angleDeg: null },
+        { id: "rotation", nom: "Rotation", porteeM: null, yM: null, angleDeg: null },
+        { id: "pose", nom: "Pose", porteeM: null, yM: null, angleDeg: null },
       ],
       hauteurSousCrochetM: null,
       obstacles: "",
+      obstaclesSaisis: [],
     },
     sol: {
       mode: null,

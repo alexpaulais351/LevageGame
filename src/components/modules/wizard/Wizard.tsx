@@ -9,6 +9,7 @@ import { ETAPES } from "@/lib/study/schemas";
 import { thresholds } from "@/lib/study/mapping";
 import { useStudy } from "@/stores/study";
 
+import { ETAPES_VISUELS, VisualsPanel } from "../visuals/VisualsPanel";
 import { AfficherErreursContext } from "./fields";
 import { ResultPanel } from "./ResultPanel";
 import { Stepper } from "./Stepper";
@@ -124,6 +125,8 @@ export function Wizard() {
         </header>
 
         <Stepper courante={etape} completude={result.completude} onSelect={aller} />
+
+        {ETAPES_VISUELS.includes(etape) && <VisualsPanel result={result} seuils={seuils} />}
 
         <AfficherErreursContext.Provider value={toutesErreurs}>{corps}</AfficherErreursContext.Provider>
 

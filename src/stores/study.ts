@@ -9,8 +9,8 @@ import { del, get, set } from "idb-keyval";
 import { create } from "zustand";
 import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 
-import { accessoireVide, createInitialData, fusionnerAvecDefauts, nouvelId, positionVide } from "@/lib/study/defaults";
-import type { AccessoireSaisie, PositionSaisie, SectionKey, StudyData } from "@/lib/study/types";
+import { accessoireVide, createInitialData, fusionnerAvecDefauts, nouvelId, obstacleVide, positionVide } from "@/lib/study/defaults";
+import type { AccessoireSaisie, ObstacleSaisie, PositionSaisie, SectionKey, StudyData } from "@/lib/study/types";
 
 const idbStorage: StateStorage = {
   getItem: async (name) => (await get<string>(name)) ?? null,
@@ -34,6 +34,9 @@ export interface StudyState {
   ajouterPosition: () => void;
   majPosition: (id: string, patch: Partial<PositionSaisie>) => void;
   supprimerPosition: (id: string) => void;
+  ajouterObstacle: () => void;
+  majObstacle: (id: string, patch: Partial<ObstacleSaisie>) => void;
+  supprimerObstacle: (id: string) => void;
   ajouterReserve: () => void;
   majReserve: (id: string, texte: string) => void;
   supprimerReserve: (id: string) => void;
@@ -98,6 +101,36 @@ export const useStudy = create<StudyState>()(
             touch({
               ...s.data,
               geometrie: { ...s.data.geometrie, positions: s.data.geometrie.positions.filter((x) => x.id !== id) },
+            }),
+          ),
+        ajouterObstacle: () =>
+          setState((s) =>
+            touch({
+              ...s.data,
+              geometrie: {
+                ...s.data.geometrie,
+                obstaclesSaisis: [...(s.data.geometrie.obstaclesSaisis ?? []), obstacleVide()],
+              },
+            }),
+          ),
+        majObstacle: (id, p) =>
+          setState((s) =>
+            touch({
+              ...s.data,
+              geometrie: {
+                ...s.data.geometrie,
+                obstaclesSaisis: (s.data.geometrie.obstaclesSaisis ?? []).map((o) => (o.id === id ? { ...o, ...p } : o)),
+              },
+            }),
+          ),
+        supprimerObstacle: (id) =>
+          setState((s) =>
+            touch({
+              ...s.data,
+              geometrie: {
+                ...s.data.geometrie,
+                obstaclesSaisis: (s.data.geometrie.obstaclesSaisis ?? []).filter((o) => o.id !== id),
+              },
             }),
           ),
         ajouterReserve: () =>

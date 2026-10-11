@@ -16,6 +16,9 @@ export function StepGeometrie() {
   const ajouter = useStudy((s) => s.ajouterPosition);
   const maj = useStudy((s) => s.majPosition);
   const suppr = useStudy((s) => s.supprimerPosition);
+  const ajouterObstacle = useStudy((s) => s.ajouterObstacle);
+  const majObstacle = useStudy((s) => s.majObstacle);
+  const supprObstacle = useStudy((s) => s.supprimerObstacle);
   const err = useErreurs("geometrie");
 
   const libelleY = axeY === "height_m" ? "Hauteur sous abaque" : "Longueur de flèche";
@@ -48,7 +51,7 @@ export function StepGeometrie() {
                 <Trash2 className="text-vinci-rouge" />
               </Button>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <TextField label="Nom" value={p.nom} onChange={(v) => maj(p.id, { nom: v })} error={err[`positions.${i}.nom`]} />
               <NumberField
                 label="Portée (rayon)"
@@ -56,6 +59,13 @@ export function StepGeometrie() {
                 value={p.porteeM}
                 onChange={(v) => maj(p.id, { porteeM: v })}
                 error={err[`positions.${i}.porteeM`]}
+              />
+              <NumberField
+                label="Angle dans le plan"
+                unite="°"
+                value={p.angleDeg ?? null}
+                onChange={(v) => maj(p.id, { angleDeg: v })}
+                hint="0° = haut du plan, sens horaire. Sert à la vue en plan."
               />
               {avecY && (
                 <NumberField
@@ -84,8 +94,25 @@ export function StepGeometrie() {
         value={g.hauteurSousCrochetM}
         onChange={(v) => patch("geometrie", { hauteurSousCrochetM: v })}
       />
+      <SousTitre>Obstacles chiffrés (schéma en élévation)</SousTitre>
+      <ul className="flex flex-col gap-3">
+        {(g.obstaclesSaisis ?? []).map((o, i) => (
+          <li key={o.id} className="grid grid-cols-[1fr_auto] items-end gap-2 sm:grid-cols-[2fr_1fr_1fr_auto]">
+            <TextField className="col-span-2 sm:col-span-1" label={`Obstacle ${i + 1}`} value={o.nom} onChange={(v) => majObstacle(o.id, { nom: v })} />
+            <NumberField label="Distance à l'axe" unite="m" value={o.distanceM} onChange={(v) => majObstacle(o.id, { distanceM: v })} />
+            <NumberField label="Hauteur" unite="m" value={o.hauteurM} onChange={(v) => majObstacle(o.id, { hauteurM: v })} />
+            <Button type="button" variant="ghost" size="icon" onClick={() => supprObstacle(o.id)} aria-label={`Supprimer l'obstacle ${i + 1}`}>
+              <Trash2 className="text-vinci-rouge" />
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <Button type="button" variant="outline" size="lg" className="self-start" onClick={ajouterObstacle}>
+        <Plus />
+        Ajouter un obstacle
+      </Button>
       <TextAreaField
-        label="Obstacles"
+        label="Obstacles (description libre)"
         value={g.obstacles}
         onChange={(v) => patch("geometrie", { obstacles: v })}
         placeholder="Bâtiments, arbres, autres engins, ouvrages à franchir…"
