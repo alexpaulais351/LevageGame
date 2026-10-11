@@ -37,6 +37,7 @@ L'application est servie sur http://localhost:3000.
 | `npm test` | Tests Vitest |
 | `npm run charts:check` | Contrôle de cohérence des abaques de `data/charts/` |
 | `npm run charts:sql` | Génère `supabase/seed/charts.sql` (catalogue public, statut `a_verifier`) |
+| `npm run exemples:sql` | Régénère les modèles des projets d'exemple (nouvelle migration `*_projets_exemples_modeles.sql` si nécessaire) |
 | `npx supabase@latest start` / `db reset` / `test db` | Base locale, migrations + seed, tests RLS pgTAP |
 
 La CI (GitHub Actions) exécute lint, typecheck, tests, contrôle des abaques et build, plus un job base de données (migrations, seed et tests pgTAP sur un Supabase local), à chaque push et pull request.
@@ -47,6 +48,12 @@ La CI (GitHub Actions) exécute lint, typecheck, tests, contrôle des abaques et
 - **Preview** : un déploiement Vercel par pull request.
 - **Vercel** : framework Next.js (`vercel.json`), variables `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` pour Production et Preview.
 - **Supabase** (projet `unvedfxxiasjpbtamsdd`, eu-west-1) : migrations de `supabase/migrations/` appliquées dans l'ordre (jamais de modification manuelle du schéma) ; catalogue public chargé depuis `supabase/seed/charts.sql`. Auth : Site URL `https://levagegame.vercel.app`, Redirect URLs `https://levagegame.vercel.app/**`. Pour un usage en équipe, configurer un SMTP (confirmation d'e-mail).
+
+## Projets d'exemple (D30)
+
+Chaque compte reçoit, au moment où l'administrateur le valide, deux projets « [EXEMPLE] » (3 études) qu'il peut ensuite modifier ou supprimer. Les modèles sont décrits dans `scripts/exemples/etudes.ts` ; `data` et `result` sont calculés par le moteur et stockés dans `private.modeles_exemples` (migration générée). À la validation, `private.creer_exemples` retrouve machine / configuration / abaque par modèle + slug et vérifie l'empreinte md5 de l'abaque : si une configuration manque ou si un abaque a changé, le projet concerné est simplement sauté (la validation n'échoue jamais).
+
+**Si un abaque, le moteur de calcul ou une étude d'exemple change** : `npm run exemples:sql` écrit une nouvelle migration datée `supabase/migrations/<horodatage>_projets_exemples_modeles.sql` (les migrations déjà appliquées ne sont jamais modifiées), à committer puis appliquer en production après le nouveau `supabase/seed/charts.sql`. Le test Vitest `scripts/exemples/__tests__` échoue tant que la dernière migration de modèles n'est pas à jour. Les comptes déjà validés ne sont pas concernés (une seule création par compte, `private.exemples_servis`).
 
 ## Avertissement réglementaire
 

@@ -12,6 +12,9 @@ insert into auth.users (id, email, aud, role, raw_user_meta_data) values
   ('d0000000-0000-0000-0000-0000000000a3', 'suspendu@test.local', 'authenticated', 'authenticated', '{"full_name":"Sam"}'),
   ('d0000000-0000-0000-0000-0000000000a4', 'Admin@Test.local', 'authenticated', 'authenticated', '{"full_name":"Admin"}'),
   ('d0000000-0000-0000-0000-0000000000a5', 'admin2@test.local', 'authenticated', 'authenticated', '{"full_name":"Admin 2"}');
+-- Projets d'exemple (D30) hors sujet ici : comptes marqués « servis » (testés dans projets_exemples.test.sql).
+insert into private.exemples_servis (user_id)
+select id from auth.users where id::text like 'd0000000-0000-0000-0000-0000000000a_';
 
 -- Machine publique fictive (données de test uniquement) et projets de chacun.
 insert into machines (id, type_id, manufacturer_id, model, owner_id) values
