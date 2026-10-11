@@ -8,7 +8,7 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 0 | Socle Next.js + charte + CI | ✅ (shadcn écrit à la main : ui.shadcn.com bloqué par le proxy) |
 | 1 | Schéma + migrations + RLS | ✅ 46 tests pgTAP (`npx supabase test db`) |
 | 2 | Moteur de calcul + tests | ✅ 553 tests, couverture 99,8 % |
-| 3 | Abaques MVP (grues mobiles, télescopiques, pelles) | à faire — besoin des PDF constructeur |
+| 3 | Abaques MVP (grues mobiles, télescopiques, pelles) | 🟡 format + import prêts ; saisie bloquée : réseau de l'environnement (PDF non téléchargeables) |
 | 4 | Assistant 9 étapes, mode invité | à faire |
 | 5 | Visuels interactifs + comparateur | à faire |
 | 6 | Export PDF | à faire |

@@ -23,3 +23,4 @@
 - D21 — Moteur : portance du sol, limites de vent et distance minimale aux lignes électriques sont des entrées sans valeur par défaut (absentes ⇒ bloquant « donnée manquante ») ; égalité au seuil acceptée.
 - D22 — Moteur : vent en m/s en interne (helper km/h → m/s) ; masses en kg, efforts en kN (g = 9,81) ; aucun arrondi interne, formules symboliques.
 - D23 — Moteur : champ `flechetteReplieeKg` sans accent (identifiant ASCII) ; contrôles renvoient `Check<T>` = `Calc<T>` + `issues[]` (bloquant/réserve) agrégés par `computeVerdict`.
+- D24 — Abaques : saisie dans data/charts/<machine>/ (machine.json + un CSV par configuration), validation `npm run charts:check`, import par `npm run charts:sql` → supabase/seed/charts.sql ; cellules vides non stockées (nœud absent = hors abaque) ; slug de configuration dans params.slug.

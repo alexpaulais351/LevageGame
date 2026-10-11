@@ -9,6 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "charts:check": "tsx scripts/charts/check.ts",
+    "charts:sql": "tsx scripts/charts/gen-sql.ts",
     "test:coverage": "vitest run --coverage --coverage.include=src/engine/** --coverage.exclude=src/engine/__tests__/** --coverage.thresholds.lines=90 --coverage.thresholds.branches=90 --coverage.thresholds.functions=90 --coverage.thresholds.statements=90"
   },
   "dependencies": {
@@ -42,6 +44,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.27",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.3"
   }

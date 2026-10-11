@@ -1,0 +1,49 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "FICTIF - EXEMPLE DE FORMAT (ne pas utiliser)",
+  "specs": { "note": "FICTIF - aucune spécification réelle" },
+  "source": {
+    "document_title": "FICTIF - document inexistant, exemple de format uniquement",
+    "reference": "FICTIF-000",
+    "edition": null,
+    "url": null,
+    "publisher": null,
+    "page_refs": null
+  },
+  "configurations": [
+    {
+      "slug": "fictif-fleche-a",
+      "label": "FICTIF - flèche A (valeurs inventées pour test)",
+      "params": { "longueur_fleche_m": null, "contrepoids_kg": null, "calage_pct": null, "zone": null },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fictif-fleche-a.csv",
+        "axis_y": "boom_length_m",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "FICTIF - valeurs inventées, uniquement pour tester le format ; une cellule vide est volontaire."
+      }
+    },
+    {
+      "slug": "fictif-sans-axe-y",
+      "label": "FICTIF - abaque sans axe y, en tonnes",
+      "params": { "mouflage": null },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fictif-sans-axe-y.csv",
+        "axis_y": "none",
+        "unit": "t",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "FICTIF - valeurs inventées, uniquement pour tester le format."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "FICTIF",
+  "status": "a_verifier"
+}
