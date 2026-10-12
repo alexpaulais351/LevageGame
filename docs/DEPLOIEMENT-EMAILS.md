@@ -63,3 +63,6 @@ le trigger cesse tout appel, sans autre modification.
 - Secrets de la fonction : `RESEND_API_KEY`, `WEBHOOK_SECRET`, `ADMIN_EMAIL` (adresse du compte Resend), `APP_URL` = https://levagegame.vercel.app, `EMAIL_FROM` = expéditeur de test Resend `onboarding@resend.dev`.
 - Sans domaine vérifié, Resend n'envoie qu'à l'adresse du compte Resend : pour recevoir sur une autre boîte, transfert automatique depuis cette boîte, ou domaine vérifié chez Resend puis mise à jour de `ADMIN_EMAIL` et `EMAIL_FROM`.
 - Envoi testé le 2026-10-11 (réponse `envoye: true` ; appel sans secret refusé en 401).
+
+## Confirmation d'e-mail (2026-10-12, D31)
+Supabase → Authentication → Sign In / Providers → Email : « Confirm email » **désactivé**. Le service d'e-mail intégré limite l'envoi à ~2 messages/heure, ce qui bloquait les inscriptions. Pour réactiver la confirmation plus tard : configurer un SMTP personnalisé (Resend avec domaine vérifié) dans Authentication → Emails → SMTP Settings, puis relever la limite dans Authentication → Rate Limits.

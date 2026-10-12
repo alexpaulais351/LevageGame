@@ -31,6 +31,8 @@ function messageAuth(message: string): string {
   if (m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
   if (m.includes("already registered") || m.includes("already been registered")) return "Un compte existe déjà avec cette adresse e-mail.";
   if (m.includes("email not confirmed")) return "Adresse e-mail non confirmée : consultez le lien reçu par e-mail.";
+  // Limite d'envoi d'e-mails du service Supabase (et non une faute de l'utilisateur).
+  if (m.includes("email rate limit")) return "Le service d'envoi d'e-mails est momentanément saturé : réessayez dans une heure ou prévenez l'administrateur.";
   if (m.includes("rate limit") || m.includes("too many")) return "Trop de tentatives : patientez quelques minutes.";
   if (m.includes("password")) return "Mot de passe refusé (8 caractères minimum).";
   return "L'opération a échoué. Réessayez.";
