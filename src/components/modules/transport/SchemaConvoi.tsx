@@ -32,7 +32,7 @@ export function VueCote({ piece, ev }: { piece: PieceTransport; ev: EvaluationVe
   const g: Geo = { X, Y, s };
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Vue de côté : ${v.nom}, longueur ${m(e.longueurM)}, hauteur ${m(e.hauteurM)}`}>
+    <svg data-schema="cote" viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Vue de côté : ${v.nom}, longueur ${m(e.longueurM)}, hauteur ${m(e.hauteurM)}`}>
       <line x1={0} x2={W} y1={sol} y2={sol} stroke={GRIS} strokeWidth={2} />
       {[HAUTEURS.vigilanceM, HAUTEURS.autorouteM].map((h) => (
         <g key={h}>
@@ -256,7 +256,7 @@ export function VueDessus({ piece, ev }: { piece: PieceTransport; ev: Evaluation
     [LIMITES_STANDARD.largeurM, VERT, "2,55 m", "start"],
   ];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Vue de dessus : largeur ${m(e.largeurM)}`}>
+    <svg data-schema="dessus" viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Vue de dessus : largeur ${m(e.largeurM)}`}>
       {bandes.map(([l, c, t, ancre]) => (
         <g key={t}>
           <line x1={marge} x2={W - 10} y1={cy - (l / 2) * s} y2={cy - (l / 2) * s} stroke={c} strokeDasharray="6 5" />

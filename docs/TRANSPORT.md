@@ -37,3 +37,13 @@ Caractéristiques **indicatives** (ordres de grandeur du marché ; Faymonville M
 col de cygne) + plateau allongé à la pièce + porte-à-faux ; hauteur = plancher + pièce ; masse = tare indicative + pièce.
 Classement : véhicules possibles, puis contrainte croissante (catégorie, + 1 cran si hauteur > 4 m), puis familles
 habituelles du type de pièce, puis masse.
+
+## Projet de demande administrative (Word)
+Section 5 de l'outil : bouton « Télécharger la demande (Word) ». Document **préparatoire** généré dans le navigateur
+(`docx`, `src/lib/transport/demande-docx.ts` ; données : `src/lib/transport/demande.ts`), à reporter sur le formulaire
+officiel (Cerfa) ou la téléprocédure de la DDT du département de départ. Pré-rempli avec : profil (nom, fonction,
+téléphone, e-mail) et organisation (raison sociale, adresse, SIRET) ou entreprise déclarée à l'inscription ; projet
+choisi (nom, adresse du chantier = arrivée, client) ; pièce ; convoi (dimensions hors tout, masse estimée, catégorie,
+critères) ; nature cochée (déclaration 1TE si 1re catégorie et charge indivisible, sinon autorisation au voyage ;
+« Note de transport » sans demande en transport normal) ; itinéraire saisi ; accompagnement, signalisation,
+circulation ; schémas (SVG → PNG) ; pièces à joindre ; zone de signature. Champs inconnus : « à compléter ».

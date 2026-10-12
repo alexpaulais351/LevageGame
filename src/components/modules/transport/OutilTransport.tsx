@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, Info, Truck, XCircle } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { AlertTriangle, CheckCircle2, FileDown, Info, Truck, XCircle } from "lucide-react";
 
-import { CheckboxField, NumberField, UNITES_MASSE, UnitNumberField } from "@/components/modules/wizard/fields";
+import { CheckboxField, NumberField, SelectField, TextField, UNITES_MASSE, UnitNumberField } from "@/components/modules/wizard/fields";
+import { Button } from "@/components/ui/button";
 import { classerVehicules, erreursPiece, LIBELLE_CATEGORIE, type Categorie, type EvaluationVehicule, type PieceTransport } from "@/engine/transport";
 import { TYPES_PIECES, typePiece, VEHICULES } from "@/lib/transport/catalogue";
 import { demarches } from "@/lib/transport/demarches";
+import { donneesDemande, nomFichierDemande, type Demandeur, type ProjetTransport } from "@/lib/transport/demande";
 import { cn, formatMasse, formatNombreFR } from "@/lib/utils";
 
 import { CompositionConvoi, VueCote, VueDessus } from "./SchemaConvoi";
@@ -27,9 +29,15 @@ export interface SaisieInitiale {
   hauteurM?: number;
   masseKg?: number;
   designation?: string;
+  projetId?: string;
 }
 
-export function OutilTransport({ initial }: { initial: SaisieInitiale }) {
+export interface ContexteTransport {
+  demandeur: Demandeur;
+  projets: ProjetTransport[];
+}
+
+export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale; contexte: ContexteTransport }) {
   const depart = typePiece(initial.type ?? (initial.longueurM ? "autre" : "poutre-beton"));
   const [typeId, setTypeId] = useState(depart.id);
   const [p, setP] = useState<Record<keyof PieceTransport, number | null>>({
@@ -40,6 +48,10 @@ export function OutilTransport({ initial }: { initial: SaisieInitiale }) {
   });
   const [indivisible, setIndivisible] = useState(true);
   const [choix, setChoix] = useState<string | null>(null);
+  const [projetId, setProjetId] = useState<string>(initial.projetId && contexte.projets.some((x) => x.id === initial.projetId) ? initial.projetId : "");
+  const [trajet, setTrajet] = useState({ depart: "", dates: "", voyages: "1" });
+  const [generation, setGeneration] = useState<"repos" | "en_cours" | "erreur">("repos");
+  const schemasRef = useRef<HTMLDivElement>(null);
 
   const type = typePiece(typeId);
   const erreurs = erreursPiece({ longueurM: p.longueurM ?? undefined, largeurM: p.largeurM ?? undefined, hauteurM: p.hauteurM ?? undefined, masseKg: p.masseKg ?? undefined });
@@ -51,6 +63,31 @@ export function OutilTransport({ initial }: { initial: SaisieInitiale }) {
   }, [piece, type]);
   const possibles = classement.filter((e) => e.possible);
   const ev = possibles.find((e) => e.vehicule.id === choix) ?? possibles[0] ?? null;
+
+  const telecharger = async () => {
+    if (!piece || !ev) return;
+    setGeneration("en_cours");
+    try {
+      const [{ genererDemandeDocx }, { svgEnPng }] = await Promise.all([import("@/lib/transport/demande-docx"), import("@/lib/transport/svg-png")]);
+      const svgs = [...(schemasRef.current?.querySelectorAll<SVGSVGElement>("svg[data-schema]") ?? [])];
+      const schemas = (await Promise.all(svgs.map((x) => svgEnPng(x)))).filter((x) => x !== null);
+      const projet = contexte.projets.find((x) => x.id === projetId) ?? null;
+      const blob = await genererDemandeDocx(
+        donneesDemande({ ev, piece, typePiece: type.nom, designation: initial.designation ?? null, indivisible, demandeur: contexte.demandeur, projet, trajet, schemas }),
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nomFichierDemande(projet?.nom ?? null, initial.designation || type.nom);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      setGeneration("repos");
+    } catch {
+      setGeneration("erreur");
+    }
+  };
 
   const choisirType = (id: string) => {
     const t = typePiece(id);
@@ -134,7 +171,7 @@ export function OutilTransport({ initial }: { initial: SaisieInitiale }) {
             </div>
           </section>
 
-          <section aria-labelledby="t-schema" className="rounded-lg border border-border p-4">
+          <section aria-labelledby="t-schema" className="rounded-lg border border-border p-4" ref={schemasRef as React.Ref<HTMLElement>}>
             <h2 id="t-schema" className="mb-2 text-lg font-bold text-primary">
               2. Schémas du convoi (à l&apos;échelle)
             </h2>
@@ -235,6 +272,37 @@ export function OutilTransport({ initial }: { initial: SaisieInitiale }) {
                   })}
                 </tbody>
               </table>
+            </div>
+          </section>
+          <section aria-labelledby="t-demande" className="rounded-lg border border-border p-4">
+            <h2 id="t-demande" className="text-lg font-bold text-primary">
+              5. Demande administrative (Word)
+            </h2>
+            <p className="mb-3 text-sm text-foreground/80">
+              Projet de demande pré-rempli avec le projet, la pièce, le convoi et les schémas, à reporter sur le formulaire officiel (Cerfa) ou la
+              téléprocédure de la DDT du département de départ.
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Projet (chantier de destination)"
+                value={projetId}
+                onChange={setProjetId}
+                options={[{ value: "", label: "Aucun projet" }, ...contexte.projets.map((x) => ({ value: x.id, label: x.nom }))]}
+              />
+              <TextField label="Point de départ (usine, dépôt…)" value={trajet.depart} onChange={(v) => setTrajet((x) => ({ ...x, depart: v }))} placeholder="Ville ou adresse" />
+              <TextField label="Dates / période souhaitées" value={trajet.dates} onChange={(v) => setTrajet((x) => ({ ...x, dates: v }))} placeholder="Ex. semaine 46, de nuit exclu" />
+              <TextField label="Nombre de voyages" value={trajet.voyages} onChange={(v) => setTrajet((x) => ({ ...x, voyages: v }))} />
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button type="button" size="lg" disabled={generation === "en_cours"} onClick={() => void telecharger()} data-testid="telecharger-demande">
+                <FileDown />
+                {generation === "en_cours" ? "Préparation…" : "Télécharger la demande (Word)"}
+              </Button>
+              {generation === "erreur" && (
+                <span role="alert" className="text-sm font-medium text-vinci-rouge-dark">
+                  Le document n&apos;a pas pu être généré. Réessayez.
+                </span>
+              )}
             </div>
           </section>
         </>
