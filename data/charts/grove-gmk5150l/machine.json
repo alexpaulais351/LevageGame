@@ -1,0 +1,44 @@
+{
+  "manufacturer": "Grove",
+  "type_code": "grue_mobile",
+  "model": "GMK5150L",
+  "specs": {
+    "capacite_max_t": 150,
+    "fleche_principale_m": "12,8 - 60,0",
+    "contrepoids_max_t": 44.5,
+    "base_calage_m": 7.6
+  },
+  "source": {
+    "document_title": "GROVE GMK 5150L — 150 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)",
+    "reference": "150T-GROVE GMK 5150L.pdf, sha256:3aaa7df56e904480",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 1 : cotation (dimensions) ; p. 2 : diagramme hauteurs/portées (non utilisé, courbes) ; p. 3 : tableau flèche principale 12,8-60,0 m, calage 7,6 m, 360°, contrepoids 44,5 t, EN 13000, renvoi « * En arrière avec équipement special » ; p. 4-5 : flèche principale + fléchette (non saisies)"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw44-5t",
+      "label": "Flèche principale 12,8-60,0 m, calage 7,6 m, 360°, contrepoids 44,5 t",
+      "params": {
+        "contrepoids_t": 44.5,
+        "base_calage_m": 7.6,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw44-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. PDF vectorisé sans texte extractible (tableau en tracés) : lecture visuelle du tableau p. 3 en deux passes indépendantes (passe 1 : rendu 200 dpi découpé par lignes ; passe 2 : rendu 300 dpi découpé par colonnes) ; diff intégral : 442 cellules (13 colonnes de flèche 12,8 à 60,0 m × 34 lignes de portée 3,0 à 56,0 m), 0 écart après re-zoom 300 dpi des lignes 50-56 m (décalage de colonne de saisie en passe 1, corrigé). 265 valeurs ; cellules vides = vides dans le tableau. EXCLUE (non 360°) : la première ligne « 3,0 » dont l'unique valeur « 150,0* » renvoie à « * En arrière avec équipement special ». Valeur imprimée « 5 » (portée 42 m, flèche 43,5 m) saisie 5,0. Prise en compte ou non du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence : moufle non réputée déduite ; masse moufle non documentée). Mouflage et vent non indiqués. Valeurs non monotones reproduites telles qu'imprimées. Masse et mouflage à vérifier sur l'abaque constructeur Manitowoc d'origine. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

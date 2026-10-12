@@ -1,0 +1,63 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_tour",
+  "model": "MK 110",
+  "specs": {
+    "capacite_max_t": 8,
+    "categorie": "grue mobile de chantier",
+    "capacite_max_kg": 8000
+  },
+  "source": {
+    "document_title": "LIEBHERR MK 110 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)",
+    "reference": "8T-LIEBHERR MK 110.pdf (sha256 0c32e528a198ed5e…)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 du PDF : tableaux 8,25 m x 8,20 m, flèche 0° (52,0 et 44,0 m) et 30°. PDF sha256 complet : 0c32e528a198ed5eec378a02476d0801f999d6d2ee81606f670018a124af7501"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-0deg",
+      "label": "Calage 8,25 x 8,20 m, flèche 0°, longueurs 52,0 et 44,0 m",
+      "params": {
+        "categorie": "grue mobile de chantier",
+        "calage_m": "8,25 x 8,20",
+        "angle_fleche_deg": 0,
+        "vent_max": "8,0 Bft (20 m/s)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-0deg.csv",
+        "axis_y": "boom_length_m",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. y = valeur de la colonne « m » (52,0 / 44,0), égale à la portée maximale à 0° (cf. schéma p. 2 : 52,0 m). Portées 14,0 à 52,0 m (52,0) et 14,0 à 44,0 m (44,0). Les tableaux 15° et 45° ne donnent qu'une plage de portée et une charge unique : non saisis. RELECTURE 2026-10-11 : diff intégral visuel contre le rendu 200 dpi p. 3 : 0 écart (condition de vent imprimée : max. 8,0 Bft / 20 m/s)."
+      }
+    },
+    {
+      "slug": "fleche-30deg",
+      "label": "Calage 8,25 x 8,20 m, flèche à 30°, longueurs 52,0 et 44,0 m",
+      "params": {
+        "categorie": "grue mobile de chantier",
+        "calage_m": "8,25 x 8,20",
+        "angle_fleche_deg": 30,
+        "vent_max": "8,0 Bft (20 m/s)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-30deg.csv",
+        "axis_y": "boom_length_m",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. y = valeur de la colonne « m » (52,0 / 44,0) ; portées 14,0 à 45,3 m (52,0) et 14,0 à 38,4 m (44,0). RELECTURE 2026-10-11 : diff intégral visuel contre le rendu 200 dpi p. 3 : 0 écart (condition de vent imprimée : max. 8,0 Bft / 20 m/s)."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

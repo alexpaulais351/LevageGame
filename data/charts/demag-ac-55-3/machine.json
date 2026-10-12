@@ -1,0 +1,43 @@
+{
+  "manufacturer": "Demag",
+  "type_code": "grue_mobile",
+  "model": "AC 55-3",
+  "specs": {
+    "capacite_max_t": 55,
+    "fleche_principale_m": "10,3 - 50,0"
+  },
+  "source": {
+    "document_title": "TEREX DEMAG AC 55-3 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 55 tonnes)",
+    "reference": "3-55T-TEREX DEMAG AC 55-3.pdf sha256:8d4c636c10404971",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : Flèche principale (appui 6,90 m x 6,50 m, 360°, contrepoids 6,0 t, ISO). sha256 complet : 8d4c636c1040497138fa0f719f4269b7645fed0b44c3e769a3d99b80f331b57c"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw6t",
+      "label": "Flèche principale 10,3-50,0 m, appui 6,90 x 6,50 m, 360°, contrepoids 6,0 t",
+      "params": {
+        "contrepoids_t": 6.0,
+        "base_calage_m": "6,90 x 6,50",
+        "zone": "360°",
+        "flechette": false,
+        "categorie": "grue mobile tout-terrain"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw6t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "ISO",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 : 12 colonnes de flèche (10,3 à 50,0 m), 24 lignes de portée (3 à 38 m). Colonne '10,3m*' (sur l'arrière), première ligne 3 m (55,0** classe de capacité, arrière) et ligne 1) (charges avec flèche horizontale, sans portée) exclues. Le tableau imprime deux lignes '3' : la seconde (valeurs 360°) est utilisée comme portée 3 m. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule '-' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 288 cellules, 0 écart. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (165 valeurs, 0 écart) + échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi : 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

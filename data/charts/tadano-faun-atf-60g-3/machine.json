@@ -1,0 +1,44 @@
+{
+  "manufacturer": "Tadano",
+  "type_code": "grue_mobile",
+  "model": "ATF 60G-3",
+  "specs": {
+    "capacite_max_t": 60,
+    "fleche_principale_m": "9,5 - 48,0",
+    "contrepoids_max_t": 13.0,
+    "base_calage_m": 6.4
+  },
+  "source": {
+    "document_title": "TADANO FAUN ATF 60G-3 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)",
+    "reference": "60T-TADANO FAUN ATF 60G-3.pdf, sha256:bc8d17a735012768",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 1 : cotation (non utilisée) ; p. 3 : tableau flèche principale 9,5-48,0 m, calage 6,4 m, 360°, contrepoids 13 t, pictogramme DIN/ISO/EN ; p. 2 (autre configuration) et p. 4-5 (flèche + fléchette) non saisies"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw13t",
+      "label": "Flèche principale 9,5-48,0 m, calage 6,4 m, 360°, contrepoids 13 t",
+      "params": {
+        "contrepoids_t": 13.0,
+        "base_calage_m": 6.4,
+        "zone": "360°",
+        "flechette": false
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "fleche-principale-360-cw13t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO/EN (pictogramme imprimé, norme exacte non précisée)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique métrique imprimé p. 3 (pictogramme « DIN/ISO/EN » ; norme EN 13000 non nommée, donc standard = null), en tonnes ; PDF texte, extraction pdfplumber par coordonnées (passe A) et pdftotext -layout par position de caractères (passe B) + contrôle visuel du rendu ; diff intégral : 187 cellules numériques du tableau, 0 écart. EXCLUS (non 360° / équipement supplémentaire) : colonne « 9,5 m* (« * A l'arrière ») » entière (8 valeurs) ; cellules « ** » (« Avec équipements supplémentaires ») des colonnes 360° : (2.5 m ; flèche 9.5 m)=49.0, (2.5 m ; flèche 13.8 m)=45.1, (2.5 m ; flèche 18.4 m)=45.1 (3 cellules, non saisies). 176 valeurs saisies ; cellules vides = vides dans le tableau. Aucun signe de conversion d'édition US (valeurs métriques natives). Prise en compte du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence) ; masse moufle, mouflage et vent non documentés. PDF sha256 complet bc8d17a73501276806807a4966c37c2d1a76e8b30a09e0b45bae15048faea439. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « * à l'arrière » et cellules « ** » bien exclues. Champ standard renseigné avec le pictogramme imprimé « DIN/ISO/EN » (au lieu de null)."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

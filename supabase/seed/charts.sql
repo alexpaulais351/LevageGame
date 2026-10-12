@@ -97,6 +97,2775 @@ begin
     (v_chart, 8.26, 0, 3550);
 end $charts$;
 
+-- caterpillar-m323f
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'pelle_rail_route';
+  if v_type is null then raise exception 'type_code inconnu : pelle_rail_route'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Caterpillar');
+  if v_manu is null then raise exception 'constructeur inconnu : Caterpillar'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'M323F — Pelle excavatrice à roues pour chemin de fer — Caractéristiques techniques'
+    and reference is not distinct from 'AFXQ2372 (07-2018) (France, Allemagne) ; CATERPILLAR M323F Pelles-Rail-Route.pdf, sha256:0e6d8c5af3e5783a' and edition is not distinct from '07-2018 (France, Allemagne)';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'M323F — Pelle excavatrice à roues pour chemin de fer — Caractéristiques techniques', 'AFXQ2372 (07-2018) (France, Allemagne) ; CATERPILLAR M323F Pelles-Rail-Route.pdf, sha256:0e6d8c5af3e5783a', '07-2018 (France, Allemagne)', null, 'Document constructeur fourni par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Document constructeur fourni par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('M323F');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'M323F', null, '{"designation":"Pelle excavatrice à roues pour chemin de fer","poids_en_ordre_de_marche_kg":"22 900 - 23 900","contrepoids_standard_kg":6400,"contrepoids_option_kg":7400,"longueur_bras_mm":2100}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"designation":"Pelle excavatrice à roues pour chemin de fer","poids_en_ordre_de_marche_kg":"22 900 - 23 900","contrepoids_standard_kg":6400,"contrepoids_option_kg":7400,"longueur_bras_mm":2100}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration route-cw6-4t-devant
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'route-cw6-4t-devant';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Mode route, contrepoids 6,4 t, bras 2 100 mm, point de l''outil, charge au-dessus de l''avant (« Charge sur le devant », 1re colonne de chaque groupe)', '{"contrepoids_kg":6400,"mode":"route","bras_mm":2100,"fleche":"flèche à volée variable","point_de_charge":"POINT DE L''OUTIL","orientation":"devant","support":"sol ferme et uniforme, essieu oscillant verrouillé","slug":"route-cw6-4t-devant"}'::jsonb, null, 'Document constructeur (Caterpillar, AFXQ2372 (07-2018), édition France/Allemagne, en français, unités kg/mm) fourni par l''utilisateur. Table p. 6 « Capacités de levage – Flèche – Volée variable – Contrepoids : 6,4 t – Mode route » (1re table de la page), bras 2 100 mm, lignes « POINT DE L''OUTIL » seules (les lignes « ALP », terme non défini dans le document, ne sont pas saisies). Colonnes : groupes de portée fixe 3 000/4 500/6 000/7 500 mm et groupe « charge à portée maximale » (portée réelle imprimée de chaque ligne dans la colonne mm, saisie en mm/1000 TRONQUÉE au centimètre par le format 2 décimales, donc jamais au-dessus de la portée imprimée : ex. 5 093 mm saisi 5,09 m) ; ici colonne devant ; ordre des pictogrammes (devant, arrière, côté) = ordre de la légende de la table. y = hauteur du point de chargement (7 500 à 0 mm). NON SAISI : lignes de hauteur négative −1 500 mm et −3 000 mm (le format refuse une hauteur négative) ; orientation « arrière » ; lignes ALP ; table contrepoids 7,4 t et modes rail (p. 7-10). Norme ISO 10567:2007 : capacités ≤ 87 % de la capacité hydraulique ou 75 % de la charge de basculement ; le poids du godet/attache rapide/accessoires doit être soustrait (deductions_included = false) ; sol ferme et uniforme, essieu oscillant verrouillé, vérin de flèche variable à longueur maximale ; « * » = limité par la charge hydraulique plutôt que par le basculement : 22 valeurs concernées saisies sans l''astérisque (portée m ; hauteur m) (4.5 m ; 7.5 m), (5.09 m ; 7.5 m), (4.5 m ; 6.0 m), (6.0 m ; 6.0 m), (6.44 m ; 6.0 m), (3.0 m ; 4.5 m), (4.5 m ; 4.5 m), (6.0 m ; 4.5 m), (7.21 m ; 4.5 m), (3.0 m ; 3.0 m), (4.5 m ; 3.0 m), (6.0 m ; 3.0 m), (7.59 m ; 3.0 m), (3.0 m ; 1.5 m), (4.5 m ; 1.5 m), (6.0 m ; 1.5 m), (7.5 m ; 1.5 m), (7.64 m ; 1.5 m), (3.0 m ; 0.0 m), (4.5 m ; 0.0 m), (6.0 m ; 0.0 m), (7.38 m ; 0.0 m). Cellules vides du tableau = vides dans le CSV (8 cellules de portée fixe vides) ; une cellule de portée maximale vide n''est pas listée. 22 valeurs saisies (30 lignes). Passe A : pdfplumber, colonnes par arête droite des nombres ; passe B : colonnes par les filets verticaux du tableau ; lecture visuelle du rendu 130 dpi ; diff intégral : 159 cellules numériques (lignes POINT et ALP, 3 colonnes × 5 groupes + portée), 0 écart. PDF sha256 complet 0e6d8c5af3e5783a8398f4b7762a4e7824b7a78b72500fa223e91788933c9a4c. RELECTURE 2026-10-11 (règle case vide intérieure) : ligne hauteur 3 000 mm, la colonne 7 500 mm est vide sur le tableau imprimé alors que la portée max imprimée est 7 593 mm ; ligne coupée au trou : le nœud de portée max 7,59 m de cette ligne est retiré (au-delà de 6 m à 3 m de hauteur = hors abaque, sens de la sécurité). Échantillonnage contre le rendu 200 dpi p. 6 : diff intégral des 2 configurations, 0 écart. | Pages : p. 1-2 : spécifications (poids) ; p. 6 : capacités de levage contrepoids 6,4 t mode route (1re table, saisie) et 7,4 t mode route ; p. 7-10 : modes rail (voie en palier, dévers 200 mm) non saisis') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Mode route, contrepoids 6,4 t, bras 2 100 mm, point de l''outil, charge au-dessus de l''avant (« Charge sur le devant », 1re colonne de chaque groupe)', params = '{"contrepoids_kg":6400,"mode":"route","bras_mm":2100,"fleche":"flèche à volée variable","point_de_charge":"POINT DE L''OUTIL","orientation":"devant","support":"sol ferme et uniforme, essieu oscillant verrouillé","slug":"route-cw6-4t-devant"}'::jsonb, hook_block_mass_kg = null, notes = 'Document constructeur (Caterpillar, AFXQ2372 (07-2018), édition France/Allemagne, en français, unités kg/mm) fourni par l''utilisateur. Table p. 6 « Capacités de levage – Flèche – Volée variable – Contrepoids : 6,4 t – Mode route » (1re table de la page), bras 2 100 mm, lignes « POINT DE L''OUTIL » seules (les lignes « ALP », terme non défini dans le document, ne sont pas saisies). Colonnes : groupes de portée fixe 3 000/4 500/6 000/7 500 mm et groupe « charge à portée maximale » (portée réelle imprimée de chaque ligne dans la colonne mm, saisie en mm/1000 TRONQUÉE au centimètre par le format 2 décimales, donc jamais au-dessus de la portée imprimée : ex. 5 093 mm saisi 5,09 m) ; ici colonne devant ; ordre des pictogrammes (devant, arrière, côté) = ordre de la légende de la table. y = hauteur du point de chargement (7 500 à 0 mm). NON SAISI : lignes de hauteur négative −1 500 mm et −3 000 mm (le format refuse une hauteur négative) ; orientation « arrière » ; lignes ALP ; table contrepoids 7,4 t et modes rail (p. 7-10). Norme ISO 10567:2007 : capacités ≤ 87 % de la capacité hydraulique ou 75 % de la charge de basculement ; le poids du godet/attache rapide/accessoires doit être soustrait (deductions_included = false) ; sol ferme et uniforme, essieu oscillant verrouillé, vérin de flèche variable à longueur maximale ; « * » = limité par la charge hydraulique plutôt que par le basculement : 22 valeurs concernées saisies sans l''astérisque (portée m ; hauteur m) (4.5 m ; 7.5 m), (5.09 m ; 7.5 m), (4.5 m ; 6.0 m), (6.0 m ; 6.0 m), (6.44 m ; 6.0 m), (3.0 m ; 4.5 m), (4.5 m ; 4.5 m), (6.0 m ; 4.5 m), (7.21 m ; 4.5 m), (3.0 m ; 3.0 m), (4.5 m ; 3.0 m), (6.0 m ; 3.0 m), (7.59 m ; 3.0 m), (3.0 m ; 1.5 m), (4.5 m ; 1.5 m), (6.0 m ; 1.5 m), (7.5 m ; 1.5 m), (7.64 m ; 1.5 m), (3.0 m ; 0.0 m), (4.5 m ; 0.0 m), (6.0 m ; 0.0 m), (7.38 m ; 0.0 m). Cellules vides du tableau = vides dans le CSV (8 cellules de portée fixe vides) ; une cellule de portée maximale vide n''est pas listée. 22 valeurs saisies (30 lignes). Passe A : pdfplumber, colonnes par arête droite des nombres ; passe B : colonnes par les filets verticaux du tableau ; lecture visuelle du rendu 130 dpi ; diff intégral : 159 cellules numériques (lignes POINT et ALP, 3 colonnes × 5 groupes + portée), 0 écart. PDF sha256 complet 0e6d8c5af3e5783a8398f4b7762a4e7824b7a78b72500fa223e91788933c9a4c. RELECTURE 2026-10-11 (règle case vide intérieure) : ligne hauteur 3 000 mm, la colonne 7 500 mm est vide sur le tableau imprimé alors que la portée max imprimée est 7 593 mm ; ligne coupée au trou : le nœud de portée max 7,59 m de cette ligne est retiré (au-delà de 6 m à 3 m de hauteur = hors abaque, sens de la sécurité). Échantillonnage contre le rendu 200 dpi p. 6 : diff intégral des 2 configurations, 0 écart. | Pages : p. 1-2 : spécifications (poids) ; p. 6 : capacités de levage contrepoids 6,4 t mode route (1re table, saisie) et 7,4 t mode route ; p. 7-10 : modes rail (voie en palier, dévers 200 mm) non saisis', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'height_m', 'kg', 'ISO 10567:2007', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'height_m', standard = 'ISO 10567:2007', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 4.5, 7.5, 5350),
+    (v_chart, 5.09, 7.5, 5000),
+    (v_chart, 4.5, 6, 5250),
+    (v_chart, 6, 6, 4500),
+    (v_chart, 6.44, 6, 4350),
+    (v_chart, 3, 4.5, 8650),
+    (v_chart, 4.5, 4.5, 5900),
+    (v_chart, 6, 4.5, 4400),
+    (v_chart, 7.21, 4.5, 4100),
+    (v_chart, 3, 3, 8750),
+    (v_chart, 4.5, 3, 6600),
+    (v_chart, 6, 3, 4850),
+    (v_chart, 3, 1.5, 10150),
+    (v_chart, 4.5, 1.5, 7700),
+    (v_chart, 6, 1.5, 5200),
+    (v_chart, 7.5, 1.5, 4300),
+    (v_chart, 7.64, 1.5, 4200),
+    (v_chart, 3, 0, 12200),
+    (v_chart, 4.5, 0, 7750),
+    (v_chart, 6, 0, 5600),
+    (v_chart, 7.38, 0, 3900);
+  -- configuration route-cw6-4t-cote
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'route-cw6-4t-cote';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Mode route, contrepoids 6,4 t, bras 2 100 mm, point de l''outil, charge sur le côté (« Charge sur le côté », 3e colonne de chaque groupe)', '{"contrepoids_kg":6400,"mode":"route","bras_mm":2100,"fleche":"flèche à volée variable","point_de_charge":"POINT DE L''OUTIL","orientation":"côté","support":"sol ferme et uniforme, essieu oscillant verrouillé","slug":"route-cw6-4t-cote"}'::jsonb, null, 'Document constructeur (Caterpillar, AFXQ2372 (07-2018), édition France/Allemagne, en français, unités kg/mm) fourni par l''utilisateur. Table p. 6 « Capacités de levage – Flèche – Volée variable – Contrepoids : 6,4 t – Mode route » (1re table de la page), bras 2 100 mm, lignes « POINT DE L''OUTIL » seules (les lignes « ALP », terme non défini dans le document, ne sont pas saisies). Colonnes : groupes de portée fixe 3 000/4 500/6 000/7 500 mm et groupe « charge à portée maximale » (portée réelle imprimée de chaque ligne dans la colonne mm, saisie en mm/1000 TRONQUÉE au centimètre par le format 2 décimales, donc jamais au-dessus de la portée imprimée : ex. 5 093 mm saisi 5,09 m) ; ici colonne côté ; ordre des pictogrammes (devant, arrière, côté) = ordre de la légende de la table. y = hauteur du point de chargement (7 500 à 0 mm). NON SAISI : lignes de hauteur négative −1 500 mm et −3 000 mm (le format refuse une hauteur négative) ; orientation « arrière » ; lignes ALP ; table contrepoids 7,4 t et modes rail (p. 7-10). Norme ISO 10567:2007 : capacités ≤ 87 % de la capacité hydraulique ou 75 % de la charge de basculement ; le poids du godet/attache rapide/accessoires doit être soustrait (deductions_included = false) ; sol ferme et uniforme, essieu oscillant verrouillé, vérin de flèche variable à longueur maximale ; « * » = limité par la charge hydraulique plutôt que par le basculement : 8 valeurs concernées saisies sans l''astérisque (portée m ; hauteur m) (4.5 m ; 7.5 m), (4.5 m ; 6.0 m), (3.0 m ; 4.5 m), (4.5 m ; 4.5 m), (3.0 m ; 3.0 m), (4.5 m ; 3.0 m), (3.0 m ; 1.5 m), (4.5 m ; 1.5 m). Cellules vides du tableau = vides dans le CSV (8 cellules de portée fixe vides) ; une cellule de portée maximale vide n''est pas listée. 22 valeurs saisies (30 lignes). Passe A : pdfplumber, colonnes par arête droite des nombres ; passe B : colonnes par les filets verticaux du tableau ; lecture visuelle du rendu 130 dpi ; diff intégral : 159 cellules numériques (lignes POINT et ALP, 3 colonnes × 5 groupes + portée), 0 écart. PDF sha256 complet 0e6d8c5af3e5783a8398f4b7762a4e7824b7a78b72500fa223e91788933c9a4c. RELECTURE 2026-10-11 (règle case vide intérieure) : ligne hauteur 3 000 mm, la colonne 7 500 mm est vide sur le tableau imprimé alors que la portée max imprimée est 7 593 mm ; ligne coupée au trou : le nœud de portée max 7,59 m de cette ligne est retiré (au-delà de 6 m à 3 m de hauteur = hors abaque, sens de la sécurité). Échantillonnage contre le rendu 200 dpi p. 6 : diff intégral des 2 configurations, 0 écart. | Pages : p. 1-2 : spécifications (poids) ; p. 6 : capacités de levage contrepoids 6,4 t mode route (1re table, saisie) et 7,4 t mode route ; p. 7-10 : modes rail (voie en palier, dévers 200 mm) non saisis') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Mode route, contrepoids 6,4 t, bras 2 100 mm, point de l''outil, charge sur le côté (« Charge sur le côté », 3e colonne de chaque groupe)', params = '{"contrepoids_kg":6400,"mode":"route","bras_mm":2100,"fleche":"flèche à volée variable","point_de_charge":"POINT DE L''OUTIL","orientation":"côté","support":"sol ferme et uniforme, essieu oscillant verrouillé","slug":"route-cw6-4t-cote"}'::jsonb, hook_block_mass_kg = null, notes = 'Document constructeur (Caterpillar, AFXQ2372 (07-2018), édition France/Allemagne, en français, unités kg/mm) fourni par l''utilisateur. Table p. 6 « Capacités de levage – Flèche – Volée variable – Contrepoids : 6,4 t – Mode route » (1re table de la page), bras 2 100 mm, lignes « POINT DE L''OUTIL » seules (les lignes « ALP », terme non défini dans le document, ne sont pas saisies). Colonnes : groupes de portée fixe 3 000/4 500/6 000/7 500 mm et groupe « charge à portée maximale » (portée réelle imprimée de chaque ligne dans la colonne mm, saisie en mm/1000 TRONQUÉE au centimètre par le format 2 décimales, donc jamais au-dessus de la portée imprimée : ex. 5 093 mm saisi 5,09 m) ; ici colonne côté ; ordre des pictogrammes (devant, arrière, côté) = ordre de la légende de la table. y = hauteur du point de chargement (7 500 à 0 mm). NON SAISI : lignes de hauteur négative −1 500 mm et −3 000 mm (le format refuse une hauteur négative) ; orientation « arrière » ; lignes ALP ; table contrepoids 7,4 t et modes rail (p. 7-10). Norme ISO 10567:2007 : capacités ≤ 87 % de la capacité hydraulique ou 75 % de la charge de basculement ; le poids du godet/attache rapide/accessoires doit être soustrait (deductions_included = false) ; sol ferme et uniforme, essieu oscillant verrouillé, vérin de flèche variable à longueur maximale ; « * » = limité par la charge hydraulique plutôt que par le basculement : 8 valeurs concernées saisies sans l''astérisque (portée m ; hauteur m) (4.5 m ; 7.5 m), (4.5 m ; 6.0 m), (3.0 m ; 4.5 m), (4.5 m ; 4.5 m), (3.0 m ; 3.0 m), (4.5 m ; 3.0 m), (3.0 m ; 1.5 m), (4.5 m ; 1.5 m). Cellules vides du tableau = vides dans le CSV (8 cellules de portée fixe vides) ; une cellule de portée maximale vide n''est pas listée. 22 valeurs saisies (30 lignes). Passe A : pdfplumber, colonnes par arête droite des nombres ; passe B : colonnes par les filets verticaux du tableau ; lecture visuelle du rendu 130 dpi ; diff intégral : 159 cellules numériques (lignes POINT et ALP, 3 colonnes × 5 groupes + portée), 0 écart. PDF sha256 complet 0e6d8c5af3e5783a8398f4b7762a4e7824b7a78b72500fa223e91788933c9a4c. RELECTURE 2026-10-11 (règle case vide intérieure) : ligne hauteur 3 000 mm, la colonne 7 500 mm est vide sur le tableau imprimé alors que la portée max imprimée est 7 593 mm ; ligne coupée au trou : le nœud de portée max 7,59 m de cette ligne est retiré (au-delà de 6 m à 3 m de hauteur = hors abaque, sens de la sécurité). Échantillonnage contre le rendu 200 dpi p. 6 : diff intégral des 2 configurations, 0 écart. | Pages : p. 1-2 : spécifications (poids) ; p. 6 : capacités de levage contrepoids 6,4 t mode route (1re table, saisie) et 7,4 t mode route ; p. 7-10 : modes rail (voie en palier, dévers 200 mm) non saisis', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'height_m', 'kg', 'ISO 10567:2007', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'height_m', standard = 'ISO 10567:2007', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 4.5, 7.5, 4900),
+    (v_chart, 5.09, 7.5, 4050),
+    (v_chart, 4.5, 6, 4800),
+    (v_chart, 6, 6, 3250),
+    (v_chart, 6.44, 6, 2800),
+    (v_chart, 3, 4.5, 7750),
+    (v_chart, 4.5, 4.5, 4650),
+    (v_chart, 6, 4.5, 3250),
+    (v_chart, 7.21, 4.5, 2300),
+    (v_chart, 3, 3, 7400),
+    (v_chart, 4.5, 3, 4550),
+    (v_chart, 6, 3, 3250),
+    (v_chart, 3, 1.5, 7350),
+    (v_chart, 4.5, 1.5, 4500),
+    (v_chart, 6, 1.5, 3150),
+    (v_chart, 7.5, 1.5, 2050),
+    (v_chart, 7.64, 1.5, 2000),
+    (v_chart, 3, 0, 7900),
+    (v_chart, 4.5, 0, 4550),
+    (v_chart, 6, 0, 2950),
+    (v_chart, 7.38, 0, 2050);
+end $charts$;
+
+-- demag-ac-100-4l
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 100-4L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 100 tonnes)'
+    and reference is not distinct from '100T-TEREX DEMAG AC 100-4L.pdf (sha256 0864ab21506c0e96)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 100-4L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 100 tonnes)', '100T-TEREX DEMAG AC 100-4L.pdf (sha256 0864ab21506c0e96)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 100-4L');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 100-4L', null, '{"capacite_max_t":100,"contrepoids_t":24.5,"base_calage_m":"8,10 x 7,20"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":100,"contrepoids_t":24.5,"base_calage_m":"8,10 x 7,20"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw24-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw24-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 12,0-59,4 m, calage 8,10 x 7,20 m, 360°, contrepoids 24,5 t', '{"longueur_fleche_m":"12,0 - 59,4","contrepoids_t":24.5,"base_calage_m":"8,10 x 7,20","zone":"360°","flechette":false,"slug":"fleche-principale-360-cw24-5t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l''utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 24,5 t / 8,10 m x 7,20 m / 360° / ISO). 14 colonnes de flèche (12,0 à 59,4 m ; 12,0 ; 16,3 ; 20,5 ; 24,8 ; 29,1 ; 33,4 ; 37,6 ; 40,4 ; 44,7 ; 49,9 ; 50,4 ; 50,9 ; 54,6 ; 59,4) x 28 lignes de portée (3 à 50 m) ; 227 valeurs, cellules « - » = vides non saisies. EXCLUS : la 1re colonne « 12,0 m » surmontée de « (0°) » (avec la ligne « 100,0* » = classe de capacité, sans portée ; secteur restreint probable, non précisé dans la fiche, incompatible avec une config 360°). La 2e colonne 12,0 m est saisie. Aucune donnée sur le poids du crochet/de la moufle ni sur les déductions dans la page saisie (hook_block_mass_kg = null). Mention « ISO » telle qu''imprimée ; norme précise non indiquée. Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (227 cellules, 0 écart) + échantillon visuel 10 cellules (2 en bord de domaine) sur rendu 200 dpi : 0 écart ; colonne « (0°) 12,0 m » bien exclue. | Pages : p. 3 : tableau « Flèche principale », 24,5 t / 8,10 m x 7,20 m / 360° / ISO. PDF sha256:0864ab21506c0e966f8eb7c0552cfe90581081b8321d05f6ccf722e0e4b949c4') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 12,0-59,4 m, calage 8,10 x 7,20 m, 360°, contrepoids 24,5 t', params = '{"longueur_fleche_m":"12,0 - 59,4","contrepoids_t":24.5,"base_calage_m":"8,10 x 7,20","zone":"360°","flechette":false,"slug":"fleche-principale-360-cw24-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l''utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 24,5 t / 8,10 m x 7,20 m / 360° / ISO). 14 colonnes de flèche (12,0 à 59,4 m ; 12,0 ; 16,3 ; 20,5 ; 24,8 ; 29,1 ; 33,4 ; 37,6 ; 40,4 ; 44,7 ; 49,9 ; 50,4 ; 50,9 ; 54,6 ; 59,4) x 28 lignes de portée (3 à 50 m) ; 227 valeurs, cellules « - » = vides non saisies. EXCLUS : la 1re colonne « 12,0 m » surmontée de « (0°) » (avec la ligne « 100,0* » = classe de capacité, sans portée ; secteur restreint probable, non précisé dans la fiche, incompatible avec une config 360°). La 2e colonne 12,0 m est saisie. Aucune donnée sur le poids du crochet/de la moufle ni sur les déductions dans la page saisie (hook_block_mass_kg = null). Mention « ISO » telle qu''imprimée ; norme précise non indiquée. Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (227 cellules, 0 écart) + échantillon visuel 10 cellules (2 en bord de domaine) sur rendu 200 dpi : 0 écart ; colonne « (0°) 12,0 m » bien exclue. | Pages : p. 3 : tableau « Flèche principale », 24,5 t / 8,10 m x 7,20 m / 360° / ISO. PDF sha256:0864ab21506c0e966f8eb7c0552cfe90581081b8321d05f6ccf722e0e4b949c4', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 12, 73700),
+    (v_chart, 4, 12, 62000),
+    (v_chart, 5, 12, 52700),
+    (v_chart, 6, 12, 45600),
+    (v_chart, 7, 12, 40100),
+    (v_chart, 8, 12, 35600),
+    (v_chart, 9, 12, 25900),
+    (v_chart, 3, 16.3, 71900),
+    (v_chart, 4, 16.3, 62100),
+    (v_chart, 5, 16.3, 53100),
+    (v_chart, 6, 16.3, 46500),
+    (v_chart, 7, 16.3, 40900),
+    (v_chart, 8, 16.3, 36500),
+    (v_chart, 9, 16.3, 32800),
+    (v_chart, 10, 16.3, 29600),
+    (v_chart, 12, 16.3, 22200),
+    (v_chart, 3, 20.5, 69900),
+    (v_chart, 4, 20.5, 60300),
+    (v_chart, 5, 20.5, 53100),
+    (v_chart, 6, 20.5, 46600),
+    (v_chart, 7, 20.5, 41100),
+    (v_chart, 8, 20.5, 36600),
+    (v_chart, 9, 20.5, 33000),
+    (v_chart, 10, 20.5, 29700),
+    (v_chart, 12, 20.5, 22900),
+    (v_chart, 14, 20.5, 18300),
+    (v_chart, 16, 20.5, 15000),
+    (v_chart, 18, 20.5, 9900),
+    (v_chart, 3, 24.8, 58400),
+    (v_chart, 4, 24.8, 56300),
+    (v_chart, 5, 24.8, 52100),
+    (v_chart, 6, 24.8, 46400),
+    (v_chart, 7, 24.8, 40800),
+    (v_chart, 8, 24.8, 36400),
+    (v_chart, 9, 24.8, 32700),
+    (v_chart, 10, 24.8, 29500),
+    (v_chart, 12, 24.8, 23200),
+    (v_chart, 14, 24.8, 18300),
+    (v_chart, 16, 24.8, 14900),
+    (v_chart, 18, 24.8, 12500),
+    (v_chart, 20, 24.8, 10600),
+    (v_chart, 22, 24.8, 7700),
+    (v_chart, 4, 29.1, 48300),
+    (v_chart, 5, 29.1, 43800),
+    (v_chart, 6, 29.1, 39800),
+    (v_chart, 7, 29.1, 37300),
+    (v_chart, 8, 29.1, 35800),
+    (v_chart, 9, 29.1, 32300),
+    (v_chart, 10, 29.1, 29200),
+    (v_chart, 12, 29.1, 22800),
+    (v_chart, 14, 29.1, 18000),
+    (v_chart, 16, 29.1, 14600),
+    (v_chart, 18, 29.1, 12200),
+    (v_chart, 20, 29.1, 10900),
+    (v_chart, 22, 29.1, 9600),
+    (v_chart, 24, 29.1, 8400),
+    (v_chart, 26, 29.1, 7400),
+    (v_chart, 5, 33.4, 32200),
+    (v_chart, 6, 33.4, 31100),
+    (v_chart, 7, 33.4, 30100),
+    (v_chart, 8, 33.4, 29000),
+    (v_chart, 9, 33.4, 27600),
+    (v_chart, 10, 33.4, 26300),
+    (v_chart, 12, 33.4, 22200),
+    (v_chart, 14, 33.4, 17400),
+    (v_chart, 16, 33.4, 14200),
+    (v_chart, 18, 33.4, 12600),
+    (v_chart, 20, 33.4, 10800),
+    (v_chart, 22, 33.4, 9300),
+    (v_chart, 24, 33.4, 8100),
+    (v_chart, 26, 33.4, 7100),
+    (v_chart, 28, 33.4, 6600),
+    (v_chart, 30, 33.4, 6000),
+    (v_chart, 32, 33.4, 4000),
+    (v_chart, 6, 37.6, 27200),
+    (v_chart, 7, 37.6, 25500),
+    (v_chart, 8, 37.6, 23900),
+    (v_chart, 9, 37.6, 23200),
+    (v_chart, 10, 37.6, 22200),
+    (v_chart, 12, 37.6, 20000),
+    (v_chart, 14, 37.6, 17200),
+    (v_chart, 16, 37.6, 14500),
+    (v_chart, 18, 37.6, 12100),
+    (v_chart, 20, 37.6, 10200),
+    (v_chart, 22, 37.6, 9200),
+    (v_chart, 24, 37.6, 8200),
+    (v_chart, 26, 37.6, 7200),
+    (v_chart, 28, 37.6, 6400),
+    (v_chart, 30, 37.6, 5700),
+    (v_chart, 32, 37.6, 5100),
+    (v_chart, 34, 37.6, 4800),
+    (v_chart, 8, 40.4, 20100),
+    (v_chart, 9, 40.4, 19000),
+    (v_chart, 10, 40.4, 18600),
+    (v_chart, 12, 40.4, 17300),
+    (v_chart, 14, 40.4, 15600),
+    (v_chart, 16, 40.4, 13600),
+    (v_chart, 18, 40.4, 11600),
+    (v_chart, 20, 40.4, 10400),
+    (v_chart, 22, 40.4, 9000),
+    (v_chart, 24, 40.4, 7800),
+    (v_chart, 26, 40.4, 7000),
+    (v_chart, 28, 40.4, 6400),
+    (v_chart, 30, 40.4, 5700),
+    (v_chart, 32, 40.4, 5000),
+    (v_chart, 34, 40.4, 4500),
+    (v_chart, 36, 40.4, 4000),
+    (v_chart, 38, 40.4, 3600),
+    (v_chart, 9, 44.7, 15900),
+    (v_chart, 10, 44.7, 15200),
+    (v_chart, 12, 44.7, 14700),
+    (v_chart, 14, 44.7, 13900),
+    (v_chart, 16, 44.7, 12700),
+    (v_chart, 18, 44.7, 11400),
+    (v_chart, 20, 44.7, 10000),
+    (v_chart, 22, 44.7, 8900),
+    (v_chart, 24, 44.7, 7800),
+    (v_chart, 26, 44.7, 6800),
+    (v_chart, 28, 44.7, 6200),
+    (v_chart, 30, 44.7, 5400),
+    (v_chart, 32, 44.7, 4800),
+    (v_chart, 34, 44.7, 4200),
+    (v_chart, 36, 44.7, 3800),
+    (v_chart, 38, 44.7, 3600),
+    (v_chart, 40, 44.7, 3300),
+    (v_chart, 42, 44.7, 2600),
+    (v_chart, 9, 49.9, 10900),
+    (v_chart, 10, 49.9, 10800),
+    (v_chart, 12, 49.9, 10600),
+    (v_chart, 14, 49.9, 10200),
+    (v_chart, 16, 49.9, 9400),
+    (v_chart, 18, 49.9, 8500),
+    (v_chart, 20, 49.9, 7900),
+    (v_chart, 22, 49.9, 7200),
+    (v_chart, 24, 49.9, 6600),
+    (v_chart, 26, 49.9, 6100),
+    (v_chart, 28, 49.9, 5700),
+    (v_chart, 30, 49.9, 5300),
+    (v_chart, 32, 49.9, 4900),
+    (v_chart, 34, 49.9, 4300),
+    (v_chart, 36, 49.9, 3800),
+    (v_chart, 38, 49.9, 3400),
+    (v_chart, 40, 49.9, 3000),
+    (v_chart, 42, 49.9, 2700),
+    (v_chart, 44, 49.9, 2300),
+    (v_chart, 46, 49.9, 2100),
+    (v_chart, 9, 50.4, 11900),
+    (v_chart, 10, 50.4, 11900),
+    (v_chart, 12, 50.4, 11900),
+    (v_chart, 14, 50.4, 11900),
+    (v_chart, 16, 50.4, 11400),
+    (v_chart, 18, 50.4, 10700),
+    (v_chart, 20, 50.4, 9800),
+    (v_chart, 22, 50.4, 8300),
+    (v_chart, 24, 50.4, 7100),
+    (v_chart, 26, 50.4, 6100),
+    (v_chart, 28, 50.4, 5200),
+    (v_chart, 30, 50.4, 4500),
+    (v_chart, 32, 50.4, 3800),
+    (v_chart, 34, 50.4, 3300),
+    (v_chart, 36, 50.4, 2800),
+    (v_chart, 38, 50.4, 2400),
+    (v_chart, 40, 50.4, 2000),
+    (v_chart, 42, 50.4, 1700),
+    (v_chart, 44, 50.4, 1400),
+    (v_chart, 46, 50.4, 1100),
+    (v_chart, 9, 50.9, 11400),
+    (v_chart, 10, 50.9, 11300),
+    (v_chart, 12, 50.9, 11300),
+    (v_chart, 14, 50.9, 11200),
+    (v_chart, 16, 50.9, 10700),
+    (v_chart, 18, 50.9, 10100),
+    (v_chart, 20, 50.9, 9300),
+    (v_chart, 22, 50.9, 8600),
+    (v_chart, 24, 50.9, 7700),
+    (v_chart, 26, 50.9, 6700),
+    (v_chart, 28, 50.9, 5800),
+    (v_chart, 30, 50.9, 5100),
+    (v_chart, 32, 50.9, 4400),
+    (v_chart, 34, 50.9, 3900),
+    (v_chart, 36, 50.9, 3400),
+    (v_chart, 38, 50.9, 3000),
+    (v_chart, 40, 50.9, 2600),
+    (v_chart, 42, 50.9, 2200),
+    (v_chart, 44, 50.9, 1900),
+    (v_chart, 46, 50.9, 1600),
+    (v_chart, 10, 54.6, 9600),
+    (v_chart, 12, 54.6, 9600),
+    (v_chart, 14, 54.6, 9600),
+    (v_chart, 16, 54.6, 9600),
+    (v_chart, 18, 54.6, 9400),
+    (v_chart, 20, 54.6, 9000),
+    (v_chart, 22, 54.6, 8500),
+    (v_chart, 24, 54.6, 7400),
+    (v_chart, 26, 54.6, 6500),
+    (v_chart, 28, 54.6, 5900),
+    (v_chart, 30, 54.6, 5100),
+    (v_chart, 32, 54.6, 4500),
+    (v_chart, 34, 54.6, 3900),
+    (v_chart, 36, 54.6, 3400),
+    (v_chart, 38, 54.6, 3000),
+    (v_chart, 40, 54.6, 2600),
+    (v_chart, 42, 54.6, 2300),
+    (v_chart, 44, 54.6, 2000),
+    (v_chart, 46, 54.6, 1700),
+    (v_chart, 48, 54.6, 1400),
+    (v_chart, 50, 54.6, 1200),
+    (v_chart, 12, 59.4, 7400),
+    (v_chart, 14, 59.4, 7400),
+    (v_chart, 16, 59.4, 7400),
+    (v_chart, 18, 59.4, 7400),
+    (v_chart, 20, 59.4, 7400),
+    (v_chart, 22, 59.4, 7300),
+    (v_chart, 24, 59.4, 7100),
+    (v_chart, 26, 59.4, 6400),
+    (v_chart, 28, 59.4, 5500),
+    (v_chart, 30, 59.4, 4800),
+    (v_chart, 32, 59.4, 4200),
+    (v_chart, 34, 59.4, 3600),
+    (v_chart, 36, 59.4, 3100),
+    (v_chart, 38, 59.4, 2700),
+    (v_chart, 40, 59.4, 2300),
+    (v_chart, 42, 59.4, 1900),
+    (v_chart, 44, 59.4, 1600),
+    (v_chart, 46, 59.4, 1400),
+    (v_chart, 48, 59.4, 1100),
+    (v_chart, 50, 59.4, 900);
+end $charts$;
+
+-- demag-ac-120-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 120-1 - 120 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 120-1 »)'
+    and reference is not distinct from '120T-TEREX DEMAG AC 120-1.pdf sha256:525df53cabddc81f' and edition is not distinct from 'Fiche FOSELEV (impression 31/03/11)';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 120-1 - 120 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 120-1 »)', '120T-TEREX DEMAG AC 120-1.pdf sha256:525df53cabddc81f', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 120-1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 120-1', null, '{"capacite_max_t":120,"fleche_principale_m":"12,5 - 60","fleche_treillis_m":"9,1 ou 17","contrepoids_max_t":40.4}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":120,"fleche_principale_m":"12,5 - 60","fleche_treillis_m":"9,1 ou 17","contrepoids_max_t":40.4}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw40-4t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw40-4t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 12,5-60 m, calage MAX, 360°, contrepoids 40,4 t', '{"longueur_fleche_m":"12,5 - 60","contrepoids_t":40.4,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw40-4t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau complet : 8 colonnes de flèche (12,5 à 60 m) × 21 lignes de portée (3 à 56 m), 98 valeurs. Autres longueurs (16,8 / 34,3 / 46,9 m) mentionnées « également disponibles » mais sans valeurs : non saisies. Valeur à 36 m / flèche 38,3 m (3,7 t, contre 7,3 t à 32 m et 5,9 t sur 42,6 m) reproduite telle qu''imprimée, à confirmer sur la doc constructeur. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 207 cellules (en-têtes, portées, cellules vides incluses), 0 écart. sha256 complet : 525df53cabddc81f7e8073565814ec6eb669319081153014be72edf81180e304 RELECTURE 2026-10-11 : diff intégral visuel des 8 colonnes contre le rendu 200 dpi p. 3 : 0 écart (98 valeurs). | Pages : PDF p. 3 (page catalogue 104) : tableau « Flèche principale / Telescopic boom », de 12,5 m à 60 m, calage MAX, contrepoids 40,4 t, 360°, DIN ISO, 75 %.') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 12,5-60 m, calage MAX, 360°, contrepoids 40,4 t', params = '{"longueur_fleche_m":"12,5 - 60","contrepoids_t":40.4,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw40-4t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau complet : 8 colonnes de flèche (12,5 à 60 m) × 21 lignes de portée (3 à 56 m), 98 valeurs. Autres longueurs (16,8 / 34,3 / 46,9 m) mentionnées « également disponibles » mais sans valeurs : non saisies. Valeur à 36 m / flèche 38,3 m (3,7 t, contre 7,3 t à 32 m et 5,9 t sur 42,6 m) reproduite telle qu''imprimée, à confirmer sur la doc constructeur. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 207 cellules (en-têtes, portées, cellules vides incluses), 0 écart. sha256 complet : 525df53cabddc81f7e8073565814ec6eb669319081153014be72edf81180e304 RELECTURE 2026-10-11 : diff intégral visuel des 8 colonnes contre le rendu 200 dpi p. 3 : 0 écart (98 valeurs). | Pages : PDF p. 3 (page catalogue 104) : tableau « Flèche principale / Telescopic boom », de 12,5 m à 60 m, calage MAX, contrepoids 40,4 t, 360°, DIN ISO, 75 %.', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 12.5, 120000),
+    (v_chart, 3, 21.1, 99100),
+    (v_chart, 4, 12.5, 100500),
+    (v_chart, 4, 21.1, 86000),
+    (v_chart, 4, 25.4, 75400),
+    (v_chart, 4, 29.7, 58700),
+    (v_chart, 5, 12.5, 88400),
+    (v_chart, 5, 21.1, 76300),
+    (v_chart, 5, 25.4, 68300),
+    (v_chart, 5, 29.7, 55400),
+    (v_chart, 6, 12.5, 77600),
+    (v_chart, 6, 21.1, 68200),
+    (v_chart, 6, 25.4, 61700),
+    (v_chart, 6, 29.7, 52300),
+    (v_chart, 7, 12.5, 68100),
+    (v_chart, 7, 21.1, 60100),
+    (v_chart, 7, 25.4, 56400),
+    (v_chart, 7, 29.7, 49300),
+    (v_chart, 7, 38.3, 32700),
+    (v_chart, 8, 12.5, 58200),
+    (v_chart, 8, 21.1, 55400),
+    (v_chart, 8, 25.4, 51100),
+    (v_chart, 8, 29.7, 46200),
+    (v_chart, 8, 38.3, 30200),
+    (v_chart, 8, 42.6, 26200),
+    (v_chart, 10, 12.5, 50600),
+    (v_chart, 10, 21.1, 43200),
+    (v_chart, 10, 25.4, 42400),
+    (v_chart, 10, 29.7, 39900),
+    (v_chart, 10, 38.3, 25500),
+    (v_chart, 10, 42.6, 22900),
+    (v_chart, 10, 51.2, 16300),
+    (v_chart, 12, 21.1, 32300),
+    (v_chart, 12, 25.4, 33000),
+    (v_chart, 12, 29.7, 32300),
+    (v_chart, 12, 38.3, 22500),
+    (v_chart, 12, 42.6, 19800),
+    (v_chart, 12, 51.2, 15500),
+    (v_chart, 12, 60, 9300),
+    (v_chart, 14, 21.1, 26400),
+    (v_chart, 14, 25.4, 26100),
+    (v_chart, 14, 29.7, 26800),
+    (v_chart, 14, 38.3, 19600),
+    (v_chart, 14, 42.6, 17600),
+    (v_chart, 14, 51.2, 14300),
+    (v_chart, 14, 60, 9200),
+    (v_chart, 16, 21.1, 21600),
+    (v_chart, 16, 25.4, 22100),
+    (v_chart, 16, 29.7, 21900),
+    (v_chart, 16, 38.3, 17400),
+    (v_chart, 16, 42.6, 15500),
+    (v_chart, 16, 51.2, 13100),
+    (v_chart, 16, 60, 8800),
+    (v_chart, 18, 21.1, 16100),
+    (v_chart, 18, 25.4, 18800),
+    (v_chart, 18, 29.7, 18400),
+    (v_chart, 18, 38.3, 16300),
+    (v_chart, 18, 42.6, 13800),
+    (v_chart, 18, 51.2, 11900),
+    (v_chart, 18, 60, 8300),
+    (v_chart, 20, 25.4, 16100),
+    (v_chart, 20, 29.7, 15700),
+    (v_chart, 20, 38.3, 15100),
+    (v_chart, 20, 42.6, 12600),
+    (v_chart, 20, 51.2, 10700),
+    (v_chart, 20, 60, 7800),
+    (v_chart, 22, 25.4, 14000),
+    (v_chart, 22, 29.7, 13600),
+    (v_chart, 22, 38.3, 13500),
+    (v_chart, 22, 42.6, 11300),
+    (v_chart, 22, 51.2, 9600),
+    (v_chart, 22, 60, 7300),
+    (v_chart, 24, 29.7, 11800),
+    (v_chart, 24, 38.3, 11700),
+    (v_chart, 24, 42.6, 10300),
+    (v_chart, 24, 51.2, 8900),
+    (v_chart, 24, 60, 6900),
+    (v_chart, 28, 38.3, 9100),
+    (v_chart, 28, 42.6, 9000),
+    (v_chart, 28, 51.2, 7400),
+    (v_chart, 28, 60, 5900),
+    (v_chart, 32, 38.3, 7300),
+    (v_chart, 32, 42.6, 7400),
+    (v_chart, 32, 51.2, 6200),
+    (v_chart, 32, 60, 5100),
+    (v_chart, 36, 38.3, 3700),
+    (v_chart, 36, 42.6, 5900),
+    (v_chart, 36, 51.2, 5400),
+    (v_chart, 36, 60, 4400),
+    (v_chart, 40, 42.6, 3600),
+    (v_chart, 40, 51.2, 4500),
+    (v_chart, 40, 60, 3800),
+    (v_chart, 44, 51.2, 3600),
+    (v_chart, 44, 60, 3200),
+    (v_chart, 48, 51.2, 2600),
+    (v_chart, 48, 60, 2400),
+    (v_chart, 52, 60, 1800),
+    (v_chart, 56, 60, 1100);
+end $charts$;
+
+-- demag-ac-200-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 200-1 - 200 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 200-1 »)'
+    and reference is not distinct from '200T-TEREX DEMAG AC 200-1.pdf sha256:eef86f0b8ee779f1' and edition is not distinct from 'Fiche FOSELEV (impression 31/03/11)';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 200-1 - 200 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 200-1 »)', '200T-TEREX DEMAG AC 200-1.pdf sha256:eef86f0b8ee779f1', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 200-1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 200-1', null, '{"capacite_max_t":200,"fleche_principale_m":"12,4 - 67,8","fleche_treillis_m":"9 / 17 / 25 / 33","contrepoids_max_t":69}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":200,"fleche_principale_m":"12,4 - 67,8","fleche_treillis_m":"9 / 17 / 25 / 33","contrepoids_max_t":69}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw69t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw69t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 12,4-67,8 m, calage MAX, 360°, contrepoids 69 t', '{"longueur_fleche_m":"12,4 - 67,8","contrepoids_t":69,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw69t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau du haut de la page, complet : 10 colonnes de flèche (12,4 à 67,8 m) × 26 lignes de portée (3 à 62 m ; pas de ligne 44/48/52/56/60 dans ce tableau), 141 valeurs. Longueurs 20,9 / 29,4 / 37,9 / 46,4 m « également disponibles » sans valeurs : non saisies. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 297 cellules, 0 écart. sha256 complet : eef86f0b8ee779f100b2fc0404e924d89e8c4c9c86d0eede51d95cccc69b3918 RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (10 colonnes chacun) contre le rendu 200 dpi p. 3 : 0 écart. | Pages : PDF p. 3 (page catalogue 120) : deux tableaux « Flèche principale / Telescopic boom », 12,4 à 67,8 m, calage MAX, contrepoids 69 t (haut) et 43,4 t (bas), 360°, DIN ISO, 75 %. PDF p. 5 (page 122) : extension treillis, non saisie.') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 12,4-67,8 m, calage MAX, 360°, contrepoids 69 t', params = '{"longueur_fleche_m":"12,4 - 67,8","contrepoids_t":69,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw69t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau du haut de la page, complet : 10 colonnes de flèche (12,4 à 67,8 m) × 26 lignes de portée (3 à 62 m ; pas de ligne 44/48/52/56/60 dans ce tableau), 141 valeurs. Longueurs 20,9 / 29,4 / 37,9 / 46,4 m « également disponibles » sans valeurs : non saisies. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 297 cellules, 0 écart. sha256 complet : eef86f0b8ee779f100b2fc0404e924d89e8c4c9c86d0eede51d95cccc69b3918 RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (10 colonnes chacun) contre le rendu 200 dpi p. 3 : 0 écart. | Pages : PDF p. 3 (page catalogue 120) : deux tableaux « Flèche principale / Telescopic boom », 12,4 à 67,8 m, calage MAX, contrepoids 69 t (haut) et 43,4 t (bas), 360°, DIN ISO, 75 %. PDF p. 5 (page 122) : extension treillis, non saisie.', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 12.4, 200000),
+    (v_chart, 3, 16.6, 146500),
+    (v_chart, 3, 25.1, 121000),
+    (v_chart, 4, 12.4, 125000),
+    (v_chart, 4, 16.6, 125000),
+    (v_chart, 4, 25.1, 121000),
+    (v_chart, 6, 12.4, 94800),
+    (v_chart, 6, 16.6, 94900),
+    (v_chart, 6, 25.1, 93700),
+    (v_chart, 6, 33.6, 73600),
+    (v_chart, 8, 12.4, 75300),
+    (v_chart, 8, 16.6, 75500),
+    (v_chart, 8, 25.1, 74800),
+    (v_chart, 8, 33.6, 67100),
+    (v_chart, 8, 42.1, 44900),
+    (v_chart, 10, 16.6, 62700),
+    (v_chart, 10, 25.1, 62200),
+    (v_chart, 10, 33.6, 60400),
+    (v_chart, 10, 42.1, 39200),
+    (v_chart, 10, 50.6, 30800),
+    (v_chart, 12, 16.6, 53000),
+    (v_chart, 12, 25.1, 52500),
+    (v_chart, 12, 33.6, 52700),
+    (v_chart, 12, 42.1, 34100),
+    (v_chart, 12, 50.6, 27700),
+    (v_chart, 12, 54.9, 24000),
+    (v_chart, 14, 25.1, 44100),
+    (v_chart, 14, 33.6, 44200),
+    (v_chart, 14, 42.1, 30400),
+    (v_chart, 14, 50.6, 24800),
+    (v_chart, 14, 54.9, 22100),
+    (v_chart, 14, 59.1, 19600),
+    (v_chart, 14, 63.4, 15600),
+    (v_chart, 16, 25.1, 37500),
+    (v_chart, 16, 33.6, 37500),
+    (v_chart, 16, 42.1, 26800),
+    (v_chart, 16, 50.6, 22300),
+    (v_chart, 16, 54.9, 20100),
+    (v_chart, 16, 59.1, 18200),
+    (v_chart, 16, 63.4, 15600),
+    (v_chart, 16, 67.8, 12000),
+    (v_chart, 18, 25.1, 32200),
+    (v_chart, 18, 33.6, 32300),
+    (v_chart, 18, 42.1, 24100),
+    (v_chart, 18, 50.6, 20300),
+    (v_chart, 18, 54.9, 18400),
+    (v_chart, 18, 59.1, 16800),
+    (v_chart, 18, 63.4, 14700),
+    (v_chart, 18, 67.8, 12000),
+    (v_chart, 20, 25.1, 29000),
+    (v_chart, 20, 33.6, 29200),
+    (v_chart, 20, 42.1, 22000),
+    (v_chart, 20, 50.6, 18300),
+    (v_chart, 20, 54.9, 16900),
+    (v_chart, 20, 59.1, 15600),
+    (v_chart, 20, 63.4, 13700),
+    (v_chart, 20, 67.8, 11900),
+    (v_chart, 22, 33.6, 25300),
+    (v_chart, 22, 42.1, 19900),
+    (v_chart, 22, 50.6, 16500),
+    (v_chart, 22, 54.9, 15500),
+    (v_chart, 22, 59.1, 14500),
+    (v_chart, 22, 63.4, 12900),
+    (v_chart, 22, 67.8, 11400),
+    (v_chart, 24, 33.6, 22200),
+    (v_chart, 24, 42.1, 18500),
+    (v_chart, 24, 50.6, 15300),
+    (v_chart, 24, 54.9, 14000),
+    (v_chart, 24, 59.1, 13400),
+    (v_chart, 24, 63.4, 12100),
+    (v_chart, 24, 67.8, 10800),
+    (v_chart, 26, 33.6, 19700),
+    (v_chart, 26, 42.1, 17500),
+    (v_chart, 26, 50.6, 14100),
+    (v_chart, 26, 54.9, 13000),
+    (v_chart, 26, 59.1, 12300),
+    (v_chart, 26, 63.4, 11400),
+    (v_chart, 26, 67.8, 10200),
+    (v_chart, 28, 33.6, 17600),
+    (v_chart, 28, 42.1, 16600),
+    (v_chart, 28, 50.6, 12900),
+    (v_chart, 28, 54.9, 12100),
+    (v_chart, 28, 59.1, 11500),
+    (v_chart, 28, 63.4, 10600),
+    (v_chart, 28, 67.8, 9700),
+    (v_chart, 30, 33.6, 15000),
+    (v_chart, 30, 42.1, 15700),
+    (v_chart, 30, 50.6, 11700),
+    (v_chart, 30, 54.9, 11200),
+    (v_chart, 30, 59.1, 10700),
+    (v_chart, 30, 63.4, 9900),
+    (v_chart, 30, 67.8, 9100),
+    (v_chart, 32, 42.1, 14100),
+    (v_chart, 32, 50.6, 10900),
+    (v_chart, 32, 54.9, 10200),
+    (v_chart, 32, 59.1, 10000),
+    (v_chart, 32, 63.4, 9400),
+    (v_chart, 32, 67.8, 8600),
+    (v_chart, 34, 42.1, 12800),
+    (v_chart, 34, 50.6, 10100),
+    (v_chart, 34, 54.9, 9400),
+    (v_chart, 34, 59.1, 9200),
+    (v_chart, 34, 63.4, 8800),
+    (v_chart, 34, 67.8, 8100),
+    (v_chart, 36, 42.1, 11700),
+    (v_chart, 36, 50.6, 9400),
+    (v_chart, 36, 54.9, 8800),
+    (v_chart, 36, 59.1, 8400),
+    (v_chart, 36, 63.4, 8200),
+    (v_chart, 36, 67.8, 7600),
+    (v_chart, 38, 42.1, 10700),
+    (v_chart, 38, 50.6, 8800),
+    (v_chart, 38, 54.9, 8200),
+    (v_chart, 38, 59.1, 7900),
+    (v_chart, 38, 63.4, 7600),
+    (v_chart, 38, 67.8, 7100),
+    (v_chart, 40, 50.6, 8400),
+    (v_chart, 40, 54.9, 7600),
+    (v_chart, 40, 59.1, 7400),
+    (v_chart, 40, 63.4, 7100),
+    (v_chart, 40, 67.8, 6700),
+    (v_chart, 42, 50.6, 8100),
+    (v_chart, 42, 54.9, 7000),
+    (v_chart, 42, 59.1, 6900),
+    (v_chart, 42, 63.4, 6700),
+    (v_chart, 42, 67.8, 6200),
+    (v_chart, 46, 50.6, 7500),
+    (v_chart, 46, 54.9, 6400),
+    (v_chart, 46, 59.1, 5900),
+    (v_chart, 46, 63.4, 5900),
+    (v_chart, 46, 67.8, 5400),
+    (v_chart, 50, 54.9, 5900),
+    (v_chart, 50, 59.1, 5300),
+    (v_chart, 50, 63.4, 5100),
+    (v_chart, 50, 67.8, 4800),
+    (v_chart, 54, 59.1, 4800),
+    (v_chart, 54, 63.4, 4500),
+    (v_chart, 54, 67.8, 4100),
+    (v_chart, 58, 63.4, 3700),
+    (v_chart, 58, 67.8, 3600),
+    (v_chart, 62, 67.8, 2900);
+  -- configuration fleche-principale-360-cw43-4t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw43-4t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 12,4-67,8 m, calage MAX, 360°, contrepoids 43,4 t', '{"longueur_fleche_m":"12,4 - 67,8","contrepoids_t":43.4,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw43-4t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau du bas de la page, complet : 10 colonnes de flèche (12,4 à 67,8 m) × 26 lignes de portée (3 à 54 m), 147 valeurs. Légères non-monotonies (ex. 30 m : 9,8 / 9,9 / 9,8 t) reproduites telles qu''imprimées. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 297 cellules, 0 écart. sha256 complet : eef86f0b8ee779f100b2fc0404e924d89e8c4c9c86d0eede51d95cccc69b3918 RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (10 colonnes chacun) contre le rendu 200 dpi p. 3 : 0 écart. | Pages : PDF p. 3 (page catalogue 120) : deux tableaux « Flèche principale / Telescopic boom », 12,4 à 67,8 m, calage MAX, contrepoids 69 t (haut) et 43,4 t (bas), 360°, DIN ISO, 75 %. PDF p. 5 (page 122) : extension treillis, non saisie.') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 12,4-67,8 m, calage MAX, 360°, contrepoids 43,4 t', params = '{"longueur_fleche_m":"12,4 - 67,8","contrepoids_t":43.4,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw43-4t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Tableau du bas de la page, complet : 10 colonnes de flèche (12,4 à 67,8 m) × 26 lignes de portée (3 à 54 m), 147 valeurs. Légères non-monotonies (ex. 30 m : 9,8 / 9,9 / 9,8 t) reproduites telles qu''imprimées. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 297 cellules, 0 écart. sha256 complet : eef86f0b8ee779f100b2fc0404e924d89e8c4c9c86d0eede51d95cccc69b3918 RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (10 colonnes chacun) contre le rendu 200 dpi p. 3 : 0 écart. | Pages : PDF p. 3 (page catalogue 120) : deux tableaux « Flèche principale / Telescopic boom », 12,4 à 67,8 m, calage MAX, contrepoids 69 t (haut) et 43,4 t (bas), 360°, DIN ISO, 75 %. PDF p. 5 (page 122) : extension treillis, non saisie.', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 12.4, 144500),
+    (v_chart, 3, 16.6, 144500),
+    (v_chart, 3, 25.1, 121000),
+    (v_chart, 4, 12.4, 122000),
+    (v_chart, 4, 16.6, 122000),
+    (v_chart, 4, 25.1, 121000),
+    (v_chart, 6, 12.4, 91900),
+    (v_chart, 6, 16.6, 92000),
+    (v_chart, 6, 25.1, 90900),
+    (v_chart, 6, 33.6, 73600),
+    (v_chart, 8, 12.4, 72900),
+    (v_chart, 8, 16.6, 73300),
+    (v_chart, 8, 25.1, 73200),
+    (v_chart, 8, 33.6, 67100),
+    (v_chart, 8, 42.1, 44900),
+    (v_chart, 10, 16.6, 57200),
+    (v_chart, 10, 25.1, 56600),
+    (v_chart, 10, 33.6, 56700),
+    (v_chart, 10, 42.1, 39200),
+    (v_chart, 10, 50.6, 30800),
+    (v_chart, 12, 16.6, 44700),
+    (v_chart, 12, 25.1, 45200),
+    (v_chart, 12, 33.6, 43900),
+    (v_chart, 12, 42.1, 34100),
+    (v_chart, 12, 50.6, 27700),
+    (v_chart, 12, 54.9, 24000),
+    (v_chart, 14, 25.1, 35700),
+    (v_chart, 14, 33.6, 36000),
+    (v_chart, 14, 42.1, 30400),
+    (v_chart, 14, 50.6, 24800),
+    (v_chart, 14, 54.9, 22100),
+    (v_chart, 14, 59.1, 19600),
+    (v_chart, 14, 63.4, 15600),
+    (v_chart, 16, 25.1, 29900),
+    (v_chart, 16, 33.6, 29100),
+    (v_chart, 16, 42.1, 26800),
+    (v_chart, 16, 50.6, 22300),
+    (v_chart, 16, 54.9, 20100),
+    (v_chart, 16, 59.1, 18200),
+    (v_chart, 16, 63.4, 15600),
+    (v_chart, 16, 67.8, 12000),
+    (v_chart, 18, 25.1, 25200),
+    (v_chart, 18, 33.6, 24200),
+    (v_chart, 18, 42.1, 22700),
+    (v_chart, 18, 50.6, 20300),
+    (v_chart, 18, 54.9, 18400),
+    (v_chart, 18, 59.1, 16800),
+    (v_chart, 18, 63.4, 14700),
+    (v_chart, 18, 67.8, 12000),
+    (v_chart, 20, 25.1, 21500),
+    (v_chart, 20, 33.6, 20500),
+    (v_chart, 20, 42.1, 20400),
+    (v_chart, 20, 50.6, 18300),
+    (v_chart, 20, 54.9, 16900),
+    (v_chart, 20, 59.1, 15600),
+    (v_chart, 20, 63.4, 13700),
+    (v_chart, 20, 67.8, 11900),
+    (v_chart, 22, 33.6, 17600),
+    (v_chart, 22, 42.1, 17500),
+    (v_chart, 22, 50.6, 15900),
+    (v_chart, 22, 54.9, 15500),
+    (v_chart, 22, 59.1, 14500),
+    (v_chart, 22, 63.4, 12900),
+    (v_chart, 22, 67.8, 11400),
+    (v_chart, 24, 33.6, 15900),
+    (v_chart, 24, 42.1, 15100),
+    (v_chart, 24, 50.6, 14200),
+    (v_chart, 24, 54.9, 13900),
+    (v_chart, 24, 59.1, 13400),
+    (v_chart, 24, 63.4, 12100),
+    (v_chart, 24, 67.8, 10800),
+    (v_chart, 26, 33.6, 14600),
+    (v_chart, 26, 42.1, 13200),
+    (v_chart, 26, 50.6, 12500),
+    (v_chart, 26, 54.9, 12200),
+    (v_chart, 26, 59.1, 12300),
+    (v_chart, 26, 63.4, 11400),
+    (v_chart, 26, 67.8, 10200),
+    (v_chart, 28, 33.6, 13000),
+    (v_chart, 28, 42.1, 12200),
+    (v_chart, 28, 50.6, 11700),
+    (v_chart, 28, 54.9, 11200),
+    (v_chart, 28, 59.1, 10700),
+    (v_chart, 28, 63.4, 10600),
+    (v_chart, 28, 67.8, 9700),
+    (v_chart, 30, 33.6, 11600),
+    (v_chart, 30, 42.1, 11300),
+    (v_chart, 30, 50.6, 10700),
+    (v_chart, 30, 54.9, 9800),
+    (v_chart, 30, 59.1, 9900),
+    (v_chart, 30, 63.4, 9800),
+    (v_chart, 30, 67.8, 9100),
+    (v_chart, 32, 42.1, 10100),
+    (v_chart, 32, 50.6, 9400),
+    (v_chart, 32, 54.9, 8900),
+    (v_chart, 32, 59.1, 9100),
+    (v_chart, 32, 63.4, 8500),
+    (v_chart, 32, 67.8, 8500),
+    (v_chart, 34, 42.1, 9100),
+    (v_chart, 34, 50.6, 8400),
+    (v_chart, 34, 54.9, 8200),
+    (v_chart, 34, 59.1, 8000),
+    (v_chart, 34, 63.4, 7400),
+    (v_chart, 34, 67.8, 7400),
+    (v_chart, 36, 42.1, 8100),
+    (v_chart, 36, 50.6, 7800),
+    (v_chart, 36, 54.9, 7500),
+    (v_chart, 36, 59.1, 7000),
+    (v_chart, 36, 63.4, 6500),
+    (v_chart, 36, 67.8, 6500),
+    (v_chart, 38, 42.1, 7300),
+    (v_chart, 38, 50.6, 7100),
+    (v_chart, 38, 54.9, 6700),
+    (v_chart, 38, 59.1, 6200),
+    (v_chart, 38, 63.4, 5700),
+    (v_chart, 38, 67.8, 5600),
+    (v_chart, 40, 50.6, 6400),
+    (v_chart, 40, 54.9, 5900),
+    (v_chart, 40, 59.1, 5400),
+    (v_chart, 40, 63.4, 4900),
+    (v_chart, 40, 67.8, 4900),
+    (v_chart, 42, 50.6, 5700),
+    (v_chart, 42, 54.9, 5300),
+    (v_chart, 42, 59.1, 4800),
+    (v_chart, 42, 63.4, 4300),
+    (v_chart, 42, 67.8, 4200),
+    (v_chart, 44, 50.6, 5100),
+    (v_chart, 44, 54.9, 4700),
+    (v_chart, 44, 59.1, 4200),
+    (v_chart, 44, 63.4, 3700),
+    (v_chart, 44, 67.8, 3600),
+    (v_chart, 46, 50.6, 4600),
+    (v_chart, 46, 54.9, 4200),
+    (v_chart, 46, 59.1, 3600),
+    (v_chart, 46, 63.4, 3100),
+    (v_chart, 46, 67.8, 3100),
+    (v_chart, 48, 54.9, 3700),
+    (v_chart, 48, 59.1, 3200),
+    (v_chart, 48, 63.4, 2700),
+    (v_chart, 48, 67.8, 2600),
+    (v_chart, 50, 54.9, 3300),
+    (v_chart, 50, 59.1, 2700),
+    (v_chart, 50, 63.4, 2200),
+    (v_chart, 50, 67.8, 2200),
+    (v_chart, 54, 59.1, 2500),
+    (v_chart, 54, 63.4, 1500),
+    (v_chart, 54, 67.8, 1400);
+end $charts$;
+
+-- demag-ac-30-city
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 30 City 30 TONNES – Capacité de levage (fiche loueur FOSELEV)'
+    and reference is not distinct from '30T-TEREX DEMAG AC 30 CITY.pdf sha256:afa2763575bb8ccc' and edition is not distinct from 'mise en page « intérieur de page 31/03/11 »';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 30 City 30 TONNES – Capacité de levage (fiche loueur FOSELEV)', '30T-TEREX DEMAG AC 30 CITY.pdf sha256:afa2763575bb8ccc', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 30 City');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 30 City', null, '{"capacite_max_t":30,"fleche_principale_m":"7,5 - 25","contrepoids":"Intégré","extension_treillis":"Extension treillis (swingaway) 7,1 m ou 13 m, 0°/30°"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":30,"fleche_principale_m":"7,5 - 25","contrepoids":"Intégré","extension_treillis":"Extension treillis (swingaway) 7,1 m ou 13 m, 0°/30°"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw-integre
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw-integre';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 7,5 - 25 m, calage, 360°, contrepoids intégré', '{"longueur_fleche_m":"7,5 - 25","contrepoids_t":null,"contrepoids":"Intégré","base_calage_m":null,"zone":"360°","flechette":false,"mouflage":null,"slug":"telescopique-360-cw-integre"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 12 du catalogue), pictogrammes : flèche de 7,5 m à 25 m, contrepoids « Intégré », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 5 colonnes de longueur de flèche x 22 lignes de portée = 110 cellules dont 58 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l''EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu''imprimées. PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 137 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel des 5 colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 du PDF (Page 12) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:afa2763575bb8ccc659a676c818b3c188479976c953f570eeb9da24c0a6b5c57') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 7,5 - 25 m, calage, 360°, contrepoids intégré', params = '{"longueur_fleche_m":"7,5 - 25","contrepoids_t":null,"contrepoids":"Intégré","base_calage_m":null,"zone":"360°","flechette":false,"mouflage":null,"slug":"telescopique-360-cw-integre"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 12 du catalogue), pictogrammes : flèche de 7,5 m à 25 m, contrepoids « Intégré », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 5 colonnes de longueur de flèche x 22 lignes de portée = 110 cellules dont 58 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l''EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu''imprimées. PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 137 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel des 5 colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 du PDF (Page 12) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:afa2763575bb8ccc659a676c818b3c188479976c953f570eeb9da24c0a6b5c57', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 7.5, 30000),
+    (v_chart, 3, 11.9, 16000),
+    (v_chart, 3, 16.3, 16000),
+    (v_chart, 3.5, 7.5, 22300),
+    (v_chart, 3.5, 11.9, 16000),
+    (v_chart, 3.5, 16.3, 16000),
+    (v_chart, 3.5, 20.7, 13000),
+    (v_chart, 4, 7.5, 20300),
+    (v_chart, 4, 11.9, 16000),
+    (v_chart, 4, 16.3, 16000),
+    (v_chart, 4, 20.7, 13000),
+    (v_chart, 4.5, 7.5, 18300),
+    (v_chart, 4.5, 11.9, 16000),
+    (v_chart, 4.5, 16.3, 16000),
+    (v_chart, 4.5, 20.7, 13000),
+    (v_chart, 5, 11.9, 16000),
+    (v_chart, 5, 16.3, 15800),
+    (v_chart, 5, 20.7, 13000),
+    (v_chart, 5, 25, 9000),
+    (v_chart, 6, 11.9, 13600),
+    (v_chart, 6, 16.3, 13600),
+    (v_chart, 6, 20.7, 12200),
+    (v_chart, 6, 25, 9000),
+    (v_chart, 7, 11.9, 10500),
+    (v_chart, 7, 16.3, 10700),
+    (v_chart, 7, 20.7, 10000),
+    (v_chart, 7, 25, 8800),
+    (v_chart, 8, 11.9, 8200),
+    (v_chart, 8, 16.3, 8400),
+    (v_chart, 8, 20.7, 8400),
+    (v_chart, 8, 25, 7800),
+    (v_chart, 9, 11.9, 6700),
+    (v_chart, 9, 16.3, 6800),
+    (v_chart, 9, 20.7, 6900),
+    (v_chart, 9, 25, 6700),
+    (v_chart, 10, 16.3, 5700),
+    (v_chart, 10, 20.7, 5800),
+    (v_chart, 10, 25, 5800),
+    (v_chart, 11, 16.3, 4900),
+    (v_chart, 11, 20.7, 5000),
+    (v_chart, 11, 25, 5000),
+    (v_chart, 12, 16.3, 4100),
+    (v_chart, 12, 20.7, 4200),
+    (v_chart, 12, 25, 4200),
+    (v_chart, 13, 20.7, 3700),
+    (v_chart, 13, 25, 3700),
+    (v_chart, 14, 20.7, 3200),
+    (v_chart, 14, 25, 3200),
+    (v_chart, 15, 20.7, 2800),
+    (v_chart, 15, 25, 2800),
+    (v_chart, 16, 20.7, 2500),
+    (v_chart, 16, 25, 2500),
+    (v_chart, 17, 25, 2200),
+    (v_chart, 18, 25, 2000),
+    (v_chart, 19, 25, 1800),
+    (v_chart, 20, 25, 1600),
+    (v_chart, 21, 25, 1400),
+    (v_chart, 22, 25, 1300);
+end $charts$;
+
+-- demag-ac-40-2l
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 40-2L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 35 tonnes)'
+    and reference is not distinct from '35T-TEREX DEMAG AC 40-2L.pdf (sha256 e6a330b75bc7132c)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 40-2L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 35 tonnes)', '35T-TEREX DEMAG AC 40-2L.pdf (sha256 e6a330b75bc7132c)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 40-2L');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 40-2L', null, '{"capacite_max_t":35,"contrepoids_t":5.5,"base_calage_m":"6,20 x 5,95"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":35,"contrepoids_t":5.5,"base_calage_m":"6,20 x 5,95"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw5-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw5-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 9,50-37,40 m, calage 6,20 x 5,95 m, 360°, contrepoids 5,5 t', '{"longueur_fleche_m":"9,50 - 37,40","contrepoids_t":5.5,"base_calage_m":"6,20 x 5,95","zone":"360°","flechette":false,"slug":"fleche-principale-360-cw5-5t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l''utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 5,5 t / 6,20 x 5,95 m / 360° / ISO). 9 colonnes de flèche (9,50 à 37,40 m) ; 163 valeurs ; cellules « - » = vides non saisies. EXCLUES : les valeurs à 2,6 m et 3,0 m de la 1re ligne 3,0 (40,00 et 35,00 avec renvoi « 1) Sur l''arrière » = secteur restreint arrière, incompatible avec 360°) ; la 2e ligne 3,0 (32,00 ; 32,00 ; 25,95 ; 18,95) est saisie. Pas de donnée sur crochet/moufle ni déductions (hook_block_mass_kg = null). Mention « ISO » telle qu''imprimée. Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (163 cellules, 0 écart) + échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi : 0 écart ; valeurs « 1) Sur l''arrière » bien exclues. | Pages : p. 3 : tableau « Flèche principale », 5,5 t / 6,20 x 5,95 m / 360° / ISO. PDF sha256:e6a330b75bc7132cb12aa384e96c272e8c4fcc46ba5e1f210344c113dcab09b5') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 9,50-37,40 m, calage 6,20 x 5,95 m, 360°, contrepoids 5,5 t', params = '{"longueur_fleche_m":"9,50 - 37,40","contrepoids_t":5.5,"base_calage_m":"6,20 x 5,95","zone":"360°","flechette":false,"slug":"fleche-principale-360-cw5-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l''utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 5,5 t / 6,20 x 5,95 m / 360° / ISO). 9 colonnes de flèche (9,50 à 37,40 m) ; 163 valeurs ; cellules « - » = vides non saisies. EXCLUES : les valeurs à 2,6 m et 3,0 m de la 1re ligne 3,0 (40,00 et 35,00 avec renvoi « 1) Sur l''arrière » = secteur restreint arrière, incompatible avec 360°) ; la 2e ligne 3,0 (32,00 ; 32,00 ; 25,95 ; 18,95) est saisie. Pas de donnée sur crochet/moufle ni déductions (hook_block_mass_kg = null). Mention « ISO » telle qu''imprimée. Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (163 cellules, 0 écart) + échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi : 0 écart ; valeurs « 1) Sur l''arrière » bien exclues. | Pages : p. 3 : tableau « Flèche principale », 5,5 t / 6,20 x 5,95 m / 360° / ISO. PDF sha256:e6a330b75bc7132cb12aa384e96c272e8c4fcc46ba5e1f210344c113dcab09b5', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 9.5, 32000),
+    (v_chart, 3.5, 9.5, 27450),
+    (v_chart, 4, 9.5, 24900),
+    (v_chart, 4.5, 9.5, 22600),
+    (v_chart, 5, 9.5, 20600),
+    (v_chart, 6, 9.5, 17000),
+    (v_chart, 7, 9.5, 14450),
+    (v_chart, 3, 13, 32000),
+    (v_chart, 3.5, 13, 27450),
+    (v_chart, 4, 13, 24900),
+    (v_chart, 4.5, 13, 22600),
+    (v_chart, 5, 13, 20600),
+    (v_chart, 6, 13, 17850),
+    (v_chart, 7, 13, 14950),
+    (v_chart, 8, 13, 11850),
+    (v_chart, 9, 13, 9750),
+    (v_chart, 10, 13, 8150),
+    (v_chart, 3, 16.5, 25950),
+    (v_chart, 3.5, 16.5, 23700),
+    (v_chart, 4, 16.5, 22000),
+    (v_chart, 4.5, 16.5, 20450),
+    (v_chart, 5, 16.5, 19050),
+    (v_chart, 6, 16.5, 17250),
+    (v_chart, 7, 16.5, 14600),
+    (v_chart, 8, 16.5, 12150),
+    (v_chart, 9, 16.5, 10000),
+    (v_chart, 10, 16.5, 8400),
+    (v_chart, 11, 16.5, 7200),
+    (v_chart, 12, 16.5, 6250),
+    (v_chart, 13, 16.5, 5450),
+    (v_chart, 14, 16.5, 4850),
+    (v_chart, 3, 19.8, 18950),
+    (v_chart, 3.5, 19.8, 18350),
+    (v_chart, 4, 19.8, 18600),
+    (v_chart, 4.5, 19.8, 17950),
+    (v_chart, 5, 19.8, 16750),
+    (v_chart, 6, 19.8, 14700),
+    (v_chart, 7, 19.8, 12750),
+    (v_chart, 8, 19.8, 11650),
+    (v_chart, 9, 19.8, 10100),
+    (v_chart, 10, 19.8, 8550),
+    (v_chart, 11, 19.8, 7350),
+    (v_chart, 12, 19.8, 6400),
+    (v_chart, 13, 19.8, 5600),
+    (v_chart, 14, 19.8, 4950),
+    (v_chart, 15, 19.8, 4400),
+    (v_chart, 16, 19.8, 3950),
+    (v_chart, 17, 19.8, 3550),
+    (v_chart, 3.5, 23.5, 18400),
+    (v_chart, 4, 23.5, 17550),
+    (v_chart, 4.5, 23.5, 16250),
+    (v_chart, 5, 23.5, 15150),
+    (v_chart, 6, 23.5, 13300),
+    (v_chart, 7, 23.5, 11800),
+    (v_chart, 8, 23.5, 10200),
+    (v_chart, 9, 23.5, 8700),
+    (v_chart, 10, 23.5, 7500),
+    (v_chart, 11, 23.5, 6950),
+    (v_chart, 12, 23.5, 6500),
+    (v_chart, 13, 23.5, 5700),
+    (v_chart, 14, 23.5, 5050),
+    (v_chart, 15, 23.5, 4500),
+    (v_chart, 16, 23.5, 4050),
+    (v_chart, 17, 23.5, 3650),
+    (v_chart, 18, 23.5, 3300),
+    (v_chart, 19, 23.5, 3000),
+    (v_chart, 20, 23.5, 2750),
+    (v_chart, 21, 23.5, 2500),
+    (v_chart, 4.5, 26.8, 14450),
+    (v_chart, 5, 26.8, 13850),
+    (v_chart, 6, 26.8, 12200),
+    (v_chart, 7, 26.8, 10900),
+    (v_chart, 8, 26.8, 9750),
+    (v_chart, 9, 26.8, 8550),
+    (v_chart, 10, 26.8, 7400),
+    (v_chart, 11, 26.8, 6500),
+    (v_chart, 12, 26.8, 5700),
+    (v_chart, 13, 26.8, 5250),
+    (v_chart, 14, 26.8, 4950),
+    (v_chart, 15, 26.8, 4600),
+    (v_chart, 16, 26.8, 4100),
+    (v_chart, 17, 26.8, 3700),
+    (v_chart, 18, 26.8, 3350),
+    (v_chart, 19, 26.8, 3050),
+    (v_chart, 20, 26.8, 2800),
+    (v_chart, 21, 26.8, 2550),
+    (v_chart, 22, 26.8, 2350),
+    (v_chart, 23, 26.8, 2150),
+    (v_chart, 24, 26.8, 1950),
+    (v_chart, 6, 30.5, 10000),
+    (v_chart, 7, 30.5, 9650),
+    (v_chart, 8, 30.5, 8800),
+    (v_chart, 9, 30.5, 8000),
+    (v_chart, 10, 30.5, 7300),
+    (v_chart, 11, 30.5, 6400),
+    (v_chart, 12, 30.5, 5700),
+    (v_chart, 13, 30.5, 5050),
+    (v_chart, 14, 30.5, 4500),
+    (v_chart, 15, 30.5, 4000),
+    (v_chart, 16, 30.5, 3550),
+    (v_chart, 17, 30.5, 3150),
+    (v_chart, 18, 30.5, 2800),
+    (v_chart, 19, 30.5, 2500),
+    (v_chart, 20, 30.5, 2250),
+    (v_chart, 21, 30.5, 2000),
+    (v_chart, 22, 30.5, 1800),
+    (v_chart, 23, 30.5, 1600),
+    (v_chart, 24, 30.5, 1450),
+    (v_chart, 25, 30.5, 1350),
+    (v_chart, 26, 30.5, 1250),
+    (v_chart, 27, 30.5, 1150),
+    (v_chart, 28, 30.5, 1050),
+    (v_chart, 7, 34.1, 7450),
+    (v_chart, 8, 34.1, 7450),
+    (v_chart, 9, 34.1, 7050),
+    (v_chart, 10, 34.1, 6700),
+    (v_chart, 11, 34.1, 6150),
+    (v_chart, 12, 34.1, 5600),
+    (v_chart, 13, 34.1, 5000),
+    (v_chart, 14, 34.1, 4500),
+    (v_chart, 15, 34.1, 4050),
+    (v_chart, 16, 34.1, 3650),
+    (v_chart, 17, 34.1, 3250),
+    (v_chart, 18, 34.1, 2900),
+    (v_chart, 19, 34.1, 2600),
+    (v_chart, 20, 34.1, 2350),
+    (v_chart, 21, 34.1, 2250),
+    (v_chart, 22, 34.1, 2100),
+    (v_chart, 23, 34.1, 1950),
+    (v_chart, 24, 34.1, 1750),
+    (v_chart, 25, 34.1, 1600),
+    (v_chart, 26, 34.1, 1450),
+    (v_chart, 27, 34.1, 1350),
+    (v_chart, 28, 34.1, 1200),
+    (v_chart, 29, 34.1, 1100),
+    (v_chart, 30, 34.1, 1000),
+    (v_chart, 31, 34.1, 900),
+    (v_chart, 8, 37.4, 5550),
+    (v_chart, 9, 37.4, 5350),
+    (v_chart, 10, 37.4, 5000),
+    (v_chart, 11, 37.4, 4650),
+    (v_chart, 12, 37.4, 4400),
+    (v_chart, 13, 37.4, 4150),
+    (v_chart, 14, 37.4, 3950),
+    (v_chart, 15, 37.4, 3700),
+    (v_chart, 16, 37.4, 3450),
+    (v_chart, 17, 37.4, 3250),
+    (v_chart, 18, 37.4, 3000),
+    (v_chart, 19, 37.4, 2700),
+    (v_chart, 20, 37.4, 2400),
+    (v_chart, 21, 37.4, 2150),
+    (v_chart, 22, 37.4, 1950),
+    (v_chart, 23, 37.4, 1750),
+    (v_chart, 24, 37.4, 1600),
+    (v_chart, 25, 37.4, 1450),
+    (v_chart, 26, 37.4, 1300),
+    (v_chart, 27, 37.4, 1150),
+    (v_chart, 28, 37.4, 1050),
+    (v_chart, 29, 37.4, 900),
+    (v_chart, 30, 37.4, 800),
+    (v_chart, 31, 37.4, 700),
+    (v_chart, 32, 37.4, 600),
+    (v_chart, 33, 37.4, 550);
+end $charts$;
+
+-- demag-ac-50-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 50-1 50 TONNES – Capacité de levage (fiche loueur FOSELEV)'
+    and reference is not distinct from '50T-TEREX DEMAG AC 50-1.pdf sha256:35326c2a10e53a95' and edition is not distinct from 'mise en page « intérieur de page 31/03/11 »';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 50-1 50 TONNES – Capacité de levage (fiche loueur FOSELEV)', '50T-TEREX DEMAG AC 50-1.pdf sha256:35326c2a10e53a95', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 50-1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 50-1', null, '{"capacite_max_t":50,"fleche_principale_m":"10,1 - 40","contrepoids":"9,5 t","extension_treillis":"Extension treillis (swingaway) 9,2 m ou 17,6 m, 0°/40° (fléchette également disponible en inclinaison 20°)"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":50,"fleche_principale_m":"10,1 - 40","contrepoids":"9,5 t","extension_treillis":"Extension treillis (swingaway) 9,2 m ou 17,6 m, 0°/40° (fléchette également disponible en inclinaison 20°)"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw9-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw9-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 10,1 - 40 m, calage, 360°, contrepoids 9,5 t', '{"longueur_fleche_m":"10,1 - 40","contrepoids_t":9.5,"contrepoids":"9,5 t","base_calage_m":null,"zone":"360°","flechette":false,"mouflage":null,"slug":"telescopique-360-cw9-5t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 52 du catalogue), pictogrammes : flèche de 10,1 m à 40 m, contrepoids « 9,5 t », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 7 colonnes de longueur de flèche x 22 lignes de portée = 154 cellules dont 95 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l''EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu''imprimées. PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 183 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 du PDF (Page 52) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:35326c2a10e53a95ad358c89589dde4486113e4588c1fb07bdb844333feadb67') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 10,1 - 40 m, calage, 360°, contrepoids 9,5 t', params = '{"longueur_fleche_m":"10,1 - 40","contrepoids_t":9.5,"contrepoids":"9,5 t","base_calage_m":null,"zone":"360°","flechette":false,"mouflage":null,"slug":"telescopique-360-cw9-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 52 du catalogue), pictogrammes : flèche de 10,1 m à 40 m, contrepoids « 9,5 t », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 7 colonnes de longueur de flèche x 22 lignes de portée = 154 cellules dont 95 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l''EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu''imprimées. PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 183 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 du PDF (Page 52) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:35326c2a10e53a95ad358c89589dde4486113e4588c1fb07bdb844333feadb67', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 10.1, 50000),
+    (v_chart, 4, 10.1, 38100),
+    (v_chart, 4, 16.1, 28000),
+    (v_chart, 4, 22.1, 17000),
+    (v_chart, 5, 10.1, 32600),
+    (v_chart, 5, 16.1, 28000),
+    (v_chart, 5, 22.1, 17000),
+    (v_chart, 5, 28, 14000),
+    (v_chart, 5, 32.5, 11000),
+    (v_chart, 6, 10.1, 26400),
+    (v_chart, 6, 16.1, 25000),
+    (v_chart, 6, 22.1, 17000),
+    (v_chart, 6, 28, 14000),
+    (v_chart, 6, 32.5, 11000),
+    (v_chart, 6, 37, 9000),
+    (v_chart, 7, 10.1, 21700),
+    (v_chart, 7, 16.1, 20600),
+    (v_chart, 7, 22.1, 17000),
+    (v_chart, 7, 28, 14000),
+    (v_chart, 7, 32.5, 11000),
+    (v_chart, 7, 37, 9000),
+    (v_chart, 7, 40, 7000),
+    (v_chart, 8, 16.1, 16000),
+    (v_chart, 8, 22.1, 16000),
+    (v_chart, 8, 28, 13100),
+    (v_chart, 8, 32.5, 11000),
+    (v_chart, 8, 37, 9000),
+    (v_chart, 8, 40, 7000),
+    (v_chart, 9, 16.1, 14600),
+    (v_chart, 9, 22.1, 14500),
+    (v_chart, 9, 28, 12300),
+    (v_chart, 9, 32.5, 10500),
+    (v_chart, 9, 37, 9000),
+    (v_chart, 9, 40, 7000),
+    (v_chart, 10, 16.1, 12300),
+    (v_chart, 10, 22.1, 12400),
+    (v_chart, 10, 28, 11500),
+    (v_chart, 10, 32.5, 10000),
+    (v_chart, 10, 37, 9000),
+    (v_chart, 10, 40, 7000),
+    (v_chart, 11, 16.1, 10700),
+    (v_chart, 11, 22.1, 10900),
+    (v_chart, 11, 28, 10200),
+    (v_chart, 11, 32.5, 9400),
+    (v_chart, 11, 37, 8500),
+    (v_chart, 11, 40, 7000),
+    (v_chart, 12, 16.1, 9100),
+    (v_chart, 12, 22.1, 9500),
+    (v_chart, 12, 28, 9000),
+    (v_chart, 12, 32.5, 8900),
+    (v_chart, 12, 37, 8000),
+    (v_chart, 12, 40, 7000),
+    (v_chart, 13, 22.1, 8400),
+    (v_chart, 13, 28, 8300),
+    (v_chart, 13, 32.5, 7900),
+    (v_chart, 13, 37, 7500),
+    (v_chart, 13, 40, 6300),
+    (v_chart, 14, 22.1, 7400),
+    (v_chart, 14, 28, 7600),
+    (v_chart, 14, 32.5, 7000),
+    (v_chart, 14, 37, 7100),
+    (v_chart, 14, 40, 6600),
+    (v_chart, 16, 22.1, 6000),
+    (v_chart, 16, 28, 6100),
+    (v_chart, 16, 32.5, 5600),
+    (v_chart, 16, 37, 5600),
+    (v_chart, 16, 40, 5600),
+    (v_chart, 18, 22.1, 4900),
+    (v_chart, 18, 28, 5100),
+    (v_chart, 18, 32.5, 4900),
+    (v_chart, 18, 37, 4800),
+    (v_chart, 18, 40, 4600),
+    (v_chart, 20, 28, 4200),
+    (v_chart, 20, 32.5, 4300),
+    (v_chart, 20, 37, 4000),
+    (v_chart, 20, 40, 3700),
+    (v_chart, 22, 28, 3600),
+    (v_chart, 22, 32.5, 3700),
+    (v_chart, 22, 37, 3300),
+    (v_chart, 22, 40, 3000),
+    (v_chart, 24, 28, 3000),
+    (v_chart, 24, 32.5, 3100),
+    (v_chart, 24, 37, 2700),
+    (v_chart, 24, 40, 2500),
+    (v_chart, 26, 32.5, 2600),
+    (v_chart, 26, 37, 2300),
+    (v_chart, 26, 40, 2000),
+    (v_chart, 28, 32.5, 2200),
+    (v_chart, 28, 37, 1900),
+    (v_chart, 28, 40, 1600),
+    (v_chart, 30, 37, 1500),
+    (v_chart, 30, 40, 1300),
+    (v_chart, 32, 37, 1200),
+    (v_chart, 32, 40, 900),
+    (v_chart, 34, 40, 700);
+end $charts$;
+
+-- demag-ac-55-3
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 55-3 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 55 tonnes)'
+    and reference is not distinct from '3-55T-TEREX DEMAG AC 55-3.pdf sha256:8d4c636c10404971' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 55-3 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 55 tonnes)', '3-55T-TEREX DEMAG AC 55-3.pdf sha256:8d4c636c10404971', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 55-3');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 55-3', null, '{"capacite_max_t":55,"fleche_principale_m":"10,3 - 50,0"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":55,"fleche_principale_m":"10,3 - 50,0"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw6t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw6t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 10,3-50,0 m, appui 6,90 x 6,50 m, 360°, contrepoids 6,0 t', '{"contrepoids_t":6,"base_calage_m":"6,90 x 6,50","zone":"360°","flechette":false,"categorie":"grue mobile tout-terrain","slug":"fleche-principale-360-cw6t"}'::jsonb, null, 'Tableau p. 3 : 12 colonnes de flèche (10,3 à 50,0 m), 24 lignes de portée (3 à 38 m). Colonne ''10,3m*'' (sur l''arrière), première ligne 3 m (55,0** classe de capacité, arrière) et ligne 1) (charges avec flèche horizontale, sans portée) exclues. Le tableau imprime deux lignes ''3'' : la seconde (valeurs 360°) est utilisée comme portée 3 m. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 288 cellules, 0 écart. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (165 valeurs, 0 écart) + échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi : 0 écart. | Pages : p. 3 : Flèche principale (appui 6,90 m x 6,50 m, 360°, contrepoids 6,0 t, ISO). sha256 complet : 8d4c636c1040497138fa0f719f4269b7645fed0b44c3e769a3d99b80f331b57c') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 10,3-50,0 m, appui 6,90 x 6,50 m, 360°, contrepoids 6,0 t', params = '{"contrepoids_t":6,"base_calage_m":"6,90 x 6,50","zone":"360°","flechette":false,"categorie":"grue mobile tout-terrain","slug":"fleche-principale-360-cw6t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 : 12 colonnes de flèche (10,3 à 50,0 m), 24 lignes de portée (3 à 38 m). Colonne ''10,3m*'' (sur l''arrière), première ligne 3 m (55,0** classe de capacité, arrière) et ligne 1) (charges avec flèche horizontale, sans portée) exclues. Le tableau imprime deux lignes ''3'' : la seconde (valeurs 360°) est utilisée comme portée 3 m. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 288 cellules, 0 écart. RELECTURE 2026-10-11 : diff intégral automatique texte PDF p. 3 (165 valeurs, 0 écart) + échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi : 0 écart. | Pages : p. 3 : Flèche principale (appui 6,90 m x 6,50 m, 360°, contrepoids 6,0 t, ISO). sha256 complet : 8d4c636c1040497138fa0f719f4269b7645fed0b44c3e769a3d99b80f331b57c', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 10.3, 35600),
+    (v_chart, 3, 13.8, 35600),
+    (v_chart, 3, 17.3, 35600),
+    (v_chart, 3, 20.8, 33300),
+    (v_chart, 3, 24.3, 27400),
+    (v_chart, 3.5, 10.3, 35600),
+    (v_chart, 3.5, 13.8, 35600),
+    (v_chart, 3.5, 17.3, 35600),
+    (v_chart, 3.5, 20.8, 31500),
+    (v_chart, 3.5, 24.3, 26600),
+    (v_chart, 4, 10.3, 35600),
+    (v_chart, 4, 13.8, 35600),
+    (v_chart, 4, 17.3, 34400),
+    (v_chart, 4, 20.8, 29700),
+    (v_chart, 4, 24.3, 25800),
+    (v_chart, 4, 27.8, 21400),
+    (v_chart, 4.5, 10.3, 34900),
+    (v_chart, 4.5, 13.8, 34200),
+    (v_chart, 4.5, 17.3, 32700),
+    (v_chart, 4.5, 20.8, 28200),
+    (v_chart, 4.5, 24.3, 24500),
+    (v_chart, 4.5, 27.8, 20500),
+    (v_chart, 5, 10.3, 32000),
+    (v_chart, 5, 13.8, 32100),
+    (v_chart, 5, 17.3, 31000),
+    (v_chart, 5, 20.8, 26900),
+    (v_chart, 5, 24.3, 23100),
+    (v_chart, 5, 27.8, 20200),
+    (v_chart, 5, 31.3, 15800),
+    (v_chart, 6, 10.3, 26600),
+    (v_chart, 6, 13.8, 26800),
+    (v_chart, 6, 17.3, 24800),
+    (v_chart, 6, 20.8, 23800),
+    (v_chart, 6, 24.3, 20600),
+    (v_chart, 6, 27.8, 19000),
+    (v_chart, 6, 31.3, 14800),
+    (v_chart, 6, 34.8, 12000),
+    (v_chart, 7, 10.3, 19900),
+    (v_chart, 7, 13.8, 20600),
+    (v_chart, 7, 17.3, 19900),
+    (v_chart, 7, 20.8, 19300),
+    (v_chart, 7, 24.3, 18700),
+    (v_chart, 7, 27.8, 17500),
+    (v_chart, 7, 31.3, 13500),
+    (v_chart, 7, 34.8, 11700),
+    (v_chart, 7, 38.3, 9400),
+    (v_chart, 8, 13.8, 16300),
+    (v_chart, 8, 17.3, 16400),
+    (v_chart, 8, 20.8, 16100),
+    (v_chart, 8, 24.3, 15900),
+    (v_chart, 8, 27.8, 14900),
+    (v_chart, 8, 31.3, 12500),
+    (v_chart, 8, 34.8, 11200),
+    (v_chart, 8, 38.3, 9200),
+    (v_chart, 8, 41.8, 7300),
+    (v_chart, 9, 13.8, 13500),
+    (v_chart, 9, 17.3, 13900),
+    (v_chart, 9, 20.8, 13900),
+    (v_chart, 9, 24.3, 13700),
+    (v_chart, 9, 27.8, 12800),
+    (v_chart, 9, 31.3, 11800),
+    (v_chart, 9, 34.8, 10300),
+    (v_chart, 9, 38.3, 9100),
+    (v_chart, 9, 41.8, 7200),
+    (v_chart, 9, 45.3, 5900),
+    (v_chart, 10, 13.8, 11500),
+    (v_chart, 10, 17.3, 11800),
+    (v_chart, 10, 20.8, 11700),
+    (v_chart, 10, 24.3, 11600),
+    (v_chart, 10, 27.8, 11100),
+    (v_chart, 10, 31.3, 11100),
+    (v_chart, 10, 34.8, 9400),
+    (v_chart, 10, 38.3, 8700),
+    (v_chart, 10, 41.8, 7100),
+    (v_chart, 10, 45.3, 5800),
+    (v_chart, 10, 50, 4300),
+    (v_chart, 12, 17.3, 8800),
+    (v_chart, 12, 20.8, 8800),
+    (v_chart, 12, 24.3, 8700),
+    (v_chart, 12, 27.8, 8900),
+    (v_chart, 12, 31.3, 8600),
+    (v_chart, 12, 34.8, 7900),
+    (v_chart, 12, 38.3, 7700),
+    (v_chart, 12, 41.8, 6900),
+    (v_chart, 12, 45.3, 5600),
+    (v_chart, 12, 50, 4100),
+    (v_chart, 14, 17.3, 6900),
+    (v_chart, 14, 20.8, 6900),
+    (v_chart, 14, 24.3, 7200),
+    (v_chart, 14, 27.8, 7000),
+    (v_chart, 14, 31.3, 6700),
+    (v_chart, 14, 34.8, 6800),
+    (v_chart, 14, 38.3, 6200),
+    (v_chart, 14, 41.8, 6200),
+    (v_chart, 14, 45.3, 5500),
+    (v_chart, 14, 50, 4000),
+    (v_chart, 16, 20.8, 5900),
+    (v_chart, 16, 24.3, 5800),
+    (v_chart, 16, 27.8, 5600),
+    (v_chart, 16, 31.3, 5600),
+    (v_chart, 16, 34.8, 5500),
+    (v_chart, 16, 38.3, 5200),
+    (v_chart, 16, 41.8, 5200),
+    (v_chart, 16, 45.3, 5100),
+    (v_chart, 16, 50, 3800),
+    (v_chart, 18, 20.8, 4900),
+    (v_chart, 18, 24.3, 4800),
+    (v_chart, 18, 27.8, 4700),
+    (v_chart, 18, 31.3, 4800),
+    (v_chart, 18, 34.8, 4500),
+    (v_chart, 18, 38.3, 4500),
+    (v_chart, 18, 41.8, 4400),
+    (v_chart, 18, 45.3, 4200),
+    (v_chart, 18, 50, 3700),
+    (v_chart, 20, 24.3, 4100),
+    (v_chart, 20, 27.8, 4100),
+    (v_chart, 20, 31.3, 4000),
+    (v_chart, 20, 34.8, 3800),
+    (v_chart, 20, 38.3, 3900),
+    (v_chart, 20, 41.8, 3700),
+    (v_chart, 20, 45.3, 3500),
+    (v_chart, 20, 50, 3300),
+    (v_chart, 22, 27.8, 3600),
+    (v_chart, 22, 31.3, 3400),
+    (v_chart, 22, 34.8, 3400),
+    (v_chart, 22, 38.3, 3300),
+    (v_chart, 22, 41.8, 3100),
+    (v_chart, 22, 45.3, 3000),
+    (v_chart, 22, 50, 2700),
+    (v_chart, 24, 27.8, 3100),
+    (v_chart, 24, 31.3, 2900),
+    (v_chart, 24, 34.8, 2900),
+    (v_chart, 24, 38.3, 2800),
+    (v_chart, 24, 41.8, 2500),
+    (v_chart, 24, 45.3, 2600),
+    (v_chart, 24, 50, 2200),
+    (v_chart, 26, 31.3, 2500),
+    (v_chart, 26, 34.8, 2400),
+    (v_chart, 26, 38.3, 2300),
+    (v_chart, 26, 41.8, 2200),
+    (v_chart, 26, 45.3, 2100),
+    (v_chart, 26, 50, 1900),
+    (v_chart, 28, 31.3, 2300),
+    (v_chart, 28, 34.8, 2100),
+    (v_chart, 28, 38.3, 2000),
+    (v_chart, 28, 41.8, 2000),
+    (v_chart, 28, 45.3, 1800),
+    (v_chart, 28, 50, 1500),
+    (v_chart, 30, 34.8, 1800),
+    (v_chart, 30, 38.3, 1700),
+    (v_chart, 30, 41.8, 1700),
+    (v_chart, 30, 45.3, 1500),
+    (v_chart, 30, 50, 1300),
+    (v_chart, 32, 34.8, 1500),
+    (v_chart, 32, 38.3, 1400),
+    (v_chart, 32, 41.8, 1400),
+    (v_chart, 32, 45.3, 1200),
+    (v_chart, 32, 50, 1000),
+    (v_chart, 34, 38.3, 1200),
+    (v_chart, 34, 41.8, 1200),
+    (v_chart, 34, 45.3, 1000),
+    (v_chart, 34, 50, 800),
+    (v_chart, 36, 41.8, 1000),
+    (v_chart, 36, 45.3, 800),
+    (v_chart, 38, 41.8, 800);
+end $charts$;
+
+-- demag-ac-80-2
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Demag');
+  if v_manu is null then raise exception 'constructeur inconnu : Demag'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX DEMAG AC 80-2 80 TONNES – Capacité de levage (fiche loueur FOSELEV)'
+    and reference is not distinct from '80T-TEREX DEMAG AC 80-2.pdf sha256:4e673786f854c7f0' and edition is not distinct from 'mise en page « intérieur de page 31/03/11 »';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX DEMAG AC 80-2 80 TONNES – Capacité de levage (fiche loueur FOSELEV)', '80T-TEREX DEMAG AC 80-2.pdf sha256:4e673786f854c7f0', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 80-2');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'AC 80-2', null, '{"capacite_max_t":80,"fleche_principale_m":"10,9 - 50","contrepoids":"18 t","extension_treillis":"Extension treillis (swingaway) 9,2 m ou 17,6 m, 0°/40° (fléchette également disponible en inclinaison 20°)"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":80,"fleche_principale_m":"10,9 - 50","contrepoids":"18 t","extension_treillis":"Extension treillis (swingaway) 9,2 m ou 17,6 m, 0°/40° (fléchette également disponible en inclinaison 20°)"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw18t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw18t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 10,9 - 50 m, calage, 360°, contrepoids 18 t', '{"longueur_fleche_m":"10,9 - 50","contrepoids_t":18,"contrepoids":"18 t","base_calage_m":null,"zone":"360°","flechette":false,"mouflage":null,"slug":"telescopique-360-cw18t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 80 du catalogue), pictogrammes : flèche de 10,9 m à 50 m, contrepoids « 18 t », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 8 colonnes de longueur de flèche x 22 lignes de portée = 176 cellules dont 108 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l''EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu''imprimées. Note imprimée sous le tableau : « Flèche également disponible en 16m100 » (colonne non présente dans le tableau, non saisie). PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 206 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 du PDF (Page 80) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:4e673786f854c7f038a174f4123fab21ed141286ccf96bd6b97574802897ef0e') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 10,9 - 50 m, calage, 360°, contrepoids 18 t', params = '{"longueur_fleche_m":"10,9 - 50","contrepoids_t":18,"contrepoids":"18 t","base_calage_m":null,"zone":"360°","flechette":false,"mouflage":null,"slug":"telescopique-360-cw18t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau « Flèche principale / Telescopic boom » p. 3 du PDF (Page 80 du catalogue), pictogrammes : flèche de 10,9 m à 50 m, contrepoids « 18 t », calage (pictogramme, base non cotée), 360°, DIN/ISO, 75 %. Table entière saisie : 8 colonnes de longueur de flèche x 22 lignes de portée = 176 cellules dont 108 valeurs ; « - » imprimé = cellule vide. Capacités en t. Norme indiquée par pictogramme « DIN ISO » + « 75 % » (stabilité 75 %, antérieure à l''EN 13000) : édition métrique européenne, pas de signe de conversion US. Déduction moufle/crochet, mouflage, vent et base de calage non indiqués sur la fiche : moufle considérée non déduite (deductions_included=false), hook_block_mass_kg = null. Valeurs non monotones éventuelles reproduites telles qu''imprimées. Note imprimée sous le tableau : « Flèche également disponible en 16m100 » (colonne non présente dans le tableau, non saisie). PDF scanné (tableaux en image 150 ppi) : lecture visuelle en deux passes indépendantes (A : rendu pdftoppm 200 dpi page entière ; B : recadrages du rendu 300 dpi en deux moitiés) ; diff intégral (en-têtes de flèche et portées inclus, cellules vides incluses) : 206 cellules, 0 écart. NON SAISI : tableau « Extension treillis / Swingaway » de la même page. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 du PDF (Page 80) : tableaux Flèche principale et Extension treillis, pictogrammes 360°, DIN ISO, 75 %. PDF sha256:4e673786f854c7f038a174f4123fab21ed141286ccf96bd6b97574802897ef0e', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 10.9, 80000),
+    (v_chart, 4, 10.9, 59300),
+    (v_chart, 4, 21.4, 45000),
+    (v_chart, 5, 10.9, 51000),
+    (v_chart, 5, 21.4, 41000),
+    (v_chart, 5, 25, 32000),
+    (v_chart, 5, 31.3, 20000),
+    (v_chart, 6, 10.9, 42000),
+    (v_chart, 6, 21.4, 36500),
+    (v_chart, 6, 25, 31000),
+    (v_chart, 6, 31.3, 20000),
+    (v_chart, 6, 37.1, 16000),
+    (v_chart, 7, 10.9, 35000),
+    (v_chart, 7, 21.4, 32000),
+    (v_chart, 7, 25, 29000),
+    (v_chart, 7, 31.3, 20000),
+    (v_chart, 7, 37.1, 15500),
+    (v_chart, 7, 42.3, 13000),
+    (v_chart, 8, 10.9, 28300),
+    (v_chart, 8, 21.4, 28000),
+    (v_chart, 8, 25, 26000),
+    (v_chart, 8, 31.3, 20000),
+    (v_chart, 8, 37.1, 15000),
+    (v_chart, 8, 42.3, 13000),
+    (v_chart, 8, 46.1, 8800),
+    (v_chart, 9, 21.4, 24800),
+    (v_chart, 9, 25, 23500),
+    (v_chart, 9, 31.3, 19500),
+    (v_chart, 9, 37.1, 14500),
+    (v_chart, 9, 42.3, 12900),
+    (v_chart, 9, 46.1, 8800),
+    (v_chart, 9, 50, 6500),
+    (v_chart, 10, 21.4, 21000),
+    (v_chart, 10, 25, 21000),
+    (v_chart, 10, 31.3, 18500),
+    (v_chart, 10, 37.1, 14000),
+    (v_chart, 10, 42.3, 12700),
+    (v_chart, 10, 46.1, 8800),
+    (v_chart, 10, 50, 6500),
+    (v_chart, 12, 21.4, 15800),
+    (v_chart, 12, 25, 16800),
+    (v_chart, 12, 31.3, 16100),
+    (v_chart, 12, 37.1, 12700),
+    (v_chart, 12, 42.3, 11800),
+    (v_chart, 12, 46.1, 8800),
+    (v_chart, 12, 50, 6500),
+    (v_chart, 14, 21.4, 13800),
+    (v_chart, 14, 25, 13300),
+    (v_chart, 14, 31.3, 12800),
+    (v_chart, 14, 37.1, 11300),
+    (v_chart, 14, 42.3, 10900),
+    (v_chart, 14, 46.1, 8500),
+    (v_chart, 14, 50, 6500),
+    (v_chart, 16, 21.4, 11200),
+    (v_chart, 16, 25, 10700),
+    (v_chart, 16, 31.3, 10200),
+    (v_chart, 16, 37.1, 10000),
+    (v_chart, 16, 42.3, 10000),
+    (v_chart, 16, 46.1, 8000),
+    (v_chart, 16, 50, 6500),
+    (v_chart, 18, 21.4, 9200),
+    (v_chart, 18, 25, 8700),
+    (v_chart, 18, 31.3, 8200),
+    (v_chart, 18, 37.1, 8500),
+    (v_chart, 18, 42.3, 8800),
+    (v_chart, 18, 46.1, 7500),
+    (v_chart, 18, 50, 6200),
+    (v_chart, 20, 25, 7200),
+    (v_chart, 20, 31.3, 7000),
+    (v_chart, 20, 37.1, 7400),
+    (v_chart, 20, 42.3, 7300),
+    (v_chart, 20, 46.1, 7000),
+    (v_chart, 20, 50, 5900),
+    (v_chart, 22, 31.3, 6400),
+    (v_chart, 22, 37.1, 6300),
+    (v_chart, 22, 42.3, 6400),
+    (v_chart, 22, 46.1, 6300),
+    (v_chart, 22, 50, 5500),
+    (v_chart, 24, 31.3, 5800),
+    (v_chart, 24, 37.1, 5800),
+    (v_chart, 24, 42.3, 5400),
+    (v_chart, 24, 46.1, 5300),
+    (v_chart, 24, 50, 5100),
+    (v_chart, 26, 31.3, 5200),
+    (v_chart, 26, 37.1, 5200),
+    (v_chart, 26, 42.3, 4500),
+    (v_chart, 26, 46.1, 4700),
+    (v_chart, 26, 50, 4400),
+    (v_chart, 28, 37.1, 4500),
+    (v_chart, 28, 42.3, 4000),
+    (v_chart, 28, 46.1, 4000),
+    (v_chart, 28, 50, 3700),
+    (v_chart, 30, 37.1, 3900),
+    (v_chart, 30, 42.3, 3700),
+    (v_chart, 30, 46.1, 3400),
+    (v_chart, 30, 50, 3100),
+    (v_chart, 32, 37.1, 3400),
+    (v_chart, 32, 42.3, 3300),
+    (v_chart, 32, 46.1, 2900),
+    (v_chart, 32, 50, 2600),
+    (v_chart, 34, 42.3, 2800),
+    (v_chart, 34, 46.1, 2400),
+    (v_chart, 34, 50, 2100),
+    (v_chart, 38, 42.3, 2100),
+    (v_chart, 38, 46.1, 1700),
+    (v_chart, 38, 50, 1400),
+    (v_chart, 42, 46.1, 1000),
+    (v_chart, 42, 50, 700);
+end $charts$;
+
+-- galizia-g-100-e
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Galizia');
+  if v_manu is null then raise exception 'constructeur inconnu : Galizia'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GALIZIA G100E – 12 TONNES – Cotation / Hauteurs et capacités de levage (fiche FOSELEV)'
+    and reference is not distinct from '12T-GALIZIA G 100 E.pdf (sha256 5f9a212d5d51dc62…)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GALIZIA G100E – 12 TONNES – Cotation / Hauteurs et capacités de levage (fiche FOSELEV)', '12T-GALIZIA G 100 E.pdf (sha256 5f9a212d5d51dc62…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('G100E');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'G100E', null, '{"capacite_max_t":12,"categorie":"grue automotrice pick-and-carry"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":12,"categorie":"grue automotrice pick-and-carry"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 4,05-9,25 m (tableau longueur de flèche × portée)', '{"categorie":"grue automotrice pick-and-carry","fleche":"principale","flechette":false,"contrepoids":null,"calage":null,"slug":"fleche-principale"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Colonnes = longueurs de flèche imprimées (4,05 à 9,25 m ; le diagramme les rattache à la flèche, pas à la hauteur de crochet) saisies en y (axis_y=boom_length_m, corrigé en relecture le 2026-10-11 : la saisie initiale indiquait height_m) ; lignes = portées 0,8 à 6 m ; capacités en tonnes. Les « - » du tableau sont laissés vides (cellule non renseignée). Conditions (calage, stabilisation, déplacement en charge) non indiquées dans la fiche. Tableau fléchette 2,5 m (p. 3) NON saisi : étiquettes de ligne gauche/droite incohérentes (ligne « 3 » à gauche, « 2 » à droite) -> portée douteuse. RELECTURE 2026-10-11 : diff intégral des 64 cellules contre le rendu 200 dpi p. 2 : 0 écart. Règle case vide intérieure : flèche 5,25 m, « - » imprimé à 1,5 m entre 8,5 t (1 m) et 6 t (2 m) ; ligne coupée au trou : la valeur 6 t à 2 m est retirée (cellule vide), la flèche 5,25 m n''est utilisable qu''à 1 m (sens de la sécurité). Le tableau ne donne que des points isolés (une à quatre portées par flèche) : lecture limitée aux portées imprimées encadrées. Norme non imprimée. | Pages : p. 2 : tableau flèche principale (longueur de flèche × portée). PDF sha256 complet : 5f9a212d5d51dc62847455e5e4b469467899a30c2c7ac634358ba44c4c103ccb') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 4,05-9,25 m (tableau longueur de flèche × portée)', params = '{"categorie":"grue automotrice pick-and-carry","fleche":"principale","flechette":false,"contrepoids":null,"calage":null,"slug":"fleche-principale"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Colonnes = longueurs de flèche imprimées (4,05 à 9,25 m ; le diagramme les rattache à la flèche, pas à la hauteur de crochet) saisies en y (axis_y=boom_length_m, corrigé en relecture le 2026-10-11 : la saisie initiale indiquait height_m) ; lignes = portées 0,8 à 6 m ; capacités en tonnes. Les « - » du tableau sont laissés vides (cellule non renseignée). Conditions (calage, stabilisation, déplacement en charge) non indiquées dans la fiche. Tableau fléchette 2,5 m (p. 3) NON saisi : étiquettes de ligne gauche/droite incohérentes (ligne « 3 » à gauche, « 2 » à droite) -> portée douteuse. RELECTURE 2026-10-11 : diff intégral des 64 cellules contre le rendu 200 dpi p. 2 : 0 écart. Règle case vide intérieure : flèche 5,25 m, « - » imprimé à 1,5 m entre 8,5 t (1 m) et 6 t (2 m) ; ligne coupée au trou : la valeur 6 t à 2 m est retirée (cellule vide), la flèche 5,25 m n''est utilisable qu''à 1 m (sens de la sécurité). Le tableau ne donne que des points isolés (une à quatre portées par flèche) : lecture limitée aux portées imprimées encadrées. Norme non imprimée. | Pages : p. 2 : tableau flèche principale (longueur de flèche × portée). PDF sha256 complet : 5f9a212d5d51dc62847455e5e4b469467899a30c2c7ac634358ba44c4c103ccb', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 0.8, 4.05, 12000),
+    (v_chart, 1, 4.25, 10000),
+    (v_chart, 1, 4.75, 10000),
+    (v_chart, 1, 5.25, 8500),
+    (v_chart, 1.5, 4.75, 8000),
+    (v_chart, 1.5, 6.25, 6500),
+    (v_chart, 2, 6.25, 6000),
+    (v_chart, 2, 7.25, 5000),
+    (v_chart, 3, 6.25, 4000),
+    (v_chart, 3, 7.25, 4000),
+    (v_chart, 3, 8.25, 3500),
+    (v_chart, 3, 9.25, 3500),
+    (v_chart, 4, 7.25, 3000),
+    (v_chart, 4, 8.25, 3000),
+    (v_chart, 4, 9.25, 3000),
+    (v_chart, 5, 8.25, 2200),
+    (v_chart, 5, 9.25, 2200),
+    (v_chart, 6, 9.25, 1700);
+end $charts$;
+
+-- grove-gmk-3050-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Grove');
+  if v_manu is null then raise exception 'constructeur inconnu : Grove'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GROVE GMK 3050-1 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 3 pages)'
+    and reference is not distinct from '50T-GROVE GMK 3050-1.pdf ; sha256:693c8704b9a7d79f' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GROVE GMK 3050-1 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 3 pages)', '50T-GROVE GMK 3050-1.pdf ; sha256:693c8704b9a7d79f', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 3050-1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'GMK 3050-1', null, '{"capacite_max_t":50,"contrepoids_t":11.6,"fleche_principale_m":"9,6 - 38,0","base_calage_m":6.2}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":50,"contrepoids_t":11.6,"fleche_principale_m":"9,6 - 38,0","base_calage_m":6.2}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw11t6
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw11t6';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 9,6-38,0 m, calage 6,2 m, 360°, contrepoids 11,6 t', '{"contrepoids_t":11.6,"base_calage_m":6.2,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw11t6"}'::jsonb, null, 'Tableau p. 3, 9 colonnes de flèche (9,6 à 38,0 m), 23 lignes de portée (3 à 34 m). Cellule portée 3 m / flèche 9,6 m imprimée « 50,0*/45,0 » (valeur en arrière / valeur 360°, ambiguë) : NON saisie (donc hors abaque, plus défavorable). Les en-têtes de flèche et portées ne sont pas du texte extractible : lus visuellement sur rendu PNG (130 et 220 dpi). Diff intégral : 207 cellules, 0 écart (pdfplumber + pdftotext -layout + lecture visuelle). Courbes p. 2 non utilisées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d''une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) + relecture visuelle de 5 colonnes complètes sur rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 : tableau flèche principale 9,6-38,0 m, base 6,2 m, 360°, 11,6 t, EN 13000 ; renvoi « * En arrière »') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 9,6-38,0 m, calage 6,2 m, 360°, contrepoids 11,6 t', params = '{"contrepoids_t":11.6,"base_calage_m":6.2,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw11t6"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3, 9 colonnes de flèche (9,6 à 38,0 m), 23 lignes de portée (3 à 34 m). Cellule portée 3 m / flèche 9,6 m imprimée « 50,0*/45,0 » (valeur en arrière / valeur 360°, ambiguë) : NON saisie (donc hors abaque, plus défavorable). Les en-têtes de flèche et portées ne sont pas du texte extractible : lus visuellement sur rendu PNG (130 et 220 dpi). Diff intégral : 207 cellules, 0 écart (pdfplumber + pdftotext -layout + lecture visuelle). Courbes p. 2 non utilisées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d''une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) + relecture visuelle de 5 colonnes complètes sur rendu 200 dpi p. 3 : 0 écart. | Pages : p. 3 : tableau flèche principale 9,6-38,0 m, base 6,2 m, 360°, 11,6 t, EN 13000 ; renvoi « * En arrière »', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN 13000', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN 13000', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 13.2, 41500),
+    (v_chart, 3, 16.8, 32000),
+    (v_chart, 3, 20.3, 20000),
+    (v_chart, 3, 23.8, 20000),
+    (v_chart, 4, 9.6, 37000),
+    (v_chart, 4, 13.2, 35000),
+    (v_chart, 4, 16.8, 28500),
+    (v_chart, 4, 20.3, 20000),
+    (v_chart, 4, 23.8, 20000),
+    (v_chart, 4, 27.3, 18000),
+    (v_chart, 5, 9.6, 31500),
+    (v_chart, 5, 13.2, 30500),
+    (v_chart, 5, 16.8, 25000),
+    (v_chart, 5, 20.3, 20000),
+    (v_chart, 5, 23.8, 20000),
+    (v_chart, 5, 27.3, 18000),
+    (v_chart, 5, 30.9, 16500),
+    (v_chart, 5, 34.4, 12700),
+    (v_chart, 6, 9.6, 26000),
+    (v_chart, 6, 13.2, 26000),
+    (v_chart, 6, 16.8, 21500),
+    (v_chart, 6, 20.3, 20000),
+    (v_chart, 6, 23.8, 19000),
+    (v_chart, 6, 27.3, 17600),
+    (v_chart, 6, 30.9, 16000),
+    (v_chart, 6, 34.4, 12700),
+    (v_chart, 6, 38, 10000),
+    (v_chart, 7, 9.6, 20000),
+    (v_chart, 7, 13.2, 21500),
+    (v_chart, 7, 16.8, 19100),
+    (v_chart, 7, 20.3, 20000),
+    (v_chart, 7, 23.8, 18300),
+    (v_chart, 7, 27.3, 15800),
+    (v_chart, 7, 30.9, 14700),
+    (v_chart, 7, 34.4, 12700),
+    (v_chart, 7, 38, 10000),
+    (v_chart, 8, 13.2, 19400),
+    (v_chart, 8, 16.8, 18900),
+    (v_chart, 8, 20.3, 18500),
+    (v_chart, 8, 23.8, 17000),
+    (v_chart, 8, 27.3, 14200),
+    (v_chart, 8, 30.9, 13400),
+    (v_chart, 8, 34.4, 12200),
+    (v_chart, 8, 38, 10000),
+    (v_chart, 9, 13.2, 16200),
+    (v_chart, 9, 16.8, 16700),
+    (v_chart, 9, 20.3, 15700),
+    (v_chart, 9, 23.8, 15300),
+    (v_chart, 9, 27.3, 13100),
+    (v_chart, 9, 30.9, 12200),
+    (v_chart, 9, 34.4, 11400),
+    (v_chart, 9, 38, 10000),
+    (v_chart, 10, 13.2, 13500),
+    (v_chart, 10, 16.8, 14000),
+    (v_chart, 10, 20.3, 13600),
+    (v_chart, 10, 23.8, 13300),
+    (v_chart, 10, 27.3, 12100),
+    (v_chart, 10, 30.9, 11100),
+    (v_chart, 10, 34.4, 10500),
+    (v_chart, 10, 38, 9500),
+    (v_chart, 11, 16.8, 11900),
+    (v_chart, 11, 20.3, 12200),
+    (v_chart, 11, 23.8, 11600),
+    (v_chart, 11, 27.3, 11200),
+    (v_chart, 11, 30.9, 10100),
+    (v_chart, 11, 34.4, 9700),
+    (v_chart, 11, 38, 8900),
+    (v_chart, 12, 16.8, 10300),
+    (v_chart, 12, 20.3, 10600),
+    (v_chart, 12, 23.8, 10100),
+    (v_chart, 12, 27.3, 10200),
+    (v_chart, 12, 30.9, 9200),
+    (v_chart, 12, 34.4, 8900),
+    (v_chart, 12, 38, 8400),
+    (v_chart, 13, 20.3, 9300),
+    (v_chart, 13, 23.8, 8800),
+    (v_chart, 13, 27.3, 9000),
+    (v_chart, 13, 30.9, 8500),
+    (v_chart, 13, 34.4, 8300),
+    (v_chart, 13, 38, 7900),
+    (v_chart, 14, 20.3, 8200),
+    (v_chart, 14, 23.8, 8100),
+    (v_chart, 14, 27.3, 7900),
+    (v_chart, 14, 30.9, 8000),
+    (v_chart, 14, 34.4, 7500),
+    (v_chart, 14, 38, 7400),
+    (v_chart, 15, 20.3, 7300),
+    (v_chart, 15, 23.8, 7500),
+    (v_chart, 15, 27.3, 7000),
+    (v_chart, 15, 30.9, 7200),
+    (v_chart, 15, 34.4, 6800),
+    (v_chart, 15, 38, 6700),
+    (v_chart, 16, 20.3, 6500),
+    (v_chart, 16, 23.8, 6700),
+    (v_chart, 16, 27.3, 6300),
+    (v_chart, 16, 30.9, 6400),
+    (v_chart, 16, 34.4, 6300),
+    (v_chart, 16, 38, 6100),
+    (v_chart, 18, 23.8, 5500),
+    (v_chart, 18, 27.3, 5500),
+    (v_chart, 18, 30.9, 5200),
+    (v_chart, 18, 34.4, 5300),
+    (v_chart, 18, 38, 5000),
+    (v_chart, 20, 23.8, 4500),
+    (v_chart, 20, 27.3, 4600),
+    (v_chart, 20, 30.9, 4300),
+    (v_chart, 20, 34.4, 4400),
+    (v_chart, 20, 38, 4100),
+    (v_chart, 22, 27.3, 3900),
+    (v_chart, 22, 30.9, 4000),
+    (v_chart, 22, 34.4, 3600),
+    (v_chart, 22, 38, 3300),
+    (v_chart, 24, 27.3, 3300),
+    (v_chart, 24, 30.9, 3400),
+    (v_chart, 24, 34.4, 3000),
+    (v_chart, 24, 38, 2700),
+    (v_chart, 26, 30.9, 2900),
+    (v_chart, 26, 34.4, 2500),
+    (v_chart, 26, 38, 2200),
+    (v_chart, 28, 34.4, 2100),
+    (v_chart, 28, 38, 1800),
+    (v_chart, 30, 34.4, 1700),
+    (v_chart, 30, 38, 1500),
+    (v_chart, 32, 38, 1200),
+    (v_chart, 34, 38, 900);
+end $charts$;
+
+-- grove-gmk-5130-2
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Grove');
+  if v_manu is null then raise exception 'constructeur inconnu : Grove'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GROVE GMK 5130-2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)'
+    and reference is not distinct from '130T-GROVE GMK 5130-2.pdf ; sha256:676eec7f29b2e3fb' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GROVE GMK 5130-2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)', '130T-GROVE GMK 5130-2.pdf ; sha256:676eec7f29b2e3fb', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 5130-2');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'GMK 5130-2', null, '{"capacite_max_t":130,"contrepoids_t":40.1,"fleche_principale_m":"12,9 - 60","base_calage_m":7.5}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":130,"contrepoids_t":40.1,"fleche_principale_m":"12,9 - 60","base_calage_m":7.5}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw40t1
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw40t1';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 12,9-60 m, calage 7,5 m, 360°, contrepoids 40,1 t', '{"contrepoids_t":40.1,"base_calage_m":7.5,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw40t1"}'::jsonb, null, 'Tableau p. 3, 11 colonnes de flèche 360° saisies (12,90 à 60,00 m ; valeurs de flèche telles qu''imprimées) et 34 lignes de portée (3 à 56 m). Colonne « 12,90* » (en arrière) et ligne 2,2 m (« 130,0**/116,0* », secteur restreint) EXCLUES. Diff intégral : 224 cellules (colonne exclue incluse), 0 écart (pdfplumber + pdftotext -layout + rendu PNG). Tableaux flèche + fléchette (p. 5) non saisis : dimension angle de déport non représentable. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d''une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « 12,90* » et ligne 2,2 m bien exclues. | Pages : p. 3 : tableau flèche principale 12,9-60 m, base 7,5 m, 360°, 40,1 t, EN 13000') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 12,9-60 m, calage 7,5 m, 360°, contrepoids 40,1 t', params = '{"contrepoids_t":40.1,"base_calage_m":7.5,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw40t1"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3, 11 colonnes de flèche 360° saisies (12,90 à 60,00 m ; valeurs de flèche telles qu''imprimées) et 34 lignes de portée (3 à 56 m). Colonne « 12,90* » (en arrière) et ligne 2,2 m (« 130,0**/116,0* », secteur restreint) EXCLUES. Diff intégral : 224 cellules (colonne exclue incluse), 0 écart (pdfplumber + pdftotext -layout + rendu PNG). Tableaux flèche + fléchette (p. 5) non saisis : dimension angle de déport non représentable. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d''une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « 12,90* » et ligne 2,2 m bien exclues. | Pages : p. 3 : tableau flèche principale 12,9-60 m, base 7,5 m, 360°, 40,1 t, EN 13000', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN 13000', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN 13000', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 12.9, 93500),
+    (v_chart, 3, 17.69, 86000),
+    (v_chart, 3, 22.48, 81000),
+    (v_chart, 3, 27.16, 65000),
+    (v_chart, 4, 12.9, 79000),
+    (v_chart, 4, 17.69, 76500),
+    (v_chart, 4, 22.48, 71000),
+    (v_chart, 4, 27.16, 65000),
+    (v_chart, 4, 31.84, 50000),
+    (v_chart, 5, 12.9, 68000),
+    (v_chart, 5, 17.69, 67500),
+    (v_chart, 5, 22.48, 63500),
+    (v_chart, 5, 27.16, 60500),
+    (v_chart, 5, 31.84, 49500),
+    (v_chart, 5, 36.45, 38000),
+    (v_chart, 6, 12.9, 59500),
+    (v_chart, 6, 17.69, 60000),
+    (v_chart, 6, 22.48, 57500),
+    (v_chart, 6, 27.16, 54500),
+    (v_chart, 6, 31.84, 47000),
+    (v_chart, 6, 36.45, 37000),
+    (v_chart, 6, 41.24, 28000),
+    (v_chart, 6, 45.99, 20500),
+    (v_chart, 7, 12.9, 52500),
+    (v_chart, 7, 17.69, 53000),
+    (v_chart, 7, 22.48, 52000),
+    (v_chart, 7, 27.16, 50000),
+    (v_chart, 7, 31.84, 44000),
+    (v_chart, 7, 36.45, 35000),
+    (v_chart, 7, 41.24, 28000),
+    (v_chart, 7, 45.99, 20500),
+    (v_chart, 7, 50.71, 16000),
+    (v_chart, 8, 12.9, 46500),
+    (v_chart, 8, 17.69, 47000),
+    (v_chart, 8, 22.48, 47000),
+    (v_chart, 8, 27.16, 46000),
+    (v_chart, 8, 31.84, 41500),
+    (v_chart, 8, 36.45, 33000),
+    (v_chart, 8, 41.24, 28000),
+    (v_chart, 8, 45.99, 20500),
+    (v_chart, 8, 50.71, 16000),
+    (v_chart, 8, 55.39, 11600),
+    (v_chart, 9, 12.9, 41000),
+    (v_chart, 9, 17.69, 42000),
+    (v_chart, 9, 22.48, 42000),
+    (v_chart, 9, 27.16, 41500),
+    (v_chart, 9, 31.84, 39000),
+    (v_chart, 9, 36.45, 31500),
+    (v_chart, 9, 41.24, 26500),
+    (v_chart, 9, 45.99, 20500),
+    (v_chart, 9, 50.71, 16000),
+    (v_chart, 9, 55.39, 11600),
+    (v_chart, 9, 60, 10000),
+    (v_chart, 10, 12.9, 31500),
+    (v_chart, 10, 17.69, 38000),
+    (v_chart, 10, 22.48, 38000),
+    (v_chart, 10, 27.16, 37500),
+    (v_chart, 10, 31.84, 37000),
+    (v_chart, 10, 36.45, 29500),
+    (v_chart, 10, 41.24, 25000),
+    (v_chart, 10, 45.99, 20500),
+    (v_chart, 10, 50.71, 16000),
+    (v_chart, 10, 55.39, 11600),
+    (v_chart, 10, 60, 10000),
+    (v_chart, 11, 17.69, 34500),
+    (v_chart, 11, 22.48, 34500),
+    (v_chart, 11, 27.16, 34000),
+    (v_chart, 11, 31.84, 34500),
+    (v_chart, 11, 36.45, 28000),
+    (v_chart, 11, 41.24, 23500),
+    (v_chart, 11, 45.99, 20500),
+    (v_chart, 11, 50.71, 16000),
+    (v_chart, 11, 55.39, 11600),
+    (v_chart, 11, 60, 10000),
+    (v_chart, 12, 17.69, 31500),
+    (v_chart, 12, 22.48, 31500),
+    (v_chart, 12, 27.16, 31000),
+    (v_chart, 12, 31.84, 32000),
+    (v_chart, 12, 36.45, 26500),
+    (v_chart, 12, 41.24, 22500),
+    (v_chart, 12, 45.99, 19500),
+    (v_chart, 12, 50.71, 16000),
+    (v_chart, 12, 55.39, 11600),
+    (v_chart, 12, 60, 10000),
+    (v_chart, 13, 17.69, 29000),
+    (v_chart, 13, 22.48, 29000),
+    (v_chart, 13, 27.16, 28500),
+    (v_chart, 13, 31.84, 29500),
+    (v_chart, 13, 36.45, 25000),
+    (v_chart, 13, 41.24, 21000),
+    (v_chart, 13, 45.99, 18600),
+    (v_chart, 13, 50.71, 16000),
+    (v_chart, 13, 55.39, 11600),
+    (v_chart, 13, 60, 10000),
+    (v_chart, 14, 17.69, 25000),
+    (v_chart, 14, 22.48, 27000),
+    (v_chart, 14, 27.16, 26000),
+    (v_chart, 14, 31.84, 27000),
+    (v_chart, 14, 36.45, 23500),
+    (v_chart, 14, 41.24, 19700),
+    (v_chart, 14, 45.99, 17700),
+    (v_chart, 14, 50.71, 15800),
+    (v_chart, 14, 55.39, 11600),
+    (v_chart, 14, 60, 10000),
+    (v_chart, 15, 22.48, 24000),
+    (v_chart, 15, 27.16, 24500),
+    (v_chart, 15, 31.84, 24500),
+    (v_chart, 15, 36.45, 22500),
+    (v_chart, 15, 41.24, 18700),
+    (v_chart, 15, 45.99, 16800),
+    (v_chart, 15, 50.71, 15200),
+    (v_chart, 15, 55.39, 11600),
+    (v_chart, 15, 60, 10000),
+    (v_chart, 16, 22.48, 21500),
+    (v_chart, 16, 27.16, 22500),
+    (v_chart, 16, 31.84, 22000),
+    (v_chart, 16, 36.45, 21500),
+    (v_chart, 16, 41.24, 17600),
+    (v_chart, 16, 45.99, 15900),
+    (v_chart, 16, 50.71, 14500),
+    (v_chart, 16, 55.39, 11600),
+    (v_chart, 16, 60, 10000),
+    (v_chart, 18, 22.48, 18200),
+    (v_chart, 18, 27.16, 18600),
+    (v_chart, 18, 31.84, 18100),
+    (v_chart, 18, 36.45, 18900),
+    (v_chart, 18, 41.24, 15800),
+    (v_chart, 18, 45.99, 14400),
+    (v_chart, 18, 50.71, 13000),
+    (v_chart, 18, 55.39, 11600),
+    (v_chart, 18, 60, 10000),
+    (v_chart, 20, 27.16, 15700),
+    (v_chart, 20, 31.84, 16100),
+    (v_chart, 20, 36.45, 15900),
+    (v_chart, 20, 41.24, 13900),
+    (v_chart, 20, 45.99, 12700),
+    (v_chart, 20, 50.71, 11900),
+    (v_chart, 20, 55.39, 11100),
+    (v_chart, 20, 60, 9700),
+    (v_chart, 22, 27.16, 13400),
+    (v_chart, 22, 31.84, 14200),
+    (v_chart, 22, 36.45, 13600),
+    (v_chart, 22, 41.24, 12600),
+    (v_chart, 22, 45.99, 11500),
+    (v_chart, 22, 50.71, 10800),
+    (v_chart, 22, 55.39, 10300),
+    (v_chart, 22, 60, 9100),
+    (v_chart, 24, 27.16, 9600),
+    (v_chart, 24, 31.84, 12300),
+    (v_chart, 24, 36.45, 11800),
+    (v_chart, 24, 41.24, 11600),
+    (v_chart, 24, 45.99, 10400),
+    (v_chart, 24, 50.71, 9800),
+    (v_chart, 24, 55.39, 9400),
+    (v_chart, 24, 60, 8600),
+    (v_chart, 26, 31.84, 10800),
+    (v_chart, 26, 36.45, 10200),
+    (v_chart, 26, 41.24, 10800),
+    (v_chart, 26, 45.99, 9500),
+    (v_chart, 26, 50.71, 8900),
+    (v_chart, 26, 55.39, 8600),
+    (v_chart, 26, 60, 8000),
+    (v_chart, 28, 31.84, 9500),
+    (v_chart, 28, 36.45, 9300),
+    (v_chart, 28, 41.24, 9500),
+    (v_chart, 28, 45.99, 8400),
+    (v_chart, 28, 50.71, 8200),
+    (v_chart, 28, 55.39, 7900),
+    (v_chart, 28, 60, 7600),
+    (v_chart, 30, 36.45, 8700),
+    (v_chart, 30, 41.24, 8400),
+    (v_chart, 30, 45.99, 7500),
+    (v_chart, 30, 50.71, 7500),
+    (v_chart, 30, 55.39, 7300),
+    (v_chart, 30, 60, 7100),
+    (v_chart, 32, 36.45, 8000),
+    (v_chart, 32, 41.24, 7500),
+    (v_chart, 32, 45.99, 6900),
+    (v_chart, 32, 50.71, 6500),
+    (v_chart, 32, 55.39, 6500),
+    (v_chart, 32, 60, 6400),
+    (v_chart, 34, 41.24, 6600),
+    (v_chart, 34, 45.99, 6200),
+    (v_chart, 34, 50.71, 5700),
+    (v_chart, 34, 55.39, 5700),
+    (v_chart, 34, 60, 5700),
+    (v_chart, 36, 41.24, 5900),
+    (v_chart, 36, 45.99, 5900),
+    (v_chart, 36, 50.71, 5000),
+    (v_chart, 36, 55.39, 5300),
+    (v_chart, 36, 60, 5300),
+    (v_chart, 38, 45.99, 5500),
+    (v_chart, 38, 50.71, 4500),
+    (v_chart, 38, 55.39, 5000),
+    (v_chart, 38, 60, 4900),
+    (v_chart, 40, 45.99, 5000),
+    (v_chart, 40, 50.71, 4200),
+    (v_chart, 40, 55.39, 4700),
+    (v_chart, 40, 60, 4500),
+    (v_chart, 42, 45.99, 4500),
+    (v_chart, 42, 50.71, 3900),
+    (v_chart, 42, 55.39, 4400),
+    (v_chart, 42, 60, 3900),
+    (v_chart, 44, 50.71, 3600),
+    (v_chart, 44, 55.39, 3900),
+    (v_chart, 44, 60, 3500),
+    (v_chart, 46, 50.71, 3400),
+    (v_chart, 46, 55.39, 3500),
+    (v_chart, 46, 60, 3100),
+    (v_chart, 48, 55.39, 3100),
+    (v_chart, 48, 60, 2700),
+    (v_chart, 50, 55.39, 2700),
+    (v_chart, 50, 60, 2300),
+    (v_chart, 52, 60, 2000),
+    (v_chart, 54, 60, 1700),
+    (v_chart, 56, 60, 1500);
+end $charts$;
+
+-- grove-gmk-5200
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Grove');
+  if v_manu is null then raise exception 'constructeur inconnu : Grove'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GROVE GMK 5200 — 200 tonnes : Cotation, Capacité de levage, Flèche principale, Extension treillis (fiche FOSELEV, 5 pages, pages catalogue 124-128)'
+    and reference is not distinct from '200T-GROVE GMK 5200.pdf ; sha256:717f58372544fde1' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GROVE GMK 5200 — 200 tonnes : Cotation, Capacité de levage, Flèche principale, Extension treillis (fiche FOSELEV, 5 pages, pages catalogue 124-128)', '200T-GROVE GMK 5200.pdf ; sha256:717f58372544fde1', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 5200');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'GMK 5200', null, '{"capacite_nominale_t":200,"fleche_principale_m":"13,5 - 60","contrepoids_t":"70 ; 44"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_nominale_t":200,"fleche_principale_m":"13,5 - 60","contrepoids_t":"70 ; 44"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw70t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw70t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 13,5-60 m, calage max, 360°, contrepoids 70 t', '{"longueur_fleche_m_plage":"13,5 - 60","contrepoids_t":70,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw70t"}'::jsonb, null, 'Tableau p. 3 haut (page catalogue 126), 10 colonnes de flèche (13,5 à 60 m) x 22 lignes de portée (2,5 à 56 m), toutes saisies. Base de calage non cotée sur le tableau (picto calage). Mention : également disponible en 27,5 m de flèche principale (non tabulé). Capacités non monotones entre longueurs de flèche reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. DÉCISION DE SÉCURITÉ : la cellule 2,5 m / flèche 13,5 m imprimée « 200 » (identique dans les tableaux 70 t et 44 t, égale à la classe de la grue, sans renvoi explicatif) est interprétée comme une classe de capacité et RETIRÉE ; en dessous de 3 m la lecture est hors abaque. À confirmer sur la doc constructeur. | Pages : p. 3 (page catalogue 126) : deux tableaux « Flèche principale » 13,5-60 m, 360°, DIN ISO 75 % — haut : contrepoids 70 t ; bas : 44 t. PDF sha256:717f58372544fde126b5188737d73b8f856078c8a8f5bd3df6af090ce964e9b4') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 13,5-60 m, calage max, 360°, contrepoids 70 t', params = '{"longueur_fleche_m_plage":"13,5 - 60","contrepoids_t":70,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw70t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 haut (page catalogue 126), 10 colonnes de flèche (13,5 à 60 m) x 22 lignes de portée (2,5 à 56 m), toutes saisies. Base de calage non cotée sur le tableau (picto calage). Mention : également disponible en 27,5 m de flèche principale (non tabulé). Capacités non monotones entre longueurs de flèche reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. DÉCISION DE SÉCURITÉ : la cellule 2,5 m / flèche 13,5 m imprimée « 200 » (identique dans les tableaux 70 t et 44 t, égale à la classe de la grue, sans renvoi explicatif) est interprétée comme une classe de capacité et RETIRÉE ; en dessous de 3 m la lecture est hors abaque. À confirmer sur la doc constructeur. | Pages : p. 3 (page catalogue 126) : deux tableaux « Flèche principale » 13,5-60 m, 360°, DIN ISO 75 % — haut : contrepoids 70 t ; bas : 44 t. PDF sha256:717f58372544fde126b5188737d73b8f856078c8a8f5bd3df6af090ce964e9b4', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 13.5, 141000),
+    (v_chart, 4, 13.5, 118000),
+    (v_chart, 5, 13.5, 101000),
+    (v_chart, 6, 13.5, 88500),
+    (v_chart, 8, 13.5, 69500),
+    (v_chart, 10, 13.5, 57000),
+    (v_chart, 3, 18.2, 140000),
+    (v_chart, 4, 18.2, 118000),
+    (v_chart, 5, 18.2, 102000),
+    (v_chart, 6, 18.2, 89000),
+    (v_chart, 8, 18.2, 70500),
+    (v_chart, 10, 18.2, 57500),
+    (v_chart, 12, 18.2, 49000),
+    (v_chart, 14, 18.2, 42000),
+    (v_chart, 3, 22.8, 107000),
+    (v_chart, 4, 22.8, 107000),
+    (v_chart, 5, 22.8, 101000),
+    (v_chart, 6, 22.8, 88000),
+    (v_chart, 8, 22.8, 69000),
+    (v_chart, 10, 22.8, 56500),
+    (v_chart, 12, 22.8, 47000),
+    (v_chart, 14, 22.8, 40000),
+    (v_chart, 16, 22.8, 34500),
+    (v_chart, 18, 22.8, 30000),
+    (v_chart, 4, 32.1, 63000),
+    (v_chart, 5, 32.1, 63000),
+    (v_chart, 6, 32.1, 63000),
+    (v_chart, 8, 32.1, 63000),
+    (v_chart, 10, 32.1, 57500),
+    (v_chart, 12, 32.1, 48500),
+    (v_chart, 14, 32.1, 41500),
+    (v_chart, 16, 32.1, 36000),
+    (v_chart, 18, 32.1, 31500),
+    (v_chart, 20, 32.1, 28000),
+    (v_chart, 22, 32.1, 25500),
+    (v_chart, 24, 32.1, 23000),
+    (v_chart, 28, 32.1, 17900),
+    (v_chart, 5, 36.8, 52500),
+    (v_chart, 6, 36.8, 52500),
+    (v_chart, 8, 36.8, 52500),
+    (v_chart, 10, 36.8, 49500),
+    (v_chart, 12, 36.8, 44500),
+    (v_chart, 14, 36.8, 40500),
+    (v_chart, 16, 36.8, 37000),
+    (v_chart, 18, 36.8, 32500),
+    (v_chart, 20, 36.8, 29000),
+    (v_chart, 22, 36.8, 25000),
+    (v_chart, 24, 36.8, 22000),
+    (v_chart, 28, 36.8, 17100),
+    (v_chart, 32, 36.8, 13600),
+    (v_chart, 6, 41.4, 40000),
+    (v_chart, 8, 41.4, 40000),
+    (v_chart, 10, 41.4, 39000),
+    (v_chart, 12, 41.4, 35500),
+    (v_chart, 14, 41.4, 32000),
+    (v_chart, 16, 41.4, 29500),
+    (v_chart, 18, 41.4, 26500),
+    (v_chart, 20, 41.4, 24000),
+    (v_chart, 22, 41.4, 22000),
+    (v_chart, 24, 41.4, 20500),
+    (v_chart, 28, 41.4, 16500),
+    (v_chart, 32, 41.4, 14400),
+    (v_chart, 36, 41.4, 11800),
+    (v_chart, 8, 46.1, 31000),
+    (v_chart, 10, 46.1, 31000),
+    (v_chart, 12, 46.1, 31000),
+    (v_chart, 14, 46.1, 28500),
+    (v_chart, 16, 46.1, 26500),
+    (v_chart, 18, 46.1, 24000),
+    (v_chart, 20, 46.1, 22000),
+    (v_chart, 22, 46.1, 20500),
+    (v_chart, 24, 46.1, 18700),
+    (v_chart, 28, 46.1, 15600),
+    (v_chart, 32, 46.1, 12900),
+    (v_chart, 36, 46.1, 10400),
+    (v_chart, 40, 46.1, 9100),
+    (v_chart, 8, 50.7, 26000),
+    (v_chart, 10, 50.7, 26000),
+    (v_chart, 12, 50.7, 26000),
+    (v_chart, 14, 50.7, 24500),
+    (v_chart, 16, 50.7, 23000),
+    (v_chart, 18, 50.7, 21500),
+    (v_chart, 20, 50.7, 19600),
+    (v_chart, 22, 50.7, 18300),
+    (v_chart, 24, 50.7, 17100),
+    (v_chart, 28, 50.7, 14500),
+    (v_chart, 32, 50.7, 12400),
+    (v_chart, 36, 50.7, 10400),
+    (v_chart, 40, 50.7, 8400),
+    (v_chart, 44, 50.7, 7400),
+    (v_chart, 10, 55.4, 21000),
+    (v_chart, 12, 55.4, 20500),
+    (v_chart, 14, 55.4, 20000),
+    (v_chart, 16, 55.4, 19600),
+    (v_chart, 18, 55.4, 18800),
+    (v_chart, 20, 55.4, 17500),
+    (v_chart, 22, 55.4, 16400),
+    (v_chart, 24, 55.4, 15400),
+    (v_chart, 28, 55.4, 13300),
+    (v_chart, 32, 55.4, 11500),
+    (v_chart, 36, 55.4, 10100),
+    (v_chart, 40, 55.4, 8600),
+    (v_chart, 44, 55.4, 7200),
+    (v_chart, 48, 55.4, 6000),
+    (v_chart, 10, 60, 17500),
+    (v_chart, 12, 60, 17500),
+    (v_chart, 14, 60, 17500),
+    (v_chart, 16, 60, 17100),
+    (v_chart, 18, 60, 16600),
+    (v_chart, 20, 60, 16100),
+    (v_chart, 22, 60, 15200),
+    (v_chart, 24, 60, 14300),
+    (v_chart, 28, 60, 12500),
+    (v_chart, 32, 60, 10900),
+    (v_chart, 36, 60, 9500),
+    (v_chart, 40, 60, 8200),
+    (v_chart, 44, 60, 7400),
+    (v_chart, 48, 60, 6300),
+    (v_chart, 52, 60, 5200),
+    (v_chart, 56, 60, 3900);
+  -- configuration fleche-principale-360-cw44t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw44t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 13,5-60 m, calage max, 360°, contrepoids 44 t', '{"longueur_fleche_m_plage":"13,5 - 60","contrepoids_t":44,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw44t"}'::jsonb, null, 'Tableau p. 3 bas (page catalogue 126), 10 colonnes de flèche (13,5 à 60 m) x 22 lignes de portée (2,5 à 56 m), toutes saisies (cellules sans tiret des colonnes 36,8 et 46,1 m = vides). Base de calage non cotée sur le tableau. Mention : également disponible en 27,5 m de flèche principale (non tabulé). Capacités non monotones reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. DÉCISION DE SÉCURITÉ : la cellule 2,5 m / flèche 13,5 m imprimée « 200 » (identique dans les tableaux 70 t et 44 t, égale à la classe de la grue, sans renvoi explicatif) est interprétée comme une classe de capacité et RETIRÉE ; en dessous de 3 m la lecture est hors abaque. À confirmer sur la doc constructeur. | Pages : p. 3 (page catalogue 126) : deux tableaux « Flèche principale » 13,5-60 m, 360°, DIN ISO 75 % — haut : contrepoids 70 t ; bas : 44 t. PDF sha256:717f58372544fde126b5188737d73b8f856078c8a8f5bd3df6af090ce964e9b4') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 13,5-60 m, calage max, 360°, contrepoids 44 t', params = '{"longueur_fleche_m_plage":"13,5 - 60","contrepoids_t":44,"zone":"360°","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw44t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 bas (page catalogue 126), 10 colonnes de flèche (13,5 à 60 m) x 22 lignes de portée (2,5 à 56 m), toutes saisies (cellules sans tiret des colonnes 36,8 et 46,1 m = vides). Base de calage non cotée sur le tableau. Mention : également disponible en 27,5 m de flèche principale (non tabulé). Capacités non monotones reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. DÉCISION DE SÉCURITÉ : la cellule 2,5 m / flèche 13,5 m imprimée « 200 » (identique dans les tableaux 70 t et 44 t, égale à la classe de la grue, sans renvoi explicatif) est interprétée comme une classe de capacité et RETIRÉE ; en dessous de 3 m la lecture est hors abaque. À confirmer sur la doc constructeur. | Pages : p. 3 (page catalogue 126) : deux tableaux « Flèche principale » 13,5-60 m, 360°, DIN ISO 75 % — haut : contrepoids 70 t ; bas : 44 t. PDF sha256:717f58372544fde126b5188737d73b8f856078c8a8f5bd3df6af090ce964e9b4', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 13.5, 135000),
+    (v_chart, 4, 13.5, 114000),
+    (v_chart, 5, 13.5, 97500),
+    (v_chart, 6, 13.5, 85000),
+    (v_chart, 8, 13.5, 67000),
+    (v_chart, 10, 13.5, 54400),
+    (v_chart, 3, 18.2, 135000),
+    (v_chart, 4, 18.2, 114000),
+    (v_chart, 5, 18.2, 98000),
+    (v_chart, 6, 18.2, 85500),
+    (v_chart, 8, 18.2, 67500),
+    (v_chart, 10, 18.2, 56000),
+    (v_chart, 12, 18.2, 45000),
+    (v_chart, 14, 18.2, 35500),
+    (v_chart, 3, 22.8, 107000),
+    (v_chart, 4, 22.8, 107000),
+    (v_chart, 5, 22.8, 97000),
+    (v_chart, 6, 22.8, 84500),
+    (v_chart, 8, 22.8, 66000),
+    (v_chart, 10, 22.8, 54000),
+    (v_chart, 12, 22.8, 42500),
+    (v_chart, 14, 22.8, 33000),
+    (v_chart, 16, 22.8, 27500),
+    (v_chart, 18, 22.8, 25000),
+    (v_chart, 4, 32.1, 63000),
+    (v_chart, 5, 32.1, 63000),
+    (v_chart, 6, 32.1, 63000),
+    (v_chart, 8, 32.1, 63000),
+    (v_chart, 10, 32.1, 55000),
+    (v_chart, 12, 32.1, 43500),
+    (v_chart, 14, 32.1, 37000),
+    (v_chart, 16, 32.1, 30000),
+    (v_chart, 18, 32.1, 25000),
+    (v_chart, 20, 32.1, 21000),
+    (v_chart, 22, 32.1, 17900),
+    (v_chart, 24, 32.1, 15500),
+    (v_chart, 28, 32.1, 13000),
+    (v_chart, 5, 36.8, 52500),
+    (v_chart, 6, 36.8, 52500),
+    (v_chart, 8, 36.8, 52500),
+    (v_chart, 10, 36.8, 49500),
+    (v_chart, 12, 36.8, 43000),
+    (v_chart, 14, 36.8, 35000),
+    (v_chart, 16, 36.8, 29500),
+    (v_chart, 18, 36.8, 24000),
+    (v_chart, 20, 36.8, 20000),
+    (v_chart, 22, 36.8, 18500),
+    (v_chart, 24, 36.8, 16300),
+    (v_chart, 28, 36.8, 12500),
+    (v_chart, 32, 36.8, 9900),
+    (v_chart, 6, 41.4, 40000),
+    (v_chart, 8, 41.4, 40000),
+    (v_chart, 10, 41.4, 39000),
+    (v_chart, 12, 41.4, 35500),
+    (v_chart, 14, 41.4, 32000),
+    (v_chart, 16, 41.4, 27500),
+    (v_chart, 18, 41.4, 23500),
+    (v_chart, 20, 41.4, 21000),
+    (v_chart, 22, 41.4, 18000),
+    (v_chart, 24, 41.4, 15600),
+    (v_chart, 28, 41.4, 12100),
+    (v_chart, 32, 41.4, 10200),
+    (v_chart, 36, 41.4, 8200),
+    (v_chart, 8, 46.1, 31000),
+    (v_chart, 10, 46.1, 31000),
+    (v_chart, 12, 46.1, 31000),
+    (v_chart, 14, 46.1, 28500),
+    (v_chart, 16, 46.1, 26500),
+    (v_chart, 18, 46.1, 22500),
+    (v_chart, 20, 46.1, 19500),
+    (v_chart, 22, 46.1, 16500),
+    (v_chart, 24, 46.1, 15100),
+    (v_chart, 28, 46.1, 12200),
+    (v_chart, 32, 46.1, 9700),
+    (v_chart, 36, 46.1, 8200),
+    (v_chart, 40, 46.1, 6600),
+    (v_chart, 8, 50.7, 26000),
+    (v_chart, 10, 50.7, 26000),
+    (v_chart, 12, 50.7, 26000),
+    (v_chart, 14, 50.7, 24500),
+    (v_chart, 16, 50.7, 23000),
+    (v_chart, 18, 50.7, 21500),
+    (v_chart, 20, 50.7, 19200),
+    (v_chart, 22, 50.7, 16600),
+    (v_chart, 24, 50.7, 14200),
+    (v_chart, 28, 50.7, 12200),
+    (v_chart, 32, 50.7, 9600),
+    (v_chart, 36, 50.7, 7700),
+    (v_chart, 40, 50.7, 6200),
+    (v_chart, 44, 50.7, 4900),
+    (v_chart, 10, 55.4, 21000),
+    (v_chart, 12, 55.4, 20500),
+    (v_chart, 14, 55.4, 20000),
+    (v_chart, 16, 55.4, 19600),
+    (v_chart, 18, 55.4, 18800),
+    (v_chart, 20, 55.4, 17500),
+    (v_chart, 22, 55.4, 16400),
+    (v_chart, 24, 55.4, 14700),
+    (v_chart, 28, 55.4, 11900),
+    (v_chart, 32, 55.4, 9400),
+    (v_chart, 36, 55.4, 7400),
+    (v_chart, 40, 55.4, 5800),
+    (v_chart, 44, 55.4, 4500),
+    (v_chart, 48, 55.4, 3500),
+    (v_chart, 10, 60, 17500),
+    (v_chart, 12, 60, 17500),
+    (v_chart, 14, 60, 17500),
+    (v_chart, 16, 60, 17100),
+    (v_chart, 18, 60, 16600),
+    (v_chart, 20, 60, 16100),
+    (v_chart, 22, 60, 15200),
+    (v_chart, 24, 60, 14300),
+    (v_chart, 28, 60, 11500),
+    (v_chart, 32, 60, 8800),
+    (v_chart, 36, 60, 6800),
+    (v_chart, 40, 60, 5200),
+    (v_chart, 44, 60, 3900),
+    (v_chart, 48, 60, 2900),
+    (v_chart, 52, 60, 2100),
+    (v_chart, 56, 60, 1400);
+end $charts$;
+
+-- grove-gmk-6400
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Grove');
+  if v_manu is null then raise exception 'constructeur inconnu : Grove'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GROVE GMK 6400 - Hauteurs et capacités de levage (fiche FOSELEV, 400 tonnes)'
+    and reference is not distinct from '3-400T-GROVE GMK 6400.pdf sha256:40da47a3374cbec2' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GROVE GMK 6400 - Hauteurs et capacités de levage (fiche FOSELEV, 400 tonnes)', '3-400T-GROVE GMK 6400.pdf sha256:40da47a3374cbec2', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 6400');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'GMK 6400', null, '{"capacite_max_t":400,"fleche_principale_m":"15,39 - 60,00"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":400,"fleche_principale_m":"15,39 - 60,00"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw135t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw135t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 15,39-60,00 m, appui 8,5 m, 360°, contrepoids 135 t', '{"contrepoids_t":135,"base_calage_m":8.5,"zone":"360°","haubanage":false,"flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw135t"}'::jsonb, null, 'Tableau p. 3 : 11 colonnes de flèche (15,39 à 60,00 m), 34 lignes de portée (3,0 à 56,0 m). Colonne ''15,39*'' (en arrière, 400,0**) et ligne 2,4 m (seule valeur en arrière) exclues du 360°. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 374 cellules, 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; colonne « 15,39* » et ligne 2,4 m (400,0**) bien exclues. | Pages : p. 3 : Flèche principale (15,39-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000) ; p. 5 : Flèche principale + Haubanage (34,99-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000). sha256 complet : 40da47a3374cbec28fe15b72e56493f92cb4fb68ee679fa81cec5dd1b93d1446') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 15,39-60,00 m, appui 8,5 m, 360°, contrepoids 135 t', params = '{"contrepoids_t":135,"base_calage_m":8.5,"zone":"360°","haubanage":false,"flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw135t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 : 11 colonnes de flèche (15,39 à 60,00 m), 34 lignes de portée (3,0 à 56,0 m). Colonne ''15,39*'' (en arrière, 400,0**) et ligne 2,4 m (seule valeur en arrière) exclues du 360°. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 374 cellules, 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; colonne « 15,39* » et ligne 2,4 m (400,0**) bien exclues. | Pages : p. 3 : Flèche principale (15,39-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000) ; p. 5 : Flèche principale + Haubanage (34,99-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000). sha256 complet : 40da47a3374cbec28fe15b72e56493f92cb4fb68ee679fa81cec5dd1b93d1446', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN 13000', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN 13000', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 8, 15.39, 123000),
+    (v_chart, 8, 20.29, 122000),
+    (v_chart, 8, 25.19, 121000),
+    (v_chart, 9, 15.39, 112000),
+    (v_chart, 9, 20.29, 112000),
+    (v_chart, 9, 25.19, 112000),
+    (v_chart, 9, 30.09, 107000),
+    (v_chart, 9, 39.89, 77000),
+    (v_chart, 9, 44.79, 67000),
+    (v_chart, 10, 15.39, 102000),
+    (v_chart, 10, 20.29, 103000),
+    (v_chart, 10, 25.19, 103000),
+    (v_chart, 10, 30.09, 101000),
+    (v_chart, 10, 34.99, 97000),
+    (v_chart, 10, 39.89, 72500),
+    (v_chart, 10, 44.79, 64000),
+    (v_chart, 10, 49.69, 56000),
+    (v_chart, 11, 15.39, 93500),
+    (v_chart, 11, 20.29, 94500),
+    (v_chart, 11, 25.19, 94500),
+    (v_chart, 11, 30.09, 94500),
+    (v_chart, 11, 34.99, 91500),
+    (v_chart, 11, 39.89, 69000),
+    (v_chart, 11, 44.79, 60500),
+    (v_chart, 11, 49.69, 54000),
+    (v_chart, 11, 54.59, 47500),
+    (v_chart, 11, 58.65, 40000),
+    (v_chart, 11, 60, 38000),
+    (v_chart, 12, 15.39, 78500),
+    (v_chart, 12, 20.29, 87500),
+    (v_chart, 12, 25.19, 87500),
+    (v_chart, 12, 30.09, 89000),
+    (v_chart, 12, 34.99, 86500),
+    (v_chart, 12, 39.89, 65500),
+    (v_chart, 12, 44.79, 57000),
+    (v_chart, 12, 49.69, 52000),
+    (v_chart, 12, 54.59, 46500),
+    (v_chart, 12, 58.65, 40000),
+    (v_chart, 12, 60, 38000),
+    (v_chart, 13, 20.29, 81000),
+    (v_chart, 13, 25.19, 81500),
+    (v_chart, 13, 30.09, 82500),
+    (v_chart, 13, 34.99, 82000),
+    (v_chart, 13, 39.89, 62000),
+    (v_chart, 13, 44.79, 54000),
+    (v_chart, 13, 49.69, 49500),
+    (v_chart, 13, 54.59, 45000),
+    (v_chart, 13, 58.65, 40000),
+    (v_chart, 13, 60, 38000),
+    (v_chart, 14, 20.29, 75500),
+    (v_chart, 14, 25.19, 75500),
+    (v_chart, 14, 30.09, 77000),
+    (v_chart, 14, 34.99, 76500),
+    (v_chart, 14, 39.89, 59000),
+    (v_chart, 14, 44.79, 51000),
+    (v_chart, 14, 49.69, 47000),
+    (v_chart, 14, 54.59, 43500),
+    (v_chart, 14, 58.65, 39500),
+    (v_chart, 14, 60, 38000),
+    (v_chart, 15, 20.29, 69500),
+    (v_chart, 15, 25.19, 70500),
+    (v_chart, 15, 30.09, 72000),
+    (v_chart, 15, 34.99, 71000),
+    (v_chart, 15, 39.89, 56000),
+    (v_chart, 15, 44.79, 48500),
+    (v_chart, 15, 49.69, 44500),
+    (v_chart, 15, 54.59, 41500),
+    (v_chart, 15, 58.65, 38500),
+    (v_chart, 15, 60, 37000),
+    (v_chart, 16, 20.29, 62500),
+    (v_chart, 16, 25.19, 65500),
+    (v_chart, 16, 30.09, 67000),
+    (v_chart, 16, 34.99, 66000),
+    (v_chart, 16, 39.89, 53500),
+    (v_chart, 16, 44.79, 46000),
+    (v_chart, 16, 49.69, 42500),
+    (v_chart, 16, 54.59, 40000),
+    (v_chart, 16, 58.65, 37000),
+    (v_chart, 16, 60, 36000),
+    (v_chart, 18, 25.19, 57500),
+    (v_chart, 18, 30.09, 58500),
+    (v_chart, 18, 34.99, 58000),
+    (v_chart, 18, 39.89, 48500),
+    (v_chart, 18, 44.79, 41500),
+    (v_chart, 18, 49.69, 39000),
+    (v_chart, 18, 54.59, 36500),
+    (v_chart, 18, 58.65, 34500),
+    (v_chart, 18, 60, 33500),
+    (v_chart, 20, 25.19, 50500),
+    (v_chart, 20, 30.09, 52000),
+    (v_chart, 20, 34.99, 51000),
+    (v_chart, 20, 39.89, 44500),
+    (v_chart, 20, 44.79, 38000),
+    (v_chart, 20, 49.69, 35500),
+    (v_chart, 20, 54.59, 33500),
+    (v_chart, 20, 58.65, 31500),
+    (v_chart, 20, 60, 31000),
+    (v_chart, 22, 25.19, 40000),
+    (v_chart, 22, 30.09, 46000),
+    (v_chart, 22, 34.99, 45000),
+    (v_chart, 22, 39.89, 41500),
+    (v_chart, 22, 44.79, 34000),
+    (v_chart, 22, 49.69, 33000),
+    (v_chart, 22, 54.59, 30500),
+    (v_chart, 22, 58.65, 29000),
+    (v_chart, 22, 60, 28500),
+    (v_chart, 24, 30.09, 41000),
+    (v_chart, 24, 34.99, 40500),
+    (v_chart, 24, 39.89, 38500),
+    (v_chart, 24, 44.79, 31500),
+    (v_chart, 24, 49.69, 30500),
+    (v_chart, 24, 54.59, 28500),
+    (v_chart, 24, 58.65, 27000),
+    (v_chart, 24, 60, 26500),
+    (v_chart, 26, 30.09, 35500),
+    (v_chart, 26, 34.99, 36500),
+    (v_chart, 26, 39.89, 36000),
+    (v_chart, 26, 44.79, 29500),
+    (v_chart, 26, 49.69, 28500),
+    (v_chart, 26, 54.59, 26500),
+    (v_chart, 26, 58.65, 25000),
+    (v_chart, 26, 60, 24500),
+    (v_chart, 28, 34.99, 33000),
+    (v_chart, 28, 39.89, 34000),
+    (v_chart, 28, 44.79, 27500),
+    (v_chart, 28, 49.69, 26500),
+    (v_chart, 28, 54.59, 24500),
+    (v_chart, 28, 58.65, 23500),
+    (v_chart, 28, 60, 22500),
+    (v_chart, 30, 34.99, 30000),
+    (v_chart, 30, 39.89, 31000),
+    (v_chart, 30, 44.79, 26000),
+    (v_chart, 30, 49.69, 24500),
+    (v_chart, 30, 54.59, 23000),
+    (v_chart, 30, 58.65, 21500),
+    (v_chart, 30, 60, 21000),
+    (v_chart, 32, 39.89, 28500),
+    (v_chart, 32, 44.79, 24500),
+    (v_chart, 32, 49.69, 23000),
+    (v_chart, 32, 54.59, 21500),
+    (v_chart, 32, 58.65, 20000),
+    (v_chart, 32, 60, 19700),
+    (v_chart, 34, 39.89, 25000),
+    (v_chart, 34, 44.79, 23000),
+    (v_chart, 34, 49.69, 21500),
+    (v_chart, 34, 54.59, 20000),
+    (v_chart, 34, 58.65, 18800),
+    (v_chart, 34, 60, 18400),
+    (v_chart, 36, 39.89, 21000),
+    (v_chart, 36, 44.79, 22000),
+    (v_chart, 36, 49.69, 20000),
+    (v_chart, 36, 54.59, 19100),
+    (v_chart, 36, 58.65, 17700),
+    (v_chart, 36, 60, 17300),
+    (v_chart, 38, 44.79, 21000),
+    (v_chart, 38, 49.69, 19000),
+    (v_chart, 38, 54.59, 18000),
+    (v_chart, 38, 58.65, 16600),
+    (v_chart, 38, 60, 16200),
+    (v_chart, 40, 44.79, 19700),
+    (v_chart, 40, 49.69, 17900),
+    (v_chart, 40, 54.59, 16900),
+    (v_chart, 40, 58.65, 15500),
+    (v_chart, 40, 60, 15200),
+    (v_chart, 42, 49.69, 17000),
+    (v_chart, 42, 54.59, 16000),
+    (v_chart, 42, 58.65, 14700),
+    (v_chart, 42, 60, 14300),
+    (v_chart, 44, 49.69, 16000),
+    (v_chart, 44, 54.59, 15100),
+    (v_chart, 44, 58.65, 13800),
+    (v_chart, 44, 60, 13400),
+    (v_chart, 46, 49.69, 12700),
+    (v_chart, 46, 54.59, 14400),
+    (v_chart, 46, 58.65, 12900),
+    (v_chart, 46, 60, 12600),
+    (v_chart, 48, 54.59, 13700),
+    (v_chart, 48, 58.65, 12100),
+    (v_chart, 48, 60, 11800),
+    (v_chart, 50, 54.59, 11400),
+    (v_chart, 50, 58.65, 11200),
+    (v_chart, 50, 60, 10900),
+    (v_chart, 52, 58.65, 10600),
+    (v_chart, 52, 60, 10300),
+    (v_chart, 54, 58.65, 9900),
+    (v_chart, 54, 60, 9700),
+    (v_chart, 56, 60, 7900);
+  -- configuration fleche-principale-haubanage-360-cw135t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-haubanage-360-cw135t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale + haubanage 34,99-60,00 m, appui 8,5 m, 360°, contrepoids 135 t', '{"contrepoids_t":135,"base_calage_m":8.5,"zone":"360°","haubanage":true,"flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-haubanage-360-cw135t"}'::jsonb, null, 'Tableau p. 5 : 6 colonnes de flèche (34,99 à 60,00 m), 29 lignes de portée (8,0 à 56,0 m). Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 174 cellules, 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; colonne « 15,39* » et ligne 2,4 m (400,0**) bien exclues. | Pages : p. 3 : Flèche principale (15,39-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000) ; p. 5 : Flèche principale + Haubanage (34,99-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000). sha256 complet : 40da47a3374cbec28fe15b72e56493f92cb4fb68ee679fa81cec5dd1b93d1446') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale + haubanage 34,99-60,00 m, appui 8,5 m, 360°, contrepoids 135 t', params = '{"contrepoids_t":135,"base_calage_m":8.5,"zone":"360°","haubanage":true,"flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-haubanage-360-cw135t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 5 : 6 colonnes de flèche (34,99 à 60,00 m), 29 lignes de portée (8,0 à 56,0 m). Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 174 cellules, 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; colonne « 15,39* » et ligne 2,4 m (400,0**) bien exclues. | Pages : p. 3 : Flèche principale (15,39-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000) ; p. 5 : Flèche principale + Haubanage (34,99-60,0 m, appui 8,5 m, 360°, 135 t, EN 13000). sha256 complet : 40da47a3374cbec28fe15b72e56493f92cb4fb68ee679fa81cec5dd1b93d1446', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN 13000', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN 13000', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 8, 34.99, 109000),
+    (v_chart, 8, 39.89, 105000),
+    (v_chart, 8, 44.79, 103000),
+    (v_chart, 9, 34.99, 101000),
+    (v_chart, 9, 39.89, 97000),
+    (v_chart, 9, 44.79, 94500),
+    (v_chart, 9, 49.69, 92000),
+    (v_chart, 10, 34.99, 96500),
+    (v_chart, 10, 39.89, 93000),
+    (v_chart, 10, 44.79, 90000),
+    (v_chart, 10, 49.69, 87500),
+    (v_chart, 10, 54.59, 76000),
+    (v_chart, 11, 34.99, 90500),
+    (v_chart, 11, 39.89, 87000),
+    (v_chart, 11, 44.79, 84000),
+    (v_chart, 11, 49.69, 81500),
+    (v_chart, 11, 54.59, 76000),
+    (v_chart, 11, 60, 64000),
+    (v_chart, 12, 34.99, 85500),
+    (v_chart, 12, 39.89, 82000),
+    (v_chart, 12, 44.79, 79000),
+    (v_chart, 12, 49.69, 76500),
+    (v_chart, 12, 54.59, 74000),
+    (v_chart, 12, 60, 64000),
+    (v_chart, 13, 34.99, 80500),
+    (v_chart, 13, 39.89, 77500),
+    (v_chart, 13, 44.79, 74500),
+    (v_chart, 13, 49.69, 72000),
+    (v_chart, 13, 54.59, 69500),
+    (v_chart, 13, 60, 61500),
+    (v_chart, 14, 34.99, 74500),
+    (v_chart, 14, 39.89, 74000),
+    (v_chart, 14, 44.79, 70500),
+    (v_chart, 14, 49.69, 68000),
+    (v_chart, 14, 54.59, 65500),
+    (v_chart, 14, 60, 59500),
+    (v_chart, 15, 34.99, 70000),
+    (v_chart, 15, 39.89, 70000),
+    (v_chart, 15, 44.79, 67500),
+    (v_chart, 15, 49.69, 64500),
+    (v_chart, 15, 54.59, 62000),
+    (v_chart, 15, 60, 57000),
+    (v_chart, 16, 34.99, 65500),
+    (v_chart, 16, 39.89, 65500),
+    (v_chart, 16, 44.79, 64000),
+    (v_chart, 16, 49.69, 61500),
+    (v_chart, 16, 54.59, 59000),
+    (v_chart, 16, 60, 55000),
+    (v_chart, 18, 34.99, 57500),
+    (v_chart, 18, 39.89, 58000),
+    (v_chart, 18, 44.79, 58000),
+    (v_chart, 18, 49.69, 56500),
+    (v_chart, 18, 54.59, 54000),
+    (v_chart, 18, 60, 51500),
+    (v_chart, 20, 34.99, 51000),
+    (v_chart, 20, 39.89, 51000),
+    (v_chart, 20, 44.79, 51000),
+    (v_chart, 20, 49.69, 51000),
+    (v_chart, 20, 54.59, 49500),
+    (v_chart, 20, 60, 48000),
+    (v_chart, 22, 34.99, 45000),
+    (v_chart, 22, 39.89, 45500),
+    (v_chart, 22, 44.79, 45500),
+    (v_chart, 22, 49.69, 45000),
+    (v_chart, 22, 54.59, 45000),
+    (v_chart, 22, 60, 44500),
+    (v_chart, 24, 34.99, 40000),
+    (v_chart, 24, 39.89, 40500),
+    (v_chart, 24, 44.79, 40500),
+    (v_chart, 24, 49.69, 40000),
+    (v_chart, 24, 54.59, 40000),
+    (v_chart, 24, 60, 40000),
+    (v_chart, 26, 34.99, 36000),
+    (v_chart, 26, 39.89, 36000),
+    (v_chart, 26, 44.79, 36000),
+    (v_chart, 26, 49.69, 36000),
+    (v_chart, 26, 54.59, 35500),
+    (v_chart, 26, 60, 36000),
+    (v_chart, 28, 34.99, 31500),
+    (v_chart, 28, 39.89, 32500),
+    (v_chart, 28, 44.79, 32500),
+    (v_chart, 28, 49.69, 32500),
+    (v_chart, 28, 54.59, 32000),
+    (v_chart, 28, 60, 32000),
+    (v_chart, 30, 34.99, 28000),
+    (v_chart, 30, 39.89, 29500),
+    (v_chart, 30, 44.79, 29500),
+    (v_chart, 30, 49.69, 29000),
+    (v_chart, 30, 54.59, 29000),
+    (v_chart, 30, 60, 29000),
+    (v_chart, 32, 39.89, 26500),
+    (v_chart, 32, 44.79, 26500),
+    (v_chart, 32, 49.69, 26500),
+    (v_chart, 32, 54.59, 26000),
+    (v_chart, 32, 60, 26500),
+    (v_chart, 34, 39.89, 22000),
+    (v_chart, 34, 44.79, 24500),
+    (v_chart, 34, 49.69, 24000),
+    (v_chart, 34, 54.59, 24000),
+    (v_chart, 34, 60, 24000),
+    (v_chart, 36, 39.89, 18000),
+    (v_chart, 36, 44.79, 22500),
+    (v_chart, 36, 49.69, 22000),
+    (v_chart, 36, 54.59, 21500),
+    (v_chart, 36, 60, 22000),
+    (v_chart, 38, 44.79, 18800),
+    (v_chart, 38, 49.69, 20000),
+    (v_chart, 38, 54.59, 19800),
+    (v_chart, 38, 60, 20000),
+    (v_chart, 40, 44.79, 16300),
+    (v_chart, 40, 49.69, 18500),
+    (v_chart, 40, 54.59, 18100),
+    (v_chart, 40, 60, 18400),
+    (v_chart, 42, 49.69, 15800),
+    (v_chart, 42, 54.59, 16600),
+    (v_chart, 42, 60, 16900),
+    (v_chart, 44, 49.69, 14200),
+    (v_chart, 44, 54.59, 15200),
+    (v_chart, 44, 60, 15500),
+    (v_chart, 46, 49.69, 9200),
+    (v_chart, 46, 54.59, 12900),
+    (v_chart, 46, 60, 14200),
+    (v_chart, 48, 54.59, 11600),
+    (v_chart, 48, 60, 13100),
+    (v_chart, 50, 54.59, 8300),
+    (v_chart, 50, 60, 11400),
+    (v_chart, 52, 60, 9300),
+    (v_chart, 54, 60, 8300),
+    (v_chart, 56, 60, 4700);
+end $charts$;
+
 -- grove-gmk3060l
 do $charts$
 declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
@@ -593,6 +3362,1319 @@ begin
     (v_chart, 40, 47.3, 700),
     (v_chart, 40, 48, 700),
     (v_chart, 42, 45.1, 700);
+end $charts$;
+
+-- grove-gmk5150l
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Grove');
+  if v_manu is null then raise exception 'constructeur inconnu : Grove'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GROVE GMK 5150L — 150 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)'
+    and reference is not distinct from '150T-GROVE GMK 5150L.pdf, sha256:3aaa7df56e904480' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GROVE GMK 5150L — 150 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '150T-GROVE GMK 5150L.pdf, sha256:3aaa7df56e904480', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK5150L');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'GMK5150L', null, '{"capacite_max_t":150,"fleche_principale_m":"12,8 - 60,0","contrepoids_max_t":44.5,"base_calage_m":7.6}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":150,"fleche_principale_m":"12,8 - 60,0","contrepoids_max_t":44.5,"base_calage_m":7.6}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw44-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw44-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 12,8-60,0 m, calage 7,6 m, 360°, contrepoids 44,5 t', '{"contrepoids_t":44.5,"base_calage_m":7.6,"zone":"360°","flechette":false,"slug":"fleche-principale-360-cw44-5t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. PDF vectorisé sans texte extractible (tableau en tracés) : lecture visuelle du tableau p. 3 en deux passes indépendantes (passe 1 : rendu 200 dpi découpé par lignes ; passe 2 : rendu 300 dpi découpé par colonnes) ; diff intégral : 442 cellules (13 colonnes de flèche 12,8 à 60,0 m × 34 lignes de portée 3,0 à 56,0 m), 0 écart après re-zoom 300 dpi des lignes 50-56 m (décalage de colonne de saisie en passe 1, corrigé). 265 valeurs ; cellules vides = vides dans le tableau. EXCLUE (non 360°) : la première ligne « 3,0 » dont l''unique valeur « 150,0* » renvoie à « * En arrière avec équipement special ». Valeur imprimée « 5 » (portée 42 m, flèche 43,5 m) saisie 5,0. Prise en compte ou non du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence : moufle non réputée déduite ; masse moufle non documentée). Mouflage et vent non indiqués. Valeurs non monotones reproduites telles qu''imprimées. Masse et mouflage à vérifier sur l''abaque constructeur Manitowoc d''origine. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart. | Pages : p. 1 : cotation (dimensions) ; p. 2 : diagramme hauteurs/portées (non utilisé, courbes) ; p. 3 : tableau flèche principale 12,8-60,0 m, calage 7,6 m, 360°, contrepoids 44,5 t, EN 13000, renvoi « * En arrière avec équipement special » ; p. 4-5 : flèche principale + fléchette (non saisies)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 12,8-60,0 m, calage 7,6 m, 360°, contrepoids 44,5 t', params = '{"contrepoids_t":44.5,"base_calage_m":7.6,"zone":"360°","flechette":false,"slug":"fleche-principale-360-cw44-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. PDF vectorisé sans texte extractible (tableau en tracés) : lecture visuelle du tableau p. 3 en deux passes indépendantes (passe 1 : rendu 200 dpi découpé par lignes ; passe 2 : rendu 300 dpi découpé par colonnes) ; diff intégral : 442 cellules (13 colonnes de flèche 12,8 à 60,0 m × 34 lignes de portée 3,0 à 56,0 m), 0 écart après re-zoom 300 dpi des lignes 50-56 m (décalage de colonne de saisie en passe 1, corrigé). 265 valeurs ; cellules vides = vides dans le tableau. EXCLUE (non 360°) : la première ligne « 3,0 » dont l''unique valeur « 150,0* » renvoie à « * En arrière avec équipement special ». Valeur imprimée « 5 » (portée 42 m, flèche 43,5 m) saisie 5,0. Prise en compte ou non du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence : moufle non réputée déduite ; masse moufle non documentée). Mouflage et vent non indiqués. Valeurs non monotones reproduites telles qu''imprimées. Masse et mouflage à vérifier sur l''abaque constructeur Manitowoc d''origine. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart. | Pages : p. 1 : cotation (dimensions) ; p. 2 : diagramme hauteurs/portées (non utilisé, courbes) ; p. 3 : tableau flèche principale 12,8-60,0 m, calage 7,6 m, 360°, contrepoids 44,5 t, EN 13000, renvoi « * En arrière avec équipement special » ; p. 4-5 : flèche principale + fléchette (non saisies)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN 13000', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN 13000', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 12.8, 108000),
+    (v_chart, 3, 18, 107000),
+    (v_chart, 3, 23.3, 89500),
+    (v_chart, 4, 12.8, 91500),
+    (v_chart, 4, 18, 91500),
+    (v_chart, 4, 23.3, 86500),
+    (v_chart, 4, 27.9, 65000),
+    (v_chart, 5, 12.8, 79000),
+    (v_chart, 5, 18, 79000),
+    (v_chart, 5, 23.3, 78500),
+    (v_chart, 5, 27.9, 64000),
+    (v_chart, 5, 32.6, 52000),
+    (v_chart, 6, 12.8, 69000),
+    (v_chart, 6, 18, 69500),
+    (v_chart, 6, 23.3, 69000),
+    (v_chart, 6, 27.9, 60000),
+    (v_chart, 6, 32.6, 51500),
+    (v_chart, 6, 37, 40000),
+    (v_chart, 7, 12.8, 61500),
+    (v_chart, 7, 18, 62000),
+    (v_chart, 7, 23.3, 61000),
+    (v_chart, 7, 27.9, 55000),
+    (v_chart, 7, 32.6, 48500),
+    (v_chart, 7, 37, 40000),
+    (v_chart, 7, 40.3, 33000),
+    (v_chart, 7, 43.5, 27500),
+    (v_chart, 8, 12.8, 54500),
+    (v_chart, 8, 18, 55000),
+    (v_chart, 8, 23.3, 54000),
+    (v_chart, 8, 27.9, 50500),
+    (v_chart, 8, 32.6, 45500),
+    (v_chart, 8, 37, 39000),
+    (v_chart, 8, 40.3, 33000),
+    (v_chart, 8, 43.5, 27500),
+    (v_chart, 8, 47.2, 24000),
+    (v_chart, 9, 12.8, 47500),
+    (v_chart, 9, 18, 48500),
+    (v_chart, 9, 23.3, 47500),
+    (v_chart, 9, 27.9, 47000),
+    (v_chart, 9, 32.6, 42500),
+    (v_chart, 9, 37, 37000),
+    (v_chart, 9, 40.3, 32000),
+    (v_chart, 9, 43.5, 27500),
+    (v_chart, 9, 47.2, 24000),
+    (v_chart, 9, 51.1, 19100),
+    (v_chart, 9, 54.8, 15800),
+    (v_chart, 10, 12.8, 42000),
+    (v_chart, 10, 18, 43000),
+    (v_chart, 10, 23.3, 42000),
+    (v_chart, 10, 27.9, 42500),
+    (v_chart, 10, 32.6, 39500),
+    (v_chart, 10, 37, 34500),
+    (v_chart, 10, 40.3, 30500),
+    (v_chart, 10, 43.5, 27500),
+    (v_chart, 10, 47.2, 24000),
+    (v_chart, 10, 51.1, 19100),
+    (v_chart, 10, 54.8, 15800),
+    (v_chart, 10, 57.9, 12700),
+    (v_chart, 10, 60, 11800),
+    (v_chart, 11, 18, 38500),
+    (v_chart, 11, 23.3, 37500),
+    (v_chart, 11, 27.9, 38000),
+    (v_chart, 11, 32.6, 37000),
+    (v_chart, 11, 37, 32500),
+    (v_chart, 11, 40.3, 29000),
+    (v_chart, 11, 43.5, 26500),
+    (v_chart, 11, 47.2, 24000),
+    (v_chart, 11, 51.1, 19100),
+    (v_chart, 11, 54.8, 15800),
+    (v_chart, 11, 57.9, 12700),
+    (v_chart, 11, 60, 11800),
+    (v_chart, 12, 18, 34500),
+    (v_chart, 12, 23.3, 34500),
+    (v_chart, 12, 27.9, 34500),
+    (v_chart, 12, 32.6, 34500),
+    (v_chart, 12, 37, 30500),
+    (v_chart, 12, 40.3, 27000),
+    (v_chart, 12, 43.5, 25000),
+    (v_chart, 12, 47.2, 23000),
+    (v_chart, 12, 51.1, 19100),
+    (v_chart, 12, 54.8, 15800),
+    (v_chart, 12, 57.9, 12700),
+    (v_chart, 12, 60, 11800),
+    (v_chart, 13, 18, 32000),
+    (v_chart, 13, 23.3, 31500),
+    (v_chart, 13, 27.9, 31000),
+    (v_chart, 13, 32.6, 32000),
+    (v_chart, 13, 37, 29000),
+    (v_chart, 13, 40.3, 25500),
+    (v_chart, 13, 43.5, 24000),
+    (v_chart, 13, 47.2, 22000),
+    (v_chart, 13, 51.1, 18900),
+    (v_chart, 13, 54.8, 15800),
+    (v_chart, 13, 57.9, 12700),
+    (v_chart, 13, 60, 11800),
+    (v_chart, 14, 18, 29500),
+    (v_chart, 14, 23.3, 29000),
+    (v_chart, 14, 27.9, 28500),
+    (v_chart, 14, 32.6, 29000),
+    (v_chart, 14, 37, 27500),
+    (v_chart, 14, 40.3, 24000),
+    (v_chart, 14, 43.5, 23000),
+    (v_chart, 14, 47.2, 21000),
+    (v_chart, 14, 51.1, 18300),
+    (v_chart, 14, 54.8, 15800),
+    (v_chart, 14, 57.9, 12700),
+    (v_chart, 14, 60, 11800),
+    (v_chart, 15, 18, 26000),
+    (v_chart, 15, 23.3, 26500),
+    (v_chart, 15, 27.9, 26000),
+    (v_chart, 15, 32.6, 26500),
+    (v_chart, 15, 37, 26000),
+    (v_chart, 15, 40.3, 22500),
+    (v_chart, 15, 43.5, 21500),
+    (v_chart, 15, 47.2, 19900),
+    (v_chart, 15, 51.1, 17500),
+    (v_chart, 15, 54.8, 15700),
+    (v_chart, 15, 57.9, 12700),
+    (v_chart, 15, 60, 11800),
+    (v_chart, 16, 23.3, 24500),
+    (v_chart, 16, 27.9, 24000),
+    (v_chart, 16, 32.6, 24500),
+    (v_chart, 16, 37, 24500),
+    (v_chart, 16, 40.3, 21500),
+    (v_chart, 16, 43.5, 20500),
+    (v_chart, 16, 47.2, 18900),
+    (v_chart, 16, 51.1, 16700),
+    (v_chart, 16, 54.8, 15200),
+    (v_chart, 16, 57.9, 12700),
+    (v_chart, 16, 60, 11800),
+    (v_chart, 18, 23.3, 22000),
+    (v_chart, 18, 27.9, 21500),
+    (v_chart, 18, 32.6, 21000),
+    (v_chart, 18, 37, 22000),
+    (v_chart, 18, 40.3, 19200),
+    (v_chart, 18, 43.5, 18500),
+    (v_chart, 18, 47.2, 17300),
+    (v_chart, 18, 51.1, 15300),
+    (v_chart, 18, 54.8, 14200),
+    (v_chart, 18, 57.9, 12100),
+    (v_chart, 18, 60, 11800),
+    (v_chart, 20, 23.3, 16900),
+    (v_chart, 20, 27.9, 18400),
+    (v_chart, 20, 32.6, 17800),
+    (v_chart, 20, 37, 18600),
+    (v_chart, 20, 40.3, 17300),
+    (v_chart, 20, 43.5, 16700),
+    (v_chart, 20, 47.2, 15800),
+    (v_chart, 20, 51.1, 14100),
+    (v_chart, 20, 54.8, 13200),
+    (v_chart, 20, 57.9, 11300),
+    (v_chart, 20, 60, 11300),
+    (v_chart, 22, 27.9, 15700),
+    (v_chart, 22, 32.6, 16100),
+    (v_chart, 22, 37, 16000),
+    (v_chart, 22, 40.3, 15500),
+    (v_chart, 22, 43.5, 15100),
+    (v_chart, 22, 47.2, 14500),
+    (v_chart, 22, 51.1, 13000),
+    (v_chart, 22, 54.8, 12300),
+    (v_chart, 22, 57.9, 10500),
+    (v_chart, 22, 60, 10600),
+    (v_chart, 24, 27.9, 13600),
+    (v_chart, 24, 32.6, 14400),
+    (v_chart, 24, 37, 13800),
+    (v_chart, 24, 40.3, 14200),
+    (v_chart, 24, 43.5, 13500),
+    (v_chart, 24, 47.2, 13400),
+    (v_chart, 24, 51.1, 12000),
+    (v_chart, 24, 54.8, 11400),
+    (v_chart, 24, 57.9, 9700),
+    (v_chart, 24, 60, 9900),
+    (v_chart, 26, 32.6, 12700),
+    (v_chart, 26, 37, 12100),
+    (v_chart, 26, 40.3, 12600),
+    (v_chart, 26, 43.5, 11700),
+    (v_chart, 26, 47.2, 12200),
+    (v_chart, 26, 51.1, 11100),
+    (v_chart, 26, 54.8, 10500),
+    (v_chart, 26, 57.9, 9000),
+    (v_chart, 26, 60, 9200),
+    (v_chart, 28, 32.6, 11200),
+    (v_chart, 28, 37, 11300),
+    (v_chart, 28, 40.3, 11100),
+    (v_chart, 28, 43.5, 10500),
+    (v_chart, 28, 47.2, 10700),
+    (v_chart, 28, 51.1, 10300),
+    (v_chart, 28, 54.8, 9800),
+    (v_chart, 28, 57.9, 8400),
+    (v_chart, 28, 60, 8500),
+    (v_chart, 30, 32.6, 7700),
+    (v_chart, 30, 37, 10400),
+    (v_chart, 30, 40.3, 9800),
+    (v_chart, 30, 43.5, 9900),
+    (v_chart, 30, 47.2, 9400),
+    (v_chart, 30, 51.1, 9400),
+    (v_chart, 30, 54.8, 9100),
+    (v_chart, 30, 57.9, 7700),
+    (v_chart, 30, 60, 7900),
+    (v_chart, 32, 37, 9300),
+    (v_chart, 32, 40.3, 8700),
+    (v_chart, 32, 43.5, 9000),
+    (v_chart, 32, 47.2, 8400),
+    (v_chart, 32, 51.1, 8400),
+    (v_chart, 32, 54.8, 8300),
+    (v_chart, 32, 57.9, 7200),
+    (v_chart, 32, 60, 7400),
+    (v_chart, 34, 37, 7400),
+    (v_chart, 34, 40.3, 7800),
+    (v_chart, 34, 43.5, 8100),
+    (v_chart, 34, 47.2, 7600),
+    (v_chart, 34, 51.1, 7400),
+    (v_chart, 34, 54.8, 7800),
+    (v_chart, 34, 57.9, 6800),
+    (v_chart, 34, 60, 6900),
+    (v_chart, 36, 40.3, 7300),
+    (v_chart, 36, 43.5, 7300),
+    (v_chart, 36, 47.2, 7100),
+    (v_chart, 36, 51.1, 6900),
+    (v_chart, 36, 54.8, 7000),
+    (v_chart, 36, 57.9, 6400),
+    (v_chart, 36, 60, 6400),
+    (v_chart, 38, 40.3, 6200),
+    (v_chart, 38, 43.5, 6500),
+    (v_chart, 38, 47.2, 6600),
+    (v_chart, 38, 51.1, 6500),
+    (v_chart, 38, 54.8, 6200),
+    (v_chart, 38, 57.9, 6100),
+    (v_chart, 38, 60, 6000),
+    (v_chart, 40, 43.5, 5900),
+    (v_chart, 40, 47.2, 5900),
+    (v_chart, 40, 51.1, 5800),
+    (v_chart, 40, 54.8, 5600),
+    (v_chart, 40, 57.9, 5700),
+    (v_chart, 40, 60, 5500),
+    (v_chart, 42, 43.5, 5000),
+    (v_chart, 42, 47.2, 5400),
+    (v_chart, 42, 51.1, 5200),
+    (v_chart, 42, 54.8, 5000),
+    (v_chart, 42, 57.9, 5100),
+    (v_chart, 42, 60, 5000),
+    (v_chart, 44, 47.2, 4800),
+    (v_chart, 44, 51.1, 4700),
+    (v_chart, 44, 54.8, 4600),
+    (v_chart, 44, 57.9, 4600),
+    (v_chart, 44, 60, 4500),
+    (v_chart, 46, 47.2, 3700),
+    (v_chart, 46, 51.1, 4300),
+    (v_chart, 46, 54.8, 4300),
+    (v_chart, 46, 57.9, 4100),
+    (v_chart, 46, 60, 4000),
+    (v_chart, 48, 47.2, 3300),
+    (v_chart, 48, 51.1, 3800),
+    (v_chart, 48, 54.8, 4000),
+    (v_chart, 48, 57.9, 3700),
+    (v_chart, 48, 60, 3600),
+    (v_chart, 50, 54.8, 3500),
+    (v_chart, 50, 57.9, 3300),
+    (v_chart, 50, 60, 3100),
+    (v_chart, 52, 54.8, 3200),
+    (v_chart, 52, 57.9, 2900),
+    (v_chart, 52, 60, 2700),
+    (v_chart, 54, 57.9, 2500),
+    (v_chart, 54, 60, 2400),
+    (v_chart, 56, 60, 2100);
+end $charts$;
+
+-- grove-rt-540-e
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Grove');
+  if v_manu is null then raise exception 'constructeur inconnu : Grove'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'GROVE RT 540 E - 35 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : GROVE RT 540 E »)'
+    and reference is not distinct from '35T-GROVE RT 540 E.pdf sha256:1afb74d471e3dbab' and edition is not distinct from 'Fiche FOSELEV (impression 31/03/11)';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'GROVE RT 540 E - 35 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : GROVE RT 540 E »)', '35T-GROVE RT 540 E.pdf sha256:1afb74d471e3dbab', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('RT 540 E');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'RT 540 E', null, '{"capacite_max_t":35,"fleche_principale_m":"9,8 - 31","fleche_treillis_m":"7,9 et 13,7","contrepoids_t":4.3}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":35,"fleche_principale_m":"9,8 - 31","fleche_treillis_m":"7,9 et 13,7","contrepoids_t":4.3}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw4-3t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw4-3t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 9,8-27,4 m (colonne 31 m exclue), calage MAX, 360°, contrepoids 4,3 t', '{"categorie":"grue tout-terrain (RT)","longueur_fleche_m":"9,8 - 27,4","contrepoids_t":4.3,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw4-3t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Édition métrique (t, m, pas de portée 0,5 m, stabilité 75 %) ; longueurs de flèche correspondant à des cotes en pieds (32-101,7 ft) comme sur les tableaux métriques Grove, pas d''unité lb/ft. Saisies : 7 colonnes (9,8 à 27,4 m) × 22 lignes de portée (2,5 à 28 m), 81 valeurs. EXCLUE : la colonne 31 m entière, car sa valeur à 11 m (9,2 t, lue sans ambiguïté aux deux passes et au re-zoom ×3) est supérieure à celles de 9 m et 10 m de la même colonne : valeur douteuse probable erreur de report, colonne non saisie (flèche 31 m = hors abaque). Valeur 11 m / 27,4 m (6,8 t > 6,4 t sur 24,4 m) reproduite telle qu''imprimée. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 207 cellules (colonne 31 m incluse), 0 écart. sha256 complet : 1afb74d471e3dbabaa83b773de23e61e35fadec08d23db70af022a4fb8672aa1 RELECTURE 2026-10-11 : diff intégral visuel des 7 colonnes saisies contre le rendu 200 dpi p. 3 : 0 écart ; exclusion de la colonne 31 m confirmée (9,2 t à 11 m après 7,4 t à 10 m). | Pages : PDF p. 3 (page catalogue 16) : tableau « Flèche principale / Telescopic boom », 9,8 à 31 m, calage MAX, contrepoids 4,3 t, 360°, DIN ISO, 75 %. Extension treillis (même page) non saisie.') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 9,8-27,4 m (colonne 31 m exclue), calage MAX, 360°, contrepoids 4,3 t', params = '{"categorie":"grue tout-terrain (RT)","longueur_fleche_m":"9,8 - 27,4","contrepoids_t":4.3,"calage":"MAX","zone":"360°","flechette":false,"stabilite_pct":75,"slug":"fleche-principale-360-cw4-3t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Pictogrammes de la page : calage « MAX » (calage maximal, empattement en m non indiqué), 360°, « DIN ISO », « 75% » (taux de stabilité). Capacités en t, portées en m. Édition métrique (t, m, pas de portée 0,5 m, stabilité 75 %) ; longueurs de flèche correspondant à des cotes en pieds (32-101,7 ft) comme sur les tableaux métriques Grove, pas d''unité lb/ft. Saisies : 7 colonnes (9,8 à 27,4 m) × 22 lignes de portée (2,5 à 28 m), 81 valeurs. EXCLUE : la colonne 31 m entière, car sa valeur à 11 m (9,2 t, lue sans ambiguïté aux deux passes et au re-zoom ×3) est supérieure à celles de 9 m et 10 m de la même colonne : valeur douteuse probable erreur de report, colonne non saisie (flèche 31 m = hors abaque). Valeur 11 m / 27,4 m (6,8 t > 6,4 t sur 24,4 m) reproduite telle qu''imprimée. Capacités imprimées sans mention de déduction du crochet/moufle (deductions_included = false par prudence, masse moufle non documentée). Mouflage et vent non indiqués. « - » du tableau = cellule vide dans le CSV. Lecture VISUELLE (PDF scanné, tableaux en image 150 ppi) en deux passes indépendantes : passe A sur l''image native extraite (pdfimages, ×1,5), passe B sur rendu pdftoppm 200 dpi recadré en deux moitiés (×1,25-1,3). Diff intégral : 207 cellules (colonne 31 m incluse), 0 écart. sha256 complet : 1afb74d471e3dbabaa83b773de23e61e35fadec08d23db70af022a4fb8672aa1 RELECTURE 2026-10-11 : diff intégral visuel des 7 colonnes saisies contre le rendu 200 dpi p. 3 : 0 écart ; exclusion de la colonne 31 m confirmée (9,2 t à 11 m après 7,4 t à 10 m). | Pages : PDF p. 3 (page catalogue 16) : tableau « Flèche principale / Telescopic boom », 9,8 à 31 m, calage MAX, contrepoids 4,3 t, 360°, DIN ISO, 75 %. Extension treillis (même page) non saisie.', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 2.5, 9.8, 35000),
+    (v_chart, 3, 9.8, 32700),
+    (v_chart, 3, 12.2, 23000),
+    (v_chart, 3, 15.2, 22000),
+    (v_chart, 3.5, 9.8, 29000),
+    (v_chart, 3.5, 12.2, 23000),
+    (v_chart, 3.5, 15.2, 22000),
+    (v_chart, 4, 9.8, 25200),
+    (v_chart, 4, 12.2, 23000),
+    (v_chart, 4, 15.2, 22000),
+    (v_chart, 4, 18.3, 21000),
+    (v_chart, 4.5, 9.8, 22100),
+    (v_chart, 4.5, 12.2, 22400),
+    (v_chart, 4.5, 15.2, 22000),
+    (v_chart, 4.5, 18.3, 20200),
+    (v_chart, 5, 9.8, 19700),
+    (v_chart, 5, 12.2, 19900),
+    (v_chart, 5, 15.2, 20100),
+    (v_chart, 5, 18.3, 18900),
+    (v_chart, 5, 21.3, 17600),
+    (v_chart, 6, 9.8, 16000),
+    (v_chart, 6, 12.2, 16200),
+    (v_chart, 6, 15.2, 16400),
+    (v_chart, 6, 18.3, 16300),
+    (v_chart, 6, 21.3, 14300),
+    (v_chart, 6, 24.4, 13500),
+    (v_chart, 7, 9.8, 13300),
+    (v_chart, 7, 12.2, 13500),
+    (v_chart, 7, 15.2, 13700),
+    (v_chart, 7, 18.3, 13800),
+    (v_chart, 7, 21.3, 12700),
+    (v_chart, 7, 24.4, 12100),
+    (v_chart, 7, 27.4, 10000),
+    (v_chart, 8, 12.2, 11500),
+    (v_chart, 8, 15.2, 11600),
+    (v_chart, 8, 18.3, 11700),
+    (v_chart, 8, 21.3, 11300),
+    (v_chart, 8, 24.4, 10700),
+    (v_chart, 8, 27.4, 9500),
+    (v_chart, 9, 12.2, 9800),
+    (v_chart, 9, 15.2, 9900),
+    (v_chart, 9, 18.3, 9900),
+    (v_chart, 9, 21.3, 9800),
+    (v_chart, 9, 24.4, 9400),
+    (v_chart, 9, 27.4, 8500),
+    (v_chart, 10, 12.2, 8400),
+    (v_chart, 10, 15.2, 8500),
+    (v_chart, 10, 18.3, 8500),
+    (v_chart, 10, 21.3, 8400),
+    (v_chart, 10, 24.4, 8100),
+    (v_chart, 10, 27.4, 7600),
+    (v_chart, 11, 15.2, 6600),
+    (v_chart, 11, 18.3, 6600),
+    (v_chart, 11, 21.3, 6600),
+    (v_chart, 11, 24.4, 6400),
+    (v_chart, 11, 27.4, 6800),
+    (v_chart, 12, 15.2, 6100),
+    (v_chart, 12, 18.3, 6100),
+    (v_chart, 12, 21.3, 6200),
+    (v_chart, 12, 24.4, 6100),
+    (v_chart, 12, 27.4, 5900),
+    (v_chart, 13, 18.3, 4800),
+    (v_chart, 13, 21.3, 4900),
+    (v_chart, 13, 24.4, 4900),
+    (v_chart, 13, 27.4, 4800),
+    (v_chart, 14, 18.3, 4500),
+    (v_chart, 14, 21.3, 4600),
+    (v_chart, 14, 24.4, 4700),
+    (v_chart, 14, 27.4, 4600),
+    (v_chart, 16, 18.3, 3400),
+    (v_chart, 16, 21.3, 3500),
+    (v_chart, 16, 24.4, 3600),
+    (v_chart, 16, 27.4, 3600),
+    (v_chart, 18, 21.3, 2700),
+    (v_chart, 18, 24.4, 2700),
+    (v_chart, 18, 27.4, 2800),
+    (v_chart, 20, 24.4, 2100),
+    (v_chart, 20, 27.4, 2100),
+    (v_chart, 22, 24.4, 1600),
+    (v_chart, 22, 27.4, 1600),
+    (v_chart, 24, 27.4, 1200);
+end $charts$;
+
+-- liebherr-lr-1100
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile_chenilles';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile_chenilles'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LR 1100 — 100 tonnes : Cotation, Capacité de levage, Flèche principale (fiche FOSELEV, 3 pages, pages catalogue 198-200)'
+    and reference is not distinct from '100T-LIEBHERR LR 1100.pdf ; sha256:8081115995a117cf' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LR 1100 — 100 tonnes : Cotation, Capacité de levage, Flèche principale (fiche FOSELEV, 3 pages, pages catalogue 198-200)', '100T-LIEBHERR LR 1100.pdf ; sha256:8081115995a117cf', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LR 1100');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LR 1100', null, '{"capacite_nominale_t":100,"fleche_principale_m":"14 - 68","contrepoids":"32 t + 15 t (max fiche) ; 26,3 t + 0 t"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_nominale_t":100,"fleche_principale_m":"14 - 68","contrepoids":"32 t + 15 t (max fiche) ; 26,3 t + 0 t"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw32t-15t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw32t-15t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 14-68 m, 360°, contrepoids 32 t + 15 t', '{"longueur_fleche_m_plage":"14 - 68","contrepoids_t":"32 + 15","zone":"360°","flechette":"non","categorie":"grue sur chenilles (flèche treillis)","slug":"fleche-principale-360-cw32t-15t"}'::jsonb, null, 'Tableau p. 3 haut (page catalogue 200), 10 colonnes de flèche (14 à 68 m) x 22 lignes de portée (3,1 à 50 m), toutes saisies. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). Anomalies reproduites telles qu''imprimées : colonne 62 m inférieure à la colonne 68 m à 30 et 32 m de portée (5,3/5,5 ; 4,8/4,9) ; 104,5 t à 3,1 m pour une machine annoncée 100 t ; intitulé « Telescopic boom » imprimé par erreur sur une grue à flèche treillis. A vérifier sur la doc Liebherr. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (20 colonnes) contre le rendu 200 dpi p. 3 : 0 écart. NB : la fiche FOSELEV titre « Telescopic boom » un tableau de grue à flèche treillis (erreur de mise en page du loueur, sans effet sur les valeurs). | Pages : p. 3 (page catalogue 200) : deux tableaux « Flèche principale » 360°, DIN ISO 75 % — haut : flèche 14-68 m, contrepoids 32 t + 15 t ; bas : flèche 14-59 m, contrepoids 26,3 t + 0 t. PDF sha256:8081115995a117cf74cd1ec9cff13a62c6761f2605bdfa558ea9d28ea4b3943d') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 14-68 m, 360°, contrepoids 32 t + 15 t', params = '{"longueur_fleche_m_plage":"14 - 68","contrepoids_t":"32 + 15","zone":"360°","flechette":"non","categorie":"grue sur chenilles (flèche treillis)","slug":"fleche-principale-360-cw32t-15t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 haut (page catalogue 200), 10 colonnes de flèche (14 à 68 m) x 22 lignes de portée (3,1 à 50 m), toutes saisies. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). Anomalies reproduites telles qu''imprimées : colonne 62 m inférieure à la colonne 68 m à 30 et 32 m de portée (5,3/5,5 ; 4,8/4,9) ; 104,5 t à 3,1 m pour une machine annoncée 100 t ; intitulé « Telescopic boom » imprimé par erreur sur une grue à flèche treillis. A vérifier sur la doc Liebherr. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (20 colonnes) contre le rendu 200 dpi p. 3 : 0 écart. NB : la fiche FOSELEV titre « Telescopic boom » un tableau de grue à flèche treillis (erreur de mise en page du loueur, sans effet sur les valeurs). | Pages : p. 3 (page catalogue 200) : deux tableaux « Flèche principale » 360°, DIN ISO 75 % — haut : flèche 14-68 m, contrepoids 32 t + 15 t ; bas : flèche 14-59 m, contrepoids 26,3 t + 0 t. PDF sha256:8081115995a117cf74cd1ec9cff13a62c6761f2605bdfa558ea9d28ea4b3943d', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3.1, 14, 104500),
+    (v_chart, 4, 14, 103700),
+    (v_chart, 6, 14, 65800),
+    (v_chart, 8, 14, 46800),
+    (v_chart, 10, 14, 34100),
+    (v_chart, 12, 14, 26600),
+    (v_chart, 14, 14, 21600),
+    (v_chart, 4, 20, 94100),
+    (v_chart, 6, 20, 59700),
+    (v_chart, 8, 20, 43400),
+    (v_chart, 10, 20, 33900),
+    (v_chart, 12, 20, 26700),
+    (v_chart, 14, 20, 21700),
+    (v_chart, 16, 20, 18100),
+    (v_chart, 18, 20, 15500),
+    (v_chart, 20, 20, 13300),
+    (v_chart, 4, 26, 82800),
+    (v_chart, 6, 26, 54600),
+    (v_chart, 8, 26, 40400),
+    (v_chart, 10, 26, 31800),
+    (v_chart, 12, 26, 26100),
+    (v_chart, 14, 26, 21600),
+    (v_chart, 16, 26, 18000),
+    (v_chart, 18, 26, 15400),
+    (v_chart, 20, 26, 13300),
+    (v_chart, 22, 26, 11600),
+    (v_chart, 24, 26, 10300),
+    (v_chart, 26, 26, 9100),
+    (v_chart, 6, 32, 50200),
+    (v_chart, 8, 32, 37800),
+    (v_chart, 10, 32, 30000),
+    (v_chart, 12, 32, 24800),
+    (v_chart, 14, 32, 20900),
+    (v_chart, 16, 32, 18000),
+    (v_chart, 18, 32, 15300),
+    (v_chart, 20, 32, 13200),
+    (v_chart, 22, 32, 11600),
+    (v_chart, 24, 32, 10200),
+    (v_chart, 26, 32, 9100),
+    (v_chart, 28, 32, 8100),
+    (v_chart, 30, 32, 7300),
+    (v_chart, 32, 32, 6500),
+    (v_chart, 6, 38, 46400),
+    (v_chart, 8, 38, 35300),
+    (v_chart, 10, 38, 28300),
+    (v_chart, 12, 38, 23400),
+    (v_chart, 14, 38, 19900),
+    (v_chart, 16, 38, 17100),
+    (v_chart, 18, 38, 15000),
+    (v_chart, 20, 38, 13000),
+    (v_chart, 22, 38, 11400),
+    (v_chart, 24, 38, 10000),
+    (v_chart, 26, 38, 8900),
+    (v_chart, 28, 38, 7900),
+    (v_chart, 30, 38, 7100),
+    (v_chart, 32, 38, 6400),
+    (v_chart, 34, 38, 5700),
+    (v_chart, 36, 38, 5200),
+    (v_chart, 38, 38, 4700),
+    (v_chart, 6, 44, 35400),
+    (v_chart, 8, 44, 33200),
+    (v_chart, 10, 44, 26800),
+    (v_chart, 12, 44, 22300),
+    (v_chart, 14, 44, 18900),
+    (v_chart, 16, 44, 16300),
+    (v_chart, 18, 44, 14300),
+    (v_chart, 20, 44, 12600),
+    (v_chart, 22, 44, 11200),
+    (v_chart, 24, 44, 9900),
+    (v_chart, 26, 44, 8700),
+    (v_chart, 28, 44, 7800),
+    (v_chart, 30, 44, 6900),
+    (v_chart, 32, 44, 6200),
+    (v_chart, 34, 44, 5600),
+    (v_chart, 36, 44, 5000),
+    (v_chart, 38, 44, 4500),
+    (v_chart, 42, 44, 3700),
+    (v_chart, 6, 50, 27700),
+    (v_chart, 8, 50, 26200),
+    (v_chart, 10, 50, 24500),
+    (v_chart, 12, 50, 21100),
+    (v_chart, 14, 50, 17900),
+    (v_chart, 16, 50, 15500),
+    (v_chart, 18, 50, 13500),
+    (v_chart, 20, 50, 11900),
+    (v_chart, 22, 50, 10600),
+    (v_chart, 24, 50, 9400),
+    (v_chart, 26, 50, 8500),
+    (v_chart, 28, 50, 7500),
+    (v_chart, 30, 50, 6700),
+    (v_chart, 32, 50, 6000),
+    (v_chart, 34, 50, 5400),
+    (v_chart, 36, 50, 4800),
+    (v_chart, 38, 50, 4300),
+    (v_chart, 42, 50, 3500),
+    (v_chart, 46, 50, 2800),
+    (v_chart, 50, 50, 2200),
+    (v_chart, 8, 56, 18200),
+    (v_chart, 10, 56, 17500),
+    (v_chart, 12, 56, 16900),
+    (v_chart, 14, 56, 15900),
+    (v_chart, 16, 56, 14700),
+    (v_chart, 18, 56, 12800),
+    (v_chart, 20, 56, 11300),
+    (v_chart, 22, 56, 10000),
+    (v_chart, 24, 56, 8900),
+    (v_chart, 26, 56, 8000),
+    (v_chart, 28, 56, 7200),
+    (v_chart, 30, 56, 6400),
+    (v_chart, 32, 56, 5800),
+    (v_chart, 34, 56, 5200),
+    (v_chart, 36, 56, 4600),
+    (v_chart, 38, 56, 4100),
+    (v_chart, 42, 56, 3300),
+    (v_chart, 46, 56, 2600),
+    (v_chart, 50, 56, 2000),
+    (v_chart, 8, 62, 14900),
+    (v_chart, 10, 62, 14200),
+    (v_chart, 12, 62, 13500),
+    (v_chart, 14, 62, 13000),
+    (v_chart, 16, 62, 12100),
+    (v_chart, 18, 62, 11500),
+    (v_chart, 20, 62, 10700),
+    (v_chart, 22, 62, 9400),
+    (v_chart, 24, 62, 8400),
+    (v_chart, 26, 62, 7500),
+    (v_chart, 28, 62, 6700),
+    (v_chart, 30, 62, 5300),
+    (v_chart, 32, 62, 4800),
+    (v_chart, 34, 62, 4300),
+    (v_chart, 36, 62, 3800),
+    (v_chart, 38, 62, 3400),
+    (v_chart, 42, 62, 3000),
+    (v_chart, 46, 62, 2300),
+    (v_chart, 8, 68, 11500),
+    (v_chart, 10, 68, 11100),
+    (v_chart, 12, 68, 10500),
+    (v_chart, 14, 68, 10100),
+    (v_chart, 16, 68, 9600),
+    (v_chart, 18, 68, 9100),
+    (v_chart, 20, 68, 8700),
+    (v_chart, 22, 68, 8300),
+    (v_chart, 24, 68, 7800),
+    (v_chart, 26, 68, 6900),
+    (v_chart, 28, 68, 6100),
+    (v_chart, 30, 68, 5500),
+    (v_chart, 32, 68, 4900),
+    (v_chart, 34, 68, 4300),
+    (v_chart, 36, 68, 3800),
+    (v_chart, 38, 68, 3400),
+    (v_chart, 42, 68, 2600),
+    (v_chart, 46, 68, 2000);
+  -- configuration fleche-principale-360-cw26t3
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw26t3';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 14-59 m, 360°, contrepoids 26,3 t + 0 t', '{"longueur_fleche_m_plage":"14 - 59","contrepoids_t":"26,3 + 0","zone":"360°","flechette":"non","categorie":"grue sur chenilles (flèche treillis)","slug":"fleche-principale-360-cw26t3"}'::jsonb, null, 'Tableau p. 3 bas (page catalogue 200), 10 colonnes de flèche (14 à 59 m) x 22 lignes de portée (4 à 44 m), toutes saisies. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). Intitulé « Telescopic boom » imprimé par erreur sur une grue à flèche treillis. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (20 colonnes) contre le rendu 200 dpi p. 3 : 0 écart. NB : la fiche FOSELEV titre « Telescopic boom » un tableau de grue à flèche treillis (erreur de mise en page du loueur, sans effet sur les valeurs). | Pages : p. 3 (page catalogue 200) : deux tableaux « Flèche principale » 360°, DIN ISO 75 % — haut : flèche 14-68 m, contrepoids 32 t + 15 t ; bas : flèche 14-59 m, contrepoids 26,3 t + 0 t. PDF sha256:8081115995a117cf74cd1ec9cff13a62c6761f2605bdfa558ea9d28ea4b3943d') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 14-59 m, 360°, contrepoids 26,3 t + 0 t', params = '{"longueur_fleche_m_plage":"14 - 59","contrepoids_t":"26,3 + 0","zone":"360°","flechette":"non","categorie":"grue sur chenilles (flèche treillis)","slug":"fleche-principale-360-cw26t3"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 bas (page catalogue 200), 10 colonnes de flèche (14 à 59 m) x 22 lignes de portée (4 à 44 m), toutes saisies. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d''une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). Intitulé « Telescopic boom » imprimé par erreur sur une grue à flèche treillis. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (20 colonnes) contre le rendu 200 dpi p. 3 : 0 écart. NB : la fiche FOSELEV titre « Telescopic boom » un tableau de grue à flèche treillis (erreur de mise en page du loueur, sans effet sur les valeurs). | Pages : p. 3 (page catalogue 200) : deux tableaux « Flèche principale » 360°, DIN ISO 75 % — haut : flèche 14-68 m, contrepoids 32 t + 15 t ; bas : flèche 14-59 m, contrepoids 26,3 t + 0 t. PDF sha256:8081115995a117cf74cd1ec9cff13a62c6761f2605bdfa558ea9d28ea4b3943d', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (pictogramme fiche FOSELEV), 75 %', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 5, 14, 65800),
+    (v_chart, 6, 14, 52600),
+    (v_chart, 7, 14, 43700),
+    (v_chart, 8, 14, 37200),
+    (v_chart, 9, 14, 31400),
+    (v_chart, 10, 14, 27100),
+    (v_chart, 12, 14, 21000),
+    (v_chart, 14, 14, 16900),
+    (v_chart, 4, 17, 81100),
+    (v_chart, 5, 17, 62000),
+    (v_chart, 6, 17, 50000),
+    (v_chart, 7, 17, 41800),
+    (v_chart, 8, 17, 35800),
+    (v_chart, 9, 17, 31300),
+    (v_chart, 10, 17, 27100),
+    (v_chart, 12, 17, 21000),
+    (v_chart, 14, 17, 17000),
+    (v_chart, 16, 17, 14100),
+    (v_chart, 18, 17, 11900),
+    (v_chart, 4, 20, 75500),
+    (v_chart, 5, 20, 58600),
+    (v_chart, 6, 20, 47700),
+    (v_chart, 7, 20, 40100),
+    (v_chart, 8, 20, 34500),
+    (v_chart, 9, 20, 30200),
+    (v_chart, 10, 20, 26800),
+    (v_chart, 12, 20, 21100),
+    (v_chart, 14, 20, 17000),
+    (v_chart, 16, 20, 14100),
+    (v_chart, 18, 20, 12000),
+    (v_chart, 20, 20, 10300),
+    (v_chart, 4, 26, 66900),
+    (v_chart, 5, 26, 52600),
+    (v_chart, 6, 26, 43500),
+    (v_chart, 7, 26, 37000),
+    (v_chart, 8, 26, 32000),
+    (v_chart, 9, 26, 28200),
+    (v_chart, 10, 26, 25100),
+    (v_chart, 12, 26, 20500),
+    (v_chart, 14, 26, 16900),
+    (v_chart, 16, 26, 14000),
+    (v_chart, 18, 26, 11900),
+    (v_chart, 20, 26, 10200),
+    (v_chart, 22, 26, 8900),
+    (v_chart, 24, 26, 7800),
+    (v_chart, 26, 26, 6800),
+    (v_chart, 5, 32, 47700),
+    (v_chart, 6, 32, 40000),
+    (v_chart, 7, 32, 34300),
+    (v_chart, 8, 32, 29900),
+    (v_chart, 9, 32, 26500),
+    (v_chart, 10, 32, 23700),
+    (v_chart, 12, 32, 19400),
+    (v_chart, 14, 32, 16300),
+    (v_chart, 16, 32, 13900),
+    (v_chart, 18, 32, 11900),
+    (v_chart, 20, 32, 10200),
+    (v_chart, 22, 32, 8800),
+    (v_chart, 24, 32, 7700),
+    (v_chart, 26, 32, 6800),
+    (v_chart, 28, 32, 6000),
+    (v_chart, 30, 32, 5300),
+    (v_chart, 32, 32, 4700),
+    (v_chart, 5, 38, 43500),
+    (v_chart, 6, 38, 36800),
+    (v_chart, 7, 38, 31800),
+    (v_chart, 8, 38, 27900),
+    (v_chart, 9, 38, 24800),
+    (v_chart, 10, 38, 22200),
+    (v_chart, 12, 38, 18300),
+    (v_chart, 14, 38, 15400),
+    (v_chart, 16, 38, 13100),
+    (v_chart, 18, 38, 11400),
+    (v_chart, 20, 38, 10000),
+    (v_chart, 22, 38, 8600),
+    (v_chart, 24, 38, 7500),
+    (v_chart, 26, 38, 6600),
+    (v_chart, 28, 38, 5800),
+    (v_chart, 30, 38, 5100),
+    (v_chart, 32, 38, 4500),
+    (v_chart, 34, 38, 4000),
+    (v_chart, 36, 38, 3600),
+    (v_chart, 6, 44, 34100),
+    (v_chart, 7, 44, 29600),
+    (v_chart, 8, 44, 26100),
+    (v_chart, 9, 44, 23300),
+    (v_chart, 10, 44, 20900),
+    (v_chart, 12, 44, 17300),
+    (v_chart, 14, 44, 14500),
+    (v_chart, 16, 44, 12500),
+    (v_chart, 18, 44, 10800),
+    (v_chart, 20, 44, 9500),
+    (v_chart, 22, 44, 8300),
+    (v_chart, 24, 44, 7400),
+    (v_chart, 26, 44, 6400),
+    (v_chart, 28, 44, 5700),
+    (v_chart, 30, 44, 5000),
+    (v_chart, 32, 44, 4400),
+    (v_chart, 34, 44, 3900),
+    (v_chart, 36, 44, 3400),
+    (v_chart, 40, 44, 2700),
+    (v_chart, 44, 44, 2000),
+    (v_chart, 6, 50, 27700),
+    (v_chart, 7, 50, 26900),
+    (v_chart, 8, 50, 24400),
+    (v_chart, 9, 50, 21800),
+    (v_chart, 10, 50, 19700),
+    (v_chart, 12, 50, 16300),
+    (v_chart, 14, 50, 13700),
+    (v_chart, 16, 50, 11800),
+    (v_chart, 18, 50, 10200),
+    (v_chart, 20, 50, 8900),
+    (v_chart, 22, 50, 7800),
+    (v_chart, 24, 50, 6900),
+    (v_chart, 26, 50, 6100),
+    (v_chart, 28, 50, 5400),
+    (v_chart, 30, 50, 4700),
+    (v_chart, 32, 50, 4200),
+    (v_chart, 34, 50, 3700),
+    (v_chart, 36, 50, 3200),
+    (v_chart, 40, 50, 2400),
+    (v_chart, 7, 56, 18600),
+    (v_chart, 8, 56, 18200),
+    (v_chart, 9, 56, 17900),
+    (v_chart, 10, 56, 17500),
+    (v_chart, 12, 56, 15300),
+    (v_chart, 14, 56, 12900),
+    (v_chart, 16, 56, 11100),
+    (v_chart, 18, 56, 9600),
+    (v_chart, 20, 56, 8400),
+    (v_chart, 22, 56, 7300),
+    (v_chart, 24, 56, 6400),
+    (v_chart, 26, 56, 5600),
+    (v_chart, 28, 56, 5000),
+    (v_chart, 30, 56, 4400),
+    (v_chart, 32, 56, 3900),
+    (v_chart, 34, 56, 3400),
+    (v_chart, 36, 56, 3000),
+    (v_chart, 40, 56, 2200),
+    (v_chart, 7, 59, 17400),
+    (v_chart, 8, 59, 17000),
+    (v_chart, 9, 59, 16700),
+    (v_chart, 10, 59, 16200),
+    (v_chart, 12, 59, 14900),
+    (v_chart, 14, 59, 12500),
+    (v_chart, 16, 59, 10800),
+    (v_chart, 18, 59, 9300),
+    (v_chart, 20, 59, 8100),
+    (v_chart, 22, 59, 7000),
+    (v_chart, 24, 59, 6200),
+    (v_chart, 26, 59, 5400),
+    (v_chart, 28, 59, 4700),
+    (v_chart, 30, 59, 4200),
+    (v_chart, 32, 59, 3600),
+    (v_chart, 34, 59, 3200),
+    (v_chart, 36, 59, 2800),
+    (v_chart, 40, 59, 2100);
+end $charts$;
+
+-- liebherr-ltm-1030-2-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1030-2.1 – 35 tonnes – Capacité de levage (fiche FOSELEV)'
+    and reference is not distinct from '35T-LIEBHERR LTM 1030-2.1.pdf — sha256:8593a747151637cf' and edition is not distinct from 'Catalogue FOSELEV, pages datées 31/03/11';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1030-2.1 – 35 tonnes – Capacité de levage (fiche FOSELEV)', '35T-LIEBHERR LTM 1030-2.1.pdf — sha256:8593a747151637cf', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1030-2.1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1030-2.1', null, '{"capacite_max_t":35,"fleche_telescopique_m":"9,2 - 30","contrepoids_t":5.5}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":35,"fleche_telescopique_m":"9,2 - 30","contrepoids_t":5.5}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw5-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw5-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 9,2-30 m, calage, 360°, contrepoids 5,5 t', '{"longueur_fleche_m":"9,2 - 30","contrepoids_t":5.5,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw5-5t"}'::jsonb, null, 'Tableau « Flèche principale » p. 3 du PDF (pictos flèche MAX de 9,2 à 30 m, calage, 5,5 t, 360°). Table entière : 6 colonnes de flèche x 22 lignes de portée (3 à 26 m) = 132 cellules, 86 valeurs, 46 vides. Diff intégral des deux passes : 132 cellules, 0 écart. Seul contrepoids imprimé dans la fiche : 5,5 t. NON saisi : tableau Extension treillis (fléchette 8,6/15 m, 0°/40°) — combinaison flèche+fléchette+angle non représentable sur un seul axe y. Capacités croissant avec la portée sur certaines colonnes (ex. 14,4 m de 3 à 5 m) : reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 36 ») : Flèche principale (Telescopic boom) 9,2-30 m, 5,5 t, et Extension treillis (Swingaway). PDF sha256:8593a747151637cf23c3d4407da94d9080d54e6d5b75a16880aed513d29cda86') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 9,2-30 m, calage, 360°, contrepoids 5,5 t', params = '{"longueur_fleche_m":"9,2 - 30","contrepoids_t":5.5,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw5-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau « Flèche principale » p. 3 du PDF (pictos flèche MAX de 9,2 à 30 m, calage, 5,5 t, 360°). Table entière : 6 colonnes de flèche x 22 lignes de portée (3 à 26 m) = 132 cellules, 86 valeurs, 46 vides. Diff intégral des deux passes : 132 cellules, 0 écart. Seul contrepoids imprimé dans la fiche : 5,5 t. NON saisi : tableau Extension treillis (fléchette 8,6/15 m, 0°/40°) — combinaison flèche+fléchette+angle non représentable sur un seul axe y. Capacités croissant avec la portée sur certaines colonnes (ex. 14,4 m de 3 à 5 m) : reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 36 ») : Flèche principale (Telescopic boom) 9,2-30 m, 5,5 t, et Extension treillis (Swingaway). PDF sha256:8593a747151637cf23c3d4407da94d9080d54e6d5b75a16880aed513d29cda86', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 9.2, 35000),
+    (v_chart, 3, 14.4, 19100),
+    (v_chart, 4, 9.2, 26200),
+    (v_chart, 4, 14.4, 20000),
+    (v_chart, 4, 19.6, 17500),
+    (v_chart, 4, 24.8, 13000),
+    (v_chart, 5, 9.2, 20600),
+    (v_chart, 5, 14.4, 20600),
+    (v_chart, 5, 19.6, 16800),
+    (v_chart, 5, 24.8, 13000),
+    (v_chart, 5, 29, 9000),
+    (v_chart, 5, 30, 8300),
+    (v_chart, 6, 9.2, 16900),
+    (v_chart, 6, 14.4, 17100),
+    (v_chart, 6, 19.6, 15700),
+    (v_chart, 6, 24.8, 13000),
+    (v_chart, 6, 29, 9000),
+    (v_chart, 6, 30, 8300),
+    (v_chart, 7, 14.4, 14100),
+    (v_chart, 7, 19.6, 13000),
+    (v_chart, 7, 24.8, 12000),
+    (v_chart, 7, 29, 9000),
+    (v_chart, 7, 30, 8300),
+    (v_chart, 8, 14.4, 11300),
+    (v_chart, 8, 19.6, 10900),
+    (v_chart, 8, 24.8, 10200),
+    (v_chart, 8, 29, 8600),
+    (v_chart, 8, 30, 7900),
+    (v_chart, 9, 14.4, 9300),
+    (v_chart, 9, 19.6, 9400),
+    (v_chart, 9, 24.8, 8800),
+    (v_chart, 9, 29, 8200),
+    (v_chart, 9, 30, 7600),
+    (v_chart, 10, 14.4, 7900),
+    (v_chart, 10, 19.6, 8000),
+    (v_chart, 10, 24.8, 7700),
+    (v_chart, 10, 29, 7400),
+    (v_chart, 10, 30, 7200),
+    (v_chart, 11, 14.4, 6800),
+    (v_chart, 11, 19.6, 6900),
+    (v_chart, 11, 24.8, 6800),
+    (v_chart, 11, 29, 6600),
+    (v_chart, 11, 30, 6500),
+    (v_chart, 12, 14.4, 5800),
+    (v_chart, 12, 19.6, 5900),
+    (v_chart, 12, 24.8, 6000),
+    (v_chart, 12, 29, 5800),
+    (v_chart, 12, 30, 5800),
+    (v_chart, 13, 19.6, 5200),
+    (v_chart, 13, 24.8, 5300),
+    (v_chart, 13, 29, 5200),
+    (v_chart, 13, 30, 5200),
+    (v_chart, 14, 19.6, 4600),
+    (v_chart, 14, 24.8, 4700),
+    (v_chart, 14, 29, 4700),
+    (v_chart, 14, 30, 4700),
+    (v_chart, 15, 19.6, 4100),
+    (v_chart, 15, 24.8, 4200),
+    (v_chart, 15, 29, 4200),
+    (v_chart, 15, 30, 4200),
+    (v_chart, 16, 19.6, 3700),
+    (v_chart, 16, 24.8, 3800),
+    (v_chart, 16, 29, 3800),
+    (v_chart, 16, 30, 3800),
+    (v_chart, 17, 24.8, 3400),
+    (v_chart, 17, 29, 3400),
+    (v_chart, 17, 30, 3300),
+    (v_chart, 18, 24.8, 3000),
+    (v_chart, 18, 29, 3000),
+    (v_chart, 18, 30, 2900),
+    (v_chart, 19, 24.8, 2700),
+    (v_chart, 19, 29, 2700),
+    (v_chart, 19, 30, 2600),
+    (v_chart, 20, 24.8, 2500),
+    (v_chart, 20, 29, 2400),
+    (v_chart, 20, 30, 2400),
+    (v_chart, 21, 24.8, 2300),
+    (v_chart, 21, 29, 2200),
+    (v_chart, 21, 30, 2200),
+    (v_chart, 22, 24.8, 2100),
+    (v_chart, 22, 29, 2000),
+    (v_chart, 22, 30, 2000),
+    (v_chart, 24, 29, 1700),
+    (v_chart, 24, 30, 1700),
+    (v_chart, 26, 29, 1400),
+    (v_chart, 26, 30, 1400);
+end $charts$;
+
+-- liebherr-ltm-1040-2-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1040-2.1 – 35 TONNES – Flèche principale / Extension treillis (fiche FOSELEV, 4 p.)'
+    and reference is not distinct from '35T-LIEBHERR LTM 1040-2.1.pdf (sha256:6df1cb148de6aa83)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1040-2.1 – 35 TONNES – Flèche principale / Extension treillis (fiche FOSELEV, 4 p.)', '35T-LIEBHERR LTM 1040-2.1.pdf (sha256:6df1cb148de6aa83)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1040-2.1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1040-2.1', null, '{"capacite_max_t":35,"contrepoids_t":6.5,"fleche_telescopique_m":"10,5 - 35","flechette_m":9.5}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":35,"contrepoids_t":6.5,"fleche_telescopique_m":"10,5 - 35","flechette_m":9.5}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-cw6-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-cw6-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, '[Zone non précisée] Flèche télescopique 10,5-35 m, contrepoids 6,5 t (colonnes statiques)', '{"longueur_fleche_m":"10,5 - 35","contrepoids_t":6.5,"zone":"non précisée sur la fiche","base_calage_mm":null,"flechette":false,"categorie":"grue mobile sur pneus","slug":"telescopique-cw6-5t"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau métrique en tonnes (portées en m). Aucune édition/date ni norme (EN/DIN) imprimée sur la fiche ; pictogramme de calage présent mais sans cote de base, aucun picto 360° sur cette fiche : zone et base de calage non renseignées (null). Contrepoids 6,5 T imprimé. Chaque longueur de flèche a deux sous-colonnes ; la sous-colonne « ** capacités de levage en télescopage » est EXCLUE (autre situation de levage) ; pour 10,5 m, la sous-colonne « * en arrière » (secteur restreint) est EXCLUE. Cellules vides = vides dans le tableau. Saisi : 7 longueurs (10,5 ; 15,4 ; 20,3 ; 25,2 ; 30,1 ; 32,6 ; 35 m) x 32 portées (2,5 à 31 m) = 224 cellules. Poids du crochet/moufle : aucune indication de déduction sur la fiche (deductions_included=false par prudence). Diff intégral : extraction pdfplumber vs poppler -bbox vs pdftotext -layout (séquence de cellules par ligne), 32 lignes x 14 colonnes, 0 écart. RELECTURE 2026-10-11 : aucun pictogramme ni indice 360° imprimé pour ces tableaux (p. 4) ⇒ params.zone = « non précisée sur la fiche » et label préfixé « [Zone non précisée] » ; la grue ne doit être utilisée sur cette base que dans la zone d''orientation confirmée par la documentation de la machine réellement présente. Diff intégral contre le rendu 200 dpi p. 4 : 0 écart (sous-colonne 10,5 m non étoilée confirmée ; « * en arrière » exclue). | Pages : p. 4 haut : « Flèche principale de 10,5 m à 35 m », 6,5 T ; p. 4 bas : « Extension treillis » 9,5 m, de 10,5 m à 35 m, 6,5 T. PDF sha256 complet : 6df1cb148de6aa830fff78ec52f04543232600d8ed7c86b23b357b23fb60e502') returning id into v_cfg;
+  else update public.machine_configurations set label = '[Zone non précisée] Flèche télescopique 10,5-35 m, contrepoids 6,5 t (colonnes statiques)', params = '{"longueur_fleche_m":"10,5 - 35","contrepoids_t":6.5,"zone":"non précisée sur la fiche","base_calage_mm":null,"flechette":false,"categorie":"grue mobile sur pneus","slug":"telescopique-cw6-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau métrique en tonnes (portées en m). Aucune édition/date ni norme (EN/DIN) imprimée sur la fiche ; pictogramme de calage présent mais sans cote de base, aucun picto 360° sur cette fiche : zone et base de calage non renseignées (null). Contrepoids 6,5 T imprimé. Chaque longueur de flèche a deux sous-colonnes ; la sous-colonne « ** capacités de levage en télescopage » est EXCLUE (autre situation de levage) ; pour 10,5 m, la sous-colonne « * en arrière » (secteur restreint) est EXCLUE. Cellules vides = vides dans le tableau. Saisi : 7 longueurs (10,5 ; 15,4 ; 20,3 ; 25,2 ; 30,1 ; 32,6 ; 35 m) x 32 portées (2,5 à 31 m) = 224 cellules. Poids du crochet/moufle : aucune indication de déduction sur la fiche (deductions_included=false par prudence). Diff intégral : extraction pdfplumber vs poppler -bbox vs pdftotext -layout (séquence de cellules par ligne), 32 lignes x 14 colonnes, 0 écart. RELECTURE 2026-10-11 : aucun pictogramme ni indice 360° imprimé pour ces tableaux (p. 4) ⇒ params.zone = « non précisée sur la fiche » et label préfixé « [Zone non précisée] » ; la grue ne doit être utilisée sur cette base que dans la zone d''orientation confirmée par la documentation de la machine réellement présente. Diff intégral contre le rendu 200 dpi p. 4 : 0 écart (sous-colonne 10,5 m non étoilée confirmée ; « * en arrière » exclue). | Pages : p. 4 haut : « Flèche principale de 10,5 m à 35 m », 6,5 T ; p. 4 bas : « Extension treillis » 9,5 m, de 10,5 m à 35 m, 6,5 T. PDF sha256 complet : 6df1cb148de6aa830fff78ec52f04543232600d8ed7c86b23b357b23fb60e502', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 10.5, 30600),
+    (v_chart, 3, 15.4, 19700),
+    (v_chart, 3.5, 10.5, 28200),
+    (v_chart, 3.5, 15.4, 20200),
+    (v_chart, 3.5, 20.3, 17500),
+    (v_chart, 4, 10.5, 25600),
+    (v_chart, 4, 15.4, 20600),
+    (v_chart, 4, 20.3, 18000),
+    (v_chart, 4, 25.2, 15100),
+    (v_chart, 4.5, 10.5, 23500),
+    (v_chart, 4.5, 15.4, 21200),
+    (v_chart, 4.5, 20.3, 18300),
+    (v_chart, 4.5, 25.2, 14800),
+    (v_chart, 4.5, 30.1, 10700),
+    (v_chart, 5, 10.5, 21600),
+    (v_chart, 5, 15.4, 21300),
+    (v_chart, 5, 20.3, 18800),
+    (v_chart, 5, 25.2, 14300),
+    (v_chart, 5, 30.1, 10600),
+    (v_chart, 5, 32.6, 9000),
+    (v_chart, 6, 10.5, 18500),
+    (v_chart, 6, 15.4, 18800),
+    (v_chart, 6, 20.3, 18700),
+    (v_chart, 6, 25.2, 13300),
+    (v_chart, 6, 30.1, 10200),
+    (v_chart, 6, 32.6, 8800),
+    (v_chart, 6, 35, 7400),
+    (v_chart, 7, 10.5, 15400),
+    (v_chart, 7, 15.4, 15700),
+    (v_chart, 7, 20.3, 15300),
+    (v_chart, 7, 25.2, 12400),
+    (v_chart, 7, 30.1, 9600),
+    (v_chart, 7, 32.6, 8500),
+    (v_chart, 7, 35, 7200),
+    (v_chart, 8, 15.4, 13000),
+    (v_chart, 8, 20.3, 12800),
+    (v_chart, 8, 25.2, 11500),
+    (v_chart, 8, 30.1, 8900),
+    (v_chart, 8, 32.6, 8100),
+    (v_chart, 8, 35, 6900),
+    (v_chart, 9, 15.4, 10700),
+    (v_chart, 9, 20.3, 10800),
+    (v_chart, 9, 25.2, 10400),
+    (v_chart, 9, 30.1, 8400),
+    (v_chart, 9, 32.6, 7700),
+    (v_chart, 9, 35, 6600),
+    (v_chart, 10, 15.4, 9000),
+    (v_chart, 10, 20.3, 9100),
+    (v_chart, 10, 25.2, 9100),
+    (v_chart, 10, 30.1, 7900),
+    (v_chart, 10, 32.6, 7300),
+    (v_chart, 10, 35, 6300),
+    (v_chart, 11, 15.4, 7700),
+    (v_chart, 11, 20.3, 7800),
+    (v_chart, 11, 25.2, 7900),
+    (v_chart, 11, 30.1, 7400),
+    (v_chart, 11, 32.6, 6900),
+    (v_chart, 11, 35, 6100),
+    (v_chart, 12, 15.4, 6700),
+    (v_chart, 12, 20.3, 6800),
+    (v_chart, 12, 25.2, 6900),
+    (v_chart, 12, 30.1, 6900),
+    (v_chart, 12, 32.6, 6500),
+    (v_chart, 12, 35, 5800),
+    (v_chart, 13, 20.3, 6000),
+    (v_chart, 13, 25.2, 6100),
+    (v_chart, 13, 30.1, 6100),
+    (v_chart, 13, 32.6, 6100),
+    (v_chart, 13, 35, 5600),
+    (v_chart, 14, 20.3, 5300),
+    (v_chart, 14, 25.2, 5400),
+    (v_chart, 14, 30.1, 5400),
+    (v_chart, 14, 32.6, 5500),
+    (v_chart, 14, 35, 5400),
+    (v_chart, 15, 20.3, 4700),
+    (v_chart, 15, 25.2, 4800),
+    (v_chart, 15, 30.1, 4900),
+    (v_chart, 15, 32.6, 4900),
+    (v_chart, 15, 35, 4900),
+    (v_chart, 16, 20.3, 4300),
+    (v_chart, 16, 25.2, 4300),
+    (v_chart, 16, 30.1, 4400),
+    (v_chart, 16, 32.6, 4400),
+    (v_chart, 16, 35, 4400),
+    (v_chart, 17, 20.3, 3800),
+    (v_chart, 17, 25.2, 3900),
+    (v_chart, 17, 30.1, 3900),
+    (v_chart, 17, 32.6, 4000),
+    (v_chart, 17, 35, 4000),
+    (v_chart, 18, 25.2, 3500),
+    (v_chart, 18, 30.1, 3600),
+    (v_chart, 18, 32.6, 3600),
+    (v_chart, 18, 35, 3600),
+    (v_chart, 19, 25.2, 3200),
+    (v_chart, 19, 30.1, 3300),
+    (v_chart, 19, 32.6, 3300),
+    (v_chart, 19, 35, 3300),
+    (v_chart, 20, 25.2, 2900),
+    (v_chart, 20, 30.1, 3000),
+    (v_chart, 20, 32.6, 3000),
+    (v_chart, 20, 35, 3000),
+    (v_chart, 21, 25.2, 2700),
+    (v_chart, 21, 30.1, 2700),
+    (v_chart, 21, 32.6, 2700),
+    (v_chart, 21, 35, 2800),
+    (v_chart, 22, 25.2, 2500),
+    (v_chart, 22, 30.1, 2500),
+    (v_chart, 22, 32.6, 2500),
+    (v_chart, 22, 35, 2500),
+    (v_chart, 23, 30.1, 2300),
+    (v_chart, 23, 32.6, 2300),
+    (v_chart, 23, 35, 2300),
+    (v_chart, 24, 30.1, 2100),
+    (v_chart, 24, 32.6, 2100),
+    (v_chart, 24, 35, 2100),
+    (v_chart, 25, 30.1, 1900),
+    (v_chart, 25, 32.6, 1900),
+    (v_chart, 25, 35, 1900),
+    (v_chart, 26, 30.1, 1700),
+    (v_chart, 26, 32.6, 1700),
+    (v_chart, 26, 35, 1800),
+    (v_chart, 27, 30.1, 1500),
+    (v_chart, 27, 32.6, 1600),
+    (v_chart, 27, 35, 1600),
+    (v_chart, 28, 32.6, 1400),
+    (v_chart, 28, 35, 1500),
+    (v_chart, 29, 32.6, 1300),
+    (v_chart, 29, 35, 1300),
+    (v_chart, 30, 35, 1200),
+    (v_chart, 31, 35, 1100);
+  -- configuration flechette-9-5m-0deg
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'flechette-9-5m-0deg';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, '[Zone non précisée] Flèche télescopique + fléchette 9,5 m, angle 0°, contrepoids 6,5 t', '{"longueur_fleche_m":"10,5 / 25,2 / 30,1","contrepoids_t":6.5,"zone":"non précisée sur la fiche","base_calage_mm":null,"flechette":true,"longueur_flechette_m":9.5,"angle_flechette_deg":0,"categorie":"grue mobile sur pneus","slug":"flechette-9-5m-0deg"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau métrique en tonnes (portées en m). Aucune édition/date ni norme (EN/DIN) imprimée sur la fiche ; pictogramme de calage présent mais sans cote de base, aucun picto 360° sur cette fiche : zone et base de calage non renseignées (null). Contrepoids 6,5 T imprimé. Chaque longueur de flèche a deux sous-colonnes ; la sous-colonne « ** capacités de levage en télescopage » est EXCLUE (autre situation de levage) ; pour 10,5 m, la sous-colonne « * en arrière » (secteur restreint) est EXCLUE. Cellules vides = vides dans le tableau. Tableau « Extension treillis » 9,5 m : seule la colonne angle 0° (non « ** ») des flèches 10,5 ; 25,2 ; 30,1 m est saisie = 3 longueurs x 36 portées (3 à 36 m) = 108 cellules. Angles 20°/40°/60° et colonnes « ** » non saisis. Diff intégral : 36 lignes x 20 colonnes (toutes colonnes imprimées du tableau), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : aucun pictogramme ni indice 360° imprimé pour ces tableaux (p. 4) ⇒ params.zone = « non précisée sur la fiche » et label préfixé « [Zone non précisée] » ; la grue ne doit être utilisée sur cette base que dans la zone d''orientation confirmée par la documentation de la machine réellement présente. Diff intégral contre le rendu 200 dpi p. 4 : 0 écart (sous-colonne 10,5 m non étoilée confirmée ; « * en arrière » exclue). | Pages : p. 4 haut : « Flèche principale de 10,5 m à 35 m », 6,5 T ; p. 4 bas : « Extension treillis » 9,5 m, de 10,5 m à 35 m, 6,5 T. PDF sha256 complet : 6df1cb148de6aa830fff78ec52f04543232600d8ed7c86b23b357b23fb60e502') returning id into v_cfg;
+  else update public.machine_configurations set label = '[Zone non précisée] Flèche télescopique + fléchette 9,5 m, angle 0°, contrepoids 6,5 t', params = '{"longueur_fleche_m":"10,5 / 25,2 / 30,1","contrepoids_t":6.5,"zone":"non précisée sur la fiche","base_calage_mm":null,"flechette":true,"longueur_flechette_m":9.5,"angle_flechette_deg":0,"categorie":"grue mobile sur pneus","slug":"flechette-9-5m-0deg"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau métrique en tonnes (portées en m). Aucune édition/date ni norme (EN/DIN) imprimée sur la fiche ; pictogramme de calage présent mais sans cote de base, aucun picto 360° sur cette fiche : zone et base de calage non renseignées (null). Contrepoids 6,5 T imprimé. Chaque longueur de flèche a deux sous-colonnes ; la sous-colonne « ** capacités de levage en télescopage » est EXCLUE (autre situation de levage) ; pour 10,5 m, la sous-colonne « * en arrière » (secteur restreint) est EXCLUE. Cellules vides = vides dans le tableau. Tableau « Extension treillis » 9,5 m : seule la colonne angle 0° (non « ** ») des flèches 10,5 ; 25,2 ; 30,1 m est saisie = 3 longueurs x 36 portées (3 à 36 m) = 108 cellules. Angles 20°/40°/60° et colonnes « ** » non saisis. Diff intégral : 36 lignes x 20 colonnes (toutes colonnes imprimées du tableau), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : aucun pictogramme ni indice 360° imprimé pour ces tableaux (p. 4) ⇒ params.zone = « non précisée sur la fiche » et label préfixé « [Zone non précisée] » ; la grue ne doit être utilisée sur cette base que dans la zone d''orientation confirmée par la documentation de la machine réellement présente. Diff intégral contre le rendu 200 dpi p. 4 : 0 écart (sous-colonne 10,5 m non étoilée confirmée ; « * en arrière » exclue). | Pages : p. 4 haut : « Flèche principale de 10,5 m à 35 m », 6,5 T ; p. 4 bas : « Extension treillis » 9,5 m, de 10,5 m à 35 m, 6,5 T. PDF sha256 complet : 6df1cb148de6aa830fff78ec52f04543232600d8ed7c86b23b357b23fb60e502', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 10.5, 6000),
+    (v_chart, 3.5, 10.5, 6000),
+    (v_chart, 4, 10.5, 6000),
+    (v_chart, 4.5, 10.5, 6000),
+    (v_chart, 4.5, 25.2, 6000),
+    (v_chart, 5, 10.5, 5900),
+    (v_chart, 5, 25.2, 6000),
+    (v_chart, 6, 10.5, 5300),
+    (v_chart, 6, 25.2, 6000),
+    (v_chart, 6, 30.1, 5000),
+    (v_chart, 7, 10.5, 4900),
+    (v_chart, 7, 25.2, 5700),
+    (v_chart, 7, 30.1, 4900),
+    (v_chart, 8, 10.5, 4500),
+    (v_chart, 8, 25.2, 5300),
+    (v_chart, 8, 30.1, 4800),
+    (v_chart, 9, 10.5, 4100),
+    (v_chart, 9, 25.2, 5000),
+    (v_chart, 9, 30.1, 4500),
+    (v_chart, 10, 10.5, 3800),
+    (v_chart, 10, 25.2, 4800),
+    (v_chart, 10, 30.1, 4300),
+    (v_chart, 11, 10.5, 3500),
+    (v_chart, 11, 25.2, 4500),
+    (v_chart, 11, 30.1, 4100),
+    (v_chart, 12, 10.5, 3200),
+    (v_chart, 12, 25.2, 4200),
+    (v_chart, 12, 30.1, 3900),
+    (v_chart, 13, 10.5, 3000),
+    (v_chart, 13, 25.2, 4000),
+    (v_chart, 13, 30.1, 3700),
+    (v_chart, 14, 10.5, 2700),
+    (v_chart, 14, 25.2, 3800),
+    (v_chart, 14, 30.1, 3400),
+    (v_chart, 15, 10.5, 2500),
+    (v_chart, 15, 25.2, 3500),
+    (v_chart, 15, 30.1, 3200),
+    (v_chart, 16, 10.5, 2300),
+    (v_chart, 16, 25.2, 3300),
+    (v_chart, 16, 30.1, 3000),
+    (v_chart, 17, 25.2, 3100),
+    (v_chart, 17, 30.1, 2900),
+    (v_chart, 18, 25.2, 3000),
+    (v_chart, 18, 30.1, 2800),
+    (v_chart, 19, 25.2, 2800),
+    (v_chart, 19, 30.1, 2700),
+    (v_chart, 20, 25.2, 2700),
+    (v_chart, 20, 30.1, 2600),
+    (v_chart, 21, 25.2, 2600),
+    (v_chart, 21, 30.1, 2500),
+    (v_chart, 22, 25.2, 2500),
+    (v_chart, 22, 30.1, 2400),
+    (v_chart, 23, 25.2, 2400),
+    (v_chart, 23, 30.1, 2300),
+    (v_chart, 24, 25.2, 2200),
+    (v_chart, 24, 30.1, 2100),
+    (v_chart, 25, 25.2, 2000),
+    (v_chart, 25, 30.1, 1900),
+    (v_chart, 26, 25.2, 1800),
+    (v_chart, 26, 30.1, 1800),
+    (v_chart, 27, 25.2, 1700),
+    (v_chart, 27, 30.1, 1600),
+    (v_chart, 28, 25.2, 1500),
+    (v_chart, 28, 30.1, 1500),
+    (v_chart, 29, 25.2, 1400),
+    (v_chart, 29, 30.1, 1300),
+    (v_chart, 30, 25.2, 1300),
+    (v_chart, 30, 30.1, 1200),
+    (v_chart, 31, 25.2, 1200),
+    (v_chart, 31, 30.1, 1100),
+    (v_chart, 32, 30.1, 1000),
+    (v_chart, 33, 30.1, 900),
+    (v_chart, 34, 30.1, 800),
+    (v_chart, 35, 30.1, 700),
+    (v_chart, 36, 30.1, 600);
+end $charts$;
+
+-- liebherr-ltm-1055-3-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1055-3.1 – 55 tonnes – Capacité de levage (fiche FOSELEV)'
+    and reference is not distinct from '55T-LIEBHERR LTM 1055-3.1.pdf — sha256:0369c1445ef15df3' and edition is not distinct from 'Catalogue FOSELEV, pages datées 31/03/11';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1055-3.1 – 55 tonnes – Capacité de levage (fiche FOSELEV)', '55T-LIEBHERR LTM 1055-3.1.pdf — sha256:0369c1445ef15df3', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1055-3.1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1055-3.1', null, '{"capacite_max_t":55,"fleche_telescopique_m":"10,2 - 40","contrepoids_t":12}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":55,"fleche_telescopique_m":"10,2 - 40","contrepoids_t":12}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw12t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw12t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 10,2-40 m, calage, 360°, contrepoids 12 t', '{"longueur_fleche_m":"10,2 - 40","contrepoids_t":12,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw12t"}'::jsonb, null, 'Tableau « Flèche principale » p. 3 du PDF (pictos flèche MAX de 10,2 à 40 m, calage, 12 t, 360°). Table entière : 8 colonnes de flèche x 22 lignes de portée (2,5 à 36 m) = 176 cellules, 101 valeurs, 75 vides. La cellule 28 m / 27,3 m est imprimée VIDE (sans tiret) : saisie vide. Mention « Flèche également disponible en 13m600 & 20m500 » (pas de valeurs : non saisi). Diff intégral des deux passes : 176 cellules, 0 écart. Seul contrepoids imprimé : 12 t. NON saisi : tableau Extension treillis (fléchette 9,5/16 m, 0°/40°). Capacités croissant avec la portée sur certaines colonnes : reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 56 ») : Flèche principale (Telescopic boom) 10,2-40 m, 12 t, et Extension treillis (Swingaway). PDF sha256:0369c1445ef15df31c1abd3d86d598a8c4e11f5063763b143064632f663a3727') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 10,2-40 m, calage, 360°, contrepoids 12 t', params = '{"longueur_fleche_m":"10,2 - 40","contrepoids_t":12,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw12t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau « Flèche principale » p. 3 du PDF (pictos flèche MAX de 10,2 à 40 m, calage, 12 t, 360°). Table entière : 8 colonnes de flèche x 22 lignes de portée (2,5 à 36 m) = 176 cellules, 101 valeurs, 75 vides. La cellule 28 m / 27,3 m est imprimée VIDE (sans tiret) : saisie vide. Mention « Flèche également disponible en 13m600 & 20m500 » (pas de valeurs : non saisi). Diff intégral des deux passes : 176 cellules, 0 écart. Seul contrepoids imprimé : 12 t. NON saisi : tableau Extension treillis (fléchette 9,5/16 m, 0°/40°). Capacités croissant avec la portée sur certaines colonnes : reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel de toutes les colonnes contre le rendu 200 dpi p. 3 : 0 écart. | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 56 ») : Flèche principale (Telescopic boom) 10,2-40 m, 12 t, et Extension treillis (Swingaway). PDF sha256:0369c1445ef15df31c1abd3d86d598a8c4e11f5063763b143064632f663a3727', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 2.5, 10.2, 55000),
+    (v_chart, 3, 10.2, 51000),
+    (v_chart, 4, 10.2, 43500),
+    (v_chart, 4, 17, 38500),
+    (v_chart, 5, 10.2, 37000),
+    (v_chart, 5, 17, 33000),
+    (v_chart, 5, 23.9, 30500),
+    (v_chart, 5, 27.3, 23300),
+    (v_chart, 6, 10.2, 31500),
+    (v_chart, 6, 17, 29100),
+    (v_chart, 6, 23.9, 26800),
+    (v_chart, 6, 27.3, 20900),
+    (v_chart, 6, 30.8, 18500),
+    (v_chart, 6, 34.2, 15100),
+    (v_chart, 7, 10.2, 26000),
+    (v_chart, 7, 17, 24900),
+    (v_chart, 7, 23.9, 22200),
+    (v_chart, 7, 27.3, 18900),
+    (v_chart, 7, 30.8, 16900),
+    (v_chart, 7, 34.2, 14800),
+    (v_chart, 7, 37.6, 12100),
+    (v_chart, 7, 40, 10100),
+    (v_chart, 8, 17, 21200),
+    (v_chart, 8, 23.9, 18900),
+    (v_chart, 8, 27.3, 17200),
+    (v_chart, 8, 30.8, 15600),
+    (v_chart, 8, 34.2, 13900),
+    (v_chart, 8, 37.6, 11400),
+    (v_chart, 8, 40, 10000),
+    (v_chart, 9, 17, 17900),
+    (v_chart, 9, 23.9, 16300),
+    (v_chart, 9, 27.3, 15700),
+    (v_chart, 9, 30.8, 14300),
+    (v_chart, 9, 34.2, 13100),
+    (v_chart, 9, 37.6, 10900),
+    (v_chart, 9, 40, 9500),
+    (v_chart, 10, 17, 15200),
+    (v_chart, 10, 23.9, 14300),
+    (v_chart, 10, 27.3, 13800),
+    (v_chart, 10, 30.8, 13000),
+    (v_chart, 10, 34.2, 12200),
+    (v_chart, 10, 37.6, 10400),
+    (v_chart, 10, 40, 9100),
+    (v_chart, 12, 17, 11400),
+    (v_chart, 12, 23.9, 11600),
+    (v_chart, 12, 27.3, 11400),
+    (v_chart, 12, 30.8, 10800),
+    (v_chart, 12, 34.2, 10200),
+    (v_chart, 12, 37.6, 9500),
+    (v_chart, 12, 40, 8400),
+    (v_chart, 14, 17, 9100),
+    (v_chart, 14, 23.9, 9300),
+    (v_chart, 14, 27.3, 9100),
+    (v_chart, 14, 30.8, 8900),
+    (v_chart, 14, 34.2, 8600),
+    (v_chart, 14, 37.6, 8400),
+    (v_chart, 14, 40, 7800),
+    (v_chart, 16, 23.9, 7600),
+    (v_chart, 16, 27.3, 7400),
+    (v_chart, 16, 30.8, 7500),
+    (v_chart, 16, 34.2, 7500),
+    (v_chart, 16, 37.6, 7000),
+    (v_chart, 16, 40, 6900),
+    (v_chart, 18, 23.9, 6400),
+    (v_chart, 18, 27.3, 6500),
+    (v_chart, 18, 30.8, 6300),
+    (v_chart, 18, 34.2, 6300),
+    (v_chart, 18, 37.6, 5900),
+    (v_chart, 18, 40, 5800),
+    (v_chart, 20, 23.9, 5400),
+    (v_chart, 20, 27.3, 5500),
+    (v_chart, 20, 30.8, 5400),
+    (v_chart, 20, 34.2, 5300),
+    (v_chart, 20, 37.6, 5100),
+    (v_chart, 20, 40, 5000),
+    (v_chart, 22, 27.3, 4700),
+    (v_chart, 22, 30.8, 4600),
+    (v_chart, 22, 34.2, 4500),
+    (v_chart, 22, 37.6, 4200),
+    (v_chart, 22, 40, 4100),
+    (v_chart, 24, 27.3, 4100),
+    (v_chart, 24, 30.8, 4000),
+    (v_chart, 24, 34.2, 3800),
+    (v_chart, 24, 37.6, 3600),
+    (v_chart, 24, 40, 3500),
+    (v_chart, 26, 30.8, 3400),
+    (v_chart, 26, 34.2, 3300),
+    (v_chart, 26, 37.6, 3100),
+    (v_chart, 26, 40, 3100),
+    (v_chart, 28, 30.8, 3000),
+    (v_chart, 28, 34.2, 2900),
+    (v_chart, 28, 37.6, 2700),
+    (v_chart, 28, 40, 2600),
+    (v_chart, 30, 34.2, 2500),
+    (v_chart, 30, 37.6, 2300),
+    (v_chart, 30, 40, 2300),
+    (v_chart, 32, 37.6, 2000),
+    (v_chart, 32, 40, 2000),
+    (v_chart, 34, 37.6, 1700),
+    (v_chart, 34, 40, 1700),
+    (v_chart, 36, 40, 1500);
 end $charts$;
 
 -- liebherr-ltm-1060-3-1
@@ -1192,4 +5274,2784 @@ begin
     (v_chart, 34, 41.6, 1000),
     (v_chart, 35, 38.1, 1000),
     (v_chart, 35, 41.6, 900);
+end $charts$;
+
+-- liebherr-ltm-1070-4-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1070-4.1 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)'
+    and reference is not distinct from '70T-LIEBHERR LTM 1070-4.1.pdf (sha256:b3d53dd6f8a0c17c)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1070-4.1 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)', '70T-LIEBHERR LTM 1070-4.1.pdf (sha256:b3d53dd6f8a0c17c)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1070-4.1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1070-4.1', null, '{"capacite_max_t":70,"contrepoids_t":14.5,"fleche_telescopique_m":"11 - 50","flechette_m":9.5}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":70,"contrepoids_t":14.5,"fleche_telescopique_m":"11 - 50","flechette_m":9.5}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw14-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw14-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 11-50 m, calage sorti, 360°, contrepoids 14,5 t', '{"longueur_fleche_m":"11 - 50","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":false,"categorie":"grue mobile sur pneus","slug":"telescopique-360-cw14-5t"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « DIN ISO » (pas EN 13000). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Saisi : 12 longueurs (11 à 50 m) x 26 portées (2,5 à 40 m) = 312 cellules. Aucune indication de déduction du crochet. Diff intégral : pdfplumber vs poppler -bbox vs pdftotext -layout, 26 lignes x 13 colonnes (colonne * incluse), 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : b3d53dd6f8a0c17c8155c861b8da9733e015bec9136c026297de6cd603b6f951') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 11-50 m, calage sorti, 360°, contrepoids 14,5 t', params = '{"longueur_fleche_m":"11 - 50","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":false,"categorie":"grue mobile sur pneus","slug":"telescopique-360-cw14-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « DIN ISO » (pas EN 13000). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Saisi : 12 longueurs (11 à 50 m) x 26 portées (2,5 à 40 m) = 312 cellules. Aucune indication de déduction du crochet. Diff intégral : pdfplumber vs poppler -bbox vs pdftotext -layout, 26 lignes x 13 colonnes (colonne * incluse), 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : b3d53dd6f8a0c17c8155c861b8da9733e015bec9136c026297de6cd603b6f951', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (picto imprimé « DIN ISO »)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (picto imprimé « DIN ISO »)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 11, 51000),
+    (v_chart, 3, 14.6, 51000),
+    (v_chart, 3, 18.2, 51000),
+    (v_chart, 3.5, 11, 46500),
+    (v_chart, 3.5, 14.6, 46500),
+    (v_chart, 3.5, 18.2, 46500),
+    (v_chart, 3.5, 21.8, 40000),
+    (v_chart, 3.5, 25.4, 33000),
+    (v_chart, 4, 11, 42500),
+    (v_chart, 4, 14.6, 42500),
+    (v_chart, 4, 18.2, 42500),
+    (v_chart, 4, 21.8, 39000),
+    (v_chart, 4, 25.4, 32500),
+    (v_chart, 4, 28.9, 26300),
+    (v_chart, 4.5, 11, 39000),
+    (v_chart, 4.5, 14.6, 39000),
+    (v_chart, 4.5, 18.2, 39000),
+    (v_chart, 4.5, 21.8, 38000),
+    (v_chart, 4.5, 25.4, 31500),
+    (v_chart, 4.5, 28.9, 25700),
+    (v_chart, 4.5, 32.5, 20700),
+    (v_chart, 5, 11, 35500),
+    (v_chart, 5, 14.6, 36000),
+    (v_chart, 5, 18.2, 36000),
+    (v_chart, 5, 21.8, 35500),
+    (v_chart, 5, 25.4, 31000),
+    (v_chart, 5, 28.9, 25200),
+    (v_chart, 5, 32.5, 20400),
+    (v_chart, 5, 36.1, 16900),
+    (v_chart, 6, 11, 30500),
+    (v_chart, 6, 14.6, 31000),
+    (v_chart, 6, 18.2, 31000),
+    (v_chart, 6, 21.8, 31000),
+    (v_chart, 6, 25.4, 28900),
+    (v_chart, 6, 28.9, 24300),
+    (v_chart, 6, 32.5, 19800),
+    (v_chart, 6, 36.1, 16600),
+    (v_chart, 7, 11, 26300),
+    (v_chart, 7, 14.6, 26800),
+    (v_chart, 7, 18.2, 26900),
+    (v_chart, 7, 21.8, 26800),
+    (v_chart, 7, 25.4, 27100),
+    (v_chart, 7, 28.9, 23300),
+    (v_chart, 7, 32.5, 19100),
+    (v_chart, 7, 36.1, 16200),
+    (v_chart, 7, 39.7, 13100),
+    (v_chart, 7, 43.3, 10200),
+    (v_chart, 8, 11, 22700),
+    (v_chart, 8, 14.6, 23100),
+    (v_chart, 8, 18.2, 23200),
+    (v_chart, 8, 21.8, 23600),
+    (v_chart, 8, 25.4, 23100),
+    (v_chart, 8, 28.9, 21600),
+    (v_chart, 8, 32.5, 17800),
+    (v_chart, 8, 36.1, 15800),
+    (v_chart, 8, 39.7, 12900),
+    (v_chart, 8, 43.3, 10100),
+    (v_chart, 8, 46.9, 8000),
+    (v_chart, 9, 14.6, 20400),
+    (v_chart, 9, 18.2, 20300),
+    (v_chart, 9, 21.8, 20700),
+    (v_chart, 9, 25.4, 19900),
+    (v_chart, 9, 28.9, 18600),
+    (v_chart, 9, 32.5, 16600),
+    (v_chart, 9, 36.1, 15000),
+    (v_chart, 9, 39.7, 12600),
+    (v_chart, 9, 43.3, 9800),
+    (v_chart, 9, 46.9, 7800),
+    (v_chart, 9, 50, 6600),
+    (v_chart, 10, 14.6, 17800),
+    (v_chart, 10, 18.2, 18100),
+    (v_chart, 10, 21.8, 18100),
+    (v_chart, 10, 25.4, 17300),
+    (v_chart, 10, 28.9, 16300),
+    (v_chart, 10, 32.5, 15600),
+    (v_chart, 10, 36.1, 14100),
+    (v_chart, 10, 39.7, 12100),
+    (v_chart, 10, 43.3, 9600),
+    (v_chart, 10, 46.9, 7700),
+    (v_chart, 10, 50, 6600),
+    (v_chart, 12, 14.6, 13500),
+    (v_chart, 12, 18.2, 13900),
+    (v_chart, 12, 21.8, 14000),
+    (v_chart, 12, 25.4, 13700),
+    (v_chart, 12, 28.9, 13000),
+    (v_chart, 12, 32.5, 12600),
+    (v_chart, 12, 36.1, 12000),
+    (v_chart, 12, 39.7, 11000),
+    (v_chart, 12, 43.3, 9000),
+    (v_chart, 12, 46.9, 7400),
+    (v_chart, 12, 50, 6400),
+    (v_chart, 14, 18.2, 10900),
+    (v_chart, 14, 21.8, 11100),
+    (v_chart, 14, 25.4, 11000),
+    (v_chart, 14, 28.9, 10900),
+    (v_chart, 14, 32.5, 10300),
+    (v_chart, 14, 36.1, 9900),
+    (v_chart, 14, 39.7, 9300),
+    (v_chart, 14, 43.3, 8300),
+    (v_chart, 14, 46.9, 6900),
+    (v_chart, 14, 50, 6100),
+    (v_chart, 16, 21.8, 9000),
+    (v_chart, 16, 25.4, 8900),
+    (v_chart, 16, 28.9, 9000),
+    (v_chart, 16, 32.5, 8700),
+    (v_chart, 16, 36.1, 8300),
+    (v_chart, 16, 39.7, 8000),
+    (v_chart, 16, 43.3, 7600),
+    (v_chart, 16, 46.9, 6500),
+    (v_chart, 16, 50, 5700),
+    (v_chart, 18, 21.8, 7400),
+    (v_chart, 18, 25.4, 7600),
+    (v_chart, 18, 28.9, 7400),
+    (v_chart, 18, 32.5, 7400),
+    (v_chart, 18, 36.1, 7200),
+    (v_chart, 18, 39.7, 6900),
+    (v_chart, 18, 43.3, 6400),
+    (v_chart, 18, 46.9, 6000),
+    (v_chart, 18, 50, 5400),
+    (v_chart, 20, 25.4, 6400),
+    (v_chart, 20, 28.9, 6200),
+    (v_chart, 20, 32.5, 6300),
+    (v_chart, 20, 36.1, 6200),
+    (v_chart, 20, 39.7, 5900),
+    (v_chart, 20, 43.3, 5700),
+    (v_chart, 20, 46.9, 5400),
+    (v_chart, 20, 50, 5000),
+    (v_chart, 22, 25.4, 5500),
+    (v_chart, 22, 28.9, 5300),
+    (v_chart, 22, 32.5, 5400),
+    (v_chart, 22, 36.1, 5100),
+    (v_chart, 22, 39.7, 5000),
+    (v_chart, 22, 43.3, 4900),
+    (v_chart, 22, 46.9, 4600),
+    (v_chart, 22, 50, 4500),
+    (v_chart, 24, 28.9, 4700),
+    (v_chart, 24, 32.5, 4700),
+    (v_chart, 24, 36.1, 4600),
+    (v_chart, 24, 39.7, 4400),
+    (v_chart, 24, 43.3, 4200),
+    (v_chart, 24, 46.9, 3900),
+    (v_chart, 24, 50, 3900),
+    (v_chart, 26, 28.9, 4300),
+    (v_chart, 26, 32.5, 4100),
+    (v_chart, 26, 36.1, 4100),
+    (v_chart, 26, 39.7, 3800),
+    (v_chart, 26, 43.3, 3600),
+    (v_chart, 26, 46.9, 3300),
+    (v_chart, 26, 50, 3300),
+    (v_chart, 28, 32.5, 3600),
+    (v_chart, 28, 36.1, 3600),
+    (v_chart, 28, 39.7, 3300),
+    (v_chart, 28, 43.3, 3100),
+    (v_chart, 28, 46.9, 2900),
+    (v_chart, 28, 50, 2800),
+    (v_chart, 30, 32.5, 3200),
+    (v_chart, 30, 36.1, 3100),
+    (v_chart, 30, 39.7, 2900),
+    (v_chart, 30, 43.3, 2700),
+    (v_chart, 30, 46.9, 2400),
+    (v_chart, 30, 50, 2400),
+    (v_chart, 32, 36.1, 2700),
+    (v_chart, 32, 39.7, 2500),
+    (v_chart, 32, 43.3, 2400),
+    (v_chart, 32, 46.9, 2100),
+    (v_chart, 32, 50, 2100),
+    (v_chart, 34, 39.7, 2200),
+    (v_chart, 34, 43.3, 2000),
+    (v_chart, 34, 46.9, 1800),
+    (v_chart, 34, 50, 1800),
+    (v_chart, 36, 39.7, 1900),
+    (v_chart, 36, 43.3, 1700),
+    (v_chart, 36, 46.9, 1500),
+    (v_chart, 36, 50, 1500),
+    (v_chart, 38, 43.3, 1400),
+    (v_chart, 38, 46.9, 1200),
+    (v_chart, 38, 50, 1200),
+    (v_chart, 40, 43.3, 1200),
+    (v_chart, 40, 46.9, 1000),
+    (v_chart, 40, 50, 1000);
+  -- configuration flechette-9-5m-0deg
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'flechette-9-5m-0deg';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique + fléchette 9,5 m à 0°, calage sorti, 360°, contrepoids 14,5 t', '{"longueur_fleche_m":"11 - 28,9","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":true,"longueur_flechette_m":9.5,"angle_flechette_deg":0,"categorie":"grue mobile sur pneus","slug":"flechette-9-5m-0deg"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « DIN ISO » (pas EN 13000). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Tableau p. 5 : seule la colonne 0° des 6 longueurs imprimées (11 ; 14,6 ; 18,2 ; 21,8 ; 25,4 ; 28,9 m) est saisie = 6 x 23 portées (3 à 36 m) = 138 cellules (le tableau n''imprime pas les flèches > 28,9 m). Angles 20°/40°/60° non saisis. Diff intégral : 23 lignes x 24 colonnes (toutes colonnes imprimées), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : b3d53dd6f8a0c17c8155c861b8da9733e015bec9136c026297de6cd603b6f951') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique + fléchette 9,5 m à 0°, calage sorti, 360°, contrepoids 14,5 t', params = '{"longueur_fleche_m":"11 - 28,9","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":true,"longueur_flechette_m":9.5,"angle_flechette_deg":0,"categorie":"grue mobile sur pneus","slug":"flechette-9-5m-0deg"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « DIN ISO » (pas EN 13000). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Tableau p. 5 : seule la colonne 0° des 6 longueurs imprimées (11 ; 14,6 ; 18,2 ; 21,8 ; 25,4 ; 28,9 m) est saisie = 6 x 23 portées (3 à 36 m) = 138 cellules (le tableau n''imprime pas les flèches > 28,9 m). Angles 20°/40°/60° non saisis. Diff intégral : 23 lignes x 24 colonnes (toutes colonnes imprimées), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : b3d53dd6f8a0c17c8155c861b8da9733e015bec9136c026297de6cd603b6f951', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (picto imprimé « DIN ISO »)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (picto imprimé « DIN ISO »)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 11, 11400),
+    (v_chart, 3, 14.6, 11400),
+    (v_chart, 3, 18.2, 11400),
+    (v_chart, 3, 21.8, 11400),
+    (v_chart, 3, 25.4, 11400),
+    (v_chart, 3.5, 11, 11400),
+    (v_chart, 3.5, 14.6, 11400),
+    (v_chart, 3.5, 18.2, 11400),
+    (v_chart, 3.5, 21.8, 11400),
+    (v_chart, 3.5, 25.4, 11400),
+    (v_chart, 3.5, 28.9, 11400),
+    (v_chart, 4, 11, 11400),
+    (v_chart, 4, 14.6, 11400),
+    (v_chart, 4, 18.2, 11400),
+    (v_chart, 4, 21.8, 11400),
+    (v_chart, 4, 25.4, 11400),
+    (v_chart, 4, 28.9, 11400),
+    (v_chart, 4.5, 11, 11400),
+    (v_chart, 4.5, 14.6, 11400),
+    (v_chart, 4.5, 18.2, 11400),
+    (v_chart, 4.5, 21.8, 11400),
+    (v_chart, 4.5, 25.4, 11400),
+    (v_chart, 4.5, 28.9, 11400),
+    (v_chart, 5, 11, 11400),
+    (v_chart, 5, 14.6, 11400),
+    (v_chart, 5, 18.2, 11400),
+    (v_chart, 5, 21.8, 11400),
+    (v_chart, 5, 25.4, 11400),
+    (v_chart, 5, 28.9, 11400),
+    (v_chart, 6, 11, 11400),
+    (v_chart, 6, 14.6, 11400),
+    (v_chart, 6, 18.2, 11400),
+    (v_chart, 6, 21.8, 11400),
+    (v_chart, 6, 25.4, 11400),
+    (v_chart, 6, 28.9, 11400),
+    (v_chart, 7, 11, 11400),
+    (v_chart, 7, 14.6, 11400),
+    (v_chart, 7, 18.2, 11400),
+    (v_chart, 7, 21.8, 11400),
+    (v_chart, 7, 25.4, 11400),
+    (v_chart, 7, 28.9, 11400),
+    (v_chart, 8, 11, 10600),
+    (v_chart, 8, 14.6, 11400),
+    (v_chart, 8, 18.2, 11400),
+    (v_chart, 8, 21.8, 11400),
+    (v_chart, 8, 25.4, 11400),
+    (v_chart, 8, 28.9, 11400),
+    (v_chart, 9, 11, 9600),
+    (v_chart, 9, 14.6, 11000),
+    (v_chart, 9, 18.2, 11400),
+    (v_chart, 9, 21.8, 11400),
+    (v_chart, 9, 25.4, 11400),
+    (v_chart, 9, 28.9, 11100),
+    (v_chart, 10, 11, 8700),
+    (v_chart, 10, 14.6, 10200),
+    (v_chart, 10, 18.2, 11100),
+    (v_chart, 10, 21.8, 11300),
+    (v_chart, 10, 25.4, 11400),
+    (v_chart, 10, 28.9, 10700),
+    (v_chart, 12, 11, 7200),
+    (v_chart, 12, 14.6, 8700),
+    (v_chart, 12, 18.2, 9800),
+    (v_chart, 12, 21.8, 10100),
+    (v_chart, 12, 25.4, 10400),
+    (v_chart, 12, 28.9, 9900),
+    (v_chart, 14, 11, 5900),
+    (v_chart, 14, 14.6, 7300),
+    (v_chart, 14, 18.2, 8500),
+    (v_chart, 14, 21.8, 9200),
+    (v_chart, 14, 25.4, 9500),
+    (v_chart, 14, 28.9, 9200),
+    (v_chart, 16, 11, 5100),
+    (v_chart, 16, 14.6, 6300),
+    (v_chart, 16, 18.2, 7300),
+    (v_chart, 16, 21.8, 8200),
+    (v_chart, 16, 25.4, 7900),
+    (v_chart, 16, 28.9, 8000),
+    (v_chart, 18, 11, 4300),
+    (v_chart, 18, 14.6, 5500),
+    (v_chart, 18, 18.2, 6500),
+    (v_chart, 18, 21.8, 7100),
+    (v_chart, 18, 25.4, 6600),
+    (v_chart, 18, 28.9, 6700),
+    (v_chart, 20, 14.6, 4800),
+    (v_chart, 20, 18.2, 5600),
+    (v_chart, 20, 21.8, 5900),
+    (v_chart, 20, 25.4, 5400),
+    (v_chart, 20, 28.9, 5700),
+    (v_chart, 22, 18.2, 5000),
+    (v_chart, 22, 21.8, 4900),
+    (v_chart, 22, 25.4, 4500),
+    (v_chart, 22, 28.9, 4700),
+    (v_chart, 24, 18.2, 4300),
+    (v_chart, 24, 21.8, 4200),
+    (v_chart, 24, 25.4, 3800),
+    (v_chart, 24, 28.9, 4100),
+    (v_chart, 26, 21.8, 3600),
+    (v_chart, 26, 25.4, 3200),
+    (v_chart, 26, 28.9, 3500),
+    (v_chart, 28, 21.8, 3000),
+    (v_chart, 28, 25.4, 2600),
+    (v_chart, 28, 28.9, 2900),
+    (v_chart, 30, 25.4, 2200),
+    (v_chart, 30, 28.9, 2400),
+    (v_chart, 32, 25.4, 1800),
+    (v_chart, 32, 28.9, 2100),
+    (v_chart, 34, 28.9, 1700),
+    (v_chart, 36, 28.9, 1400);
+end $charts$;
+
+-- liebherr-ltm-1070-4-2
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1070-4.2 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)'
+    and reference is not distinct from '70T-LIEBHERR LTM 1070-4.2.pdf (sha256:e343332cec6510aa)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1070-4.2 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)', '70T-LIEBHERR LTM 1070-4.2.pdf (sha256:e343332cec6510aa)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1070-4.2');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1070-4.2', null, '{"capacite_max_t":70,"contrepoids_t":14.5,"fleche_telescopique_m":"11 - 50","flechette_m":9.5}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":70,"contrepoids_t":14.5,"fleche_telescopique_m":"11 - 50","flechette_m":9.5}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw14-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw14-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 11-50 m, calage sorti, 360°, contrepoids 14,5 t', '{"longueur_fleche_m":"11 - 50","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":false,"categorie":"grue mobile sur pneus","slug":"telescopique-360-cw14-5t"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « EN » seul (référence EN 13000 non écrite). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Saisi : 12 longueurs (11 à 50 m) x 26 portées (2,5 à 40 m) = 312 cellules. Aucune indication de déduction du crochet. Diff intégral : pdfplumber vs poppler -bbox vs pdftotext -layout, 26 lignes x 13 colonnes (colonne * incluse), 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : e343332cec6510aa27c6628a0b2edb0d2e32c533d1fbac6272dfd2256badc226') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 11-50 m, calage sorti, 360°, contrepoids 14,5 t', params = '{"longueur_fleche_m":"11 - 50","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":false,"categorie":"grue mobile sur pneus","slug":"telescopique-360-cw14-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « EN » seul (référence EN 13000 non écrite). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Saisi : 12 longueurs (11 à 50 m) x 26 portées (2,5 à 40 m) = 312 cellules. Aucune indication de déduction du crochet. Diff intégral : pdfplumber vs poppler -bbox vs pdftotext -layout, 26 lignes x 13 colonnes (colonne * incluse), 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : e343332cec6510aa27c6628a0b2edb0d2e32c533d1fbac6272dfd2256badc226', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN (picto imprimé « EN »)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN (picto imprimé « EN »)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 11, 51100),
+    (v_chart, 3, 14.6, 50900),
+    (v_chart, 3, 18.2, 48800),
+    (v_chart, 3.5, 11, 46400),
+    (v_chart, 3.5, 14.6, 46300),
+    (v_chart, 3.5, 18.2, 46500),
+    (v_chart, 3.5, 21.8, 38900),
+    (v_chart, 3.5, 25.4, 31900),
+    (v_chart, 4, 11, 42400),
+    (v_chart, 4, 14.6, 42400),
+    (v_chart, 4, 18.2, 42500),
+    (v_chart, 4, 21.8, 38100),
+    (v_chart, 4, 25.4, 31400),
+    (v_chart, 4, 28.9, 25600),
+    (v_chart, 4.5, 11, 38900),
+    (v_chart, 4.5, 14.6, 38900),
+    (v_chart, 4.5, 18.2, 39100),
+    (v_chart, 4.5, 21.8, 37400),
+    (v_chart, 4.5, 25.4, 31000),
+    (v_chart, 4.5, 28.9, 25300),
+    (v_chart, 4.5, 32.5, 20600),
+    (v_chart, 5, 11, 35700),
+    (v_chart, 5, 14.6, 35800),
+    (v_chart, 5, 18.2, 35900),
+    (v_chart, 5, 21.8, 35600),
+    (v_chart, 5, 25.4, 30400),
+    (v_chart, 5, 28.9, 25100),
+    (v_chart, 5, 32.5, 20500),
+    (v_chart, 5, 36.1, 16300),
+    (v_chart, 6, 11, 30500),
+    (v_chart, 6, 14.6, 30900),
+    (v_chart, 6, 18.2, 31000),
+    (v_chart, 6, 21.8, 31000),
+    (v_chart, 6, 25.4, 28900),
+    (v_chart, 6, 28.9, 24500),
+    (v_chart, 6, 32.5, 20100),
+    (v_chart, 6, 36.1, 16100),
+    (v_chart, 7, 11, 26300),
+    (v_chart, 7, 14.6, 26700),
+    (v_chart, 7, 18.2, 26900),
+    (v_chart, 7, 21.8, 26900),
+    (v_chart, 7, 25.4, 27200),
+    (v_chart, 7, 28.9, 24000),
+    (v_chart, 7, 32.5, 19600),
+    (v_chart, 7, 36.1, 16000),
+    (v_chart, 7, 39.7, 13000),
+    (v_chart, 7, 43.3, 10200),
+    (v_chart, 8, 11, 22600),
+    (v_chart, 8, 14.6, 23100),
+    (v_chart, 8, 18.2, 23300),
+    (v_chart, 8, 21.8, 23600),
+    (v_chart, 8, 25.4, 23600),
+    (v_chart, 8, 28.9, 22700),
+    (v_chart, 8, 32.5, 18300),
+    (v_chart, 8, 36.1, 15800),
+    (v_chart, 8, 39.7, 12800),
+    (v_chart, 8, 43.3, 10100),
+    (v_chart, 8, 46.9, 8000),
+    (v_chart, 9, 14.6, 20400),
+    (v_chart, 9, 18.2, 20400),
+    (v_chart, 9, 21.8, 20800),
+    (v_chart, 9, 25.4, 20700),
+    (v_chart, 9, 28.9, 19600),
+    (v_chart, 9, 32.5, 17000),
+    (v_chart, 9, 36.1, 15100),
+    (v_chart, 9, 39.7, 12600),
+    (v_chart, 9, 43.3, 9900),
+    (v_chart, 9, 46.9, 7900),
+    (v_chart, 9, 50, 6700),
+    (v_chart, 10, 14.6, 17800),
+    (v_chart, 10, 18.2, 18100),
+    (v_chart, 10, 21.8, 18200),
+    (v_chart, 10, 25.4, 18100),
+    (v_chart, 10, 28.9, 17000),
+    (v_chart, 10, 32.5, 15700),
+    (v_chart, 10, 36.1, 14200),
+    (v_chart, 10, 39.7, 12200),
+    (v_chart, 10, 43.3, 9700),
+    (v_chart, 10, 46.9, 7800),
+    (v_chart, 10, 50, 6600),
+    (v_chart, 12, 14.6, 13400),
+    (v_chart, 12, 18.2, 13900),
+    (v_chart, 12, 21.8, 13900),
+    (v_chart, 12, 25.4, 13800),
+    (v_chart, 12, 28.9, 13400),
+    (v_chart, 12, 32.5, 13100),
+    (v_chart, 12, 36.1, 12400),
+    (v_chart, 12, 39.7, 11100),
+    (v_chart, 12, 43.3, 9100),
+    (v_chart, 12, 46.9, 7500),
+    (v_chart, 12, 50, 6500),
+    (v_chart, 14, 18.2, 10800),
+    (v_chart, 14, 21.8, 11000),
+    (v_chart, 14, 25.4, 11000),
+    (v_chart, 14, 28.9, 10900),
+    (v_chart, 14, 32.5, 10700),
+    (v_chart, 14, 36.1, 10400),
+    (v_chart, 14, 39.7, 9700),
+    (v_chart, 14, 43.3, 8400),
+    (v_chart, 14, 46.9, 7100),
+    (v_chart, 14, 50, 6200),
+    (v_chart, 16, 18.2, 8700),
+    (v_chart, 16, 21.8, 8900),
+    (v_chart, 16, 25.4, 8900),
+    (v_chart, 16, 28.9, 8900),
+    (v_chart, 16, 32.5, 8800),
+    (v_chart, 16, 36.1, 8600),
+    (v_chart, 16, 39.7, 8000),
+    (v_chart, 16, 43.3, 7700),
+    (v_chart, 16, 46.9, 6600),
+    (v_chart, 16, 50, 5900),
+    (v_chart, 18, 21.8, 7400),
+    (v_chart, 18, 25.4, 7500),
+    (v_chart, 18, 28.9, 7400),
+    (v_chart, 18, 32.5, 7400),
+    (v_chart, 18, 36.1, 7200),
+    (v_chart, 18, 39.7, 7200),
+    (v_chart, 18, 43.3, 6600),
+    (v_chart, 18, 46.9, 6100),
+    (v_chart, 18, 50, 5500),
+    (v_chart, 20, 25.4, 6400),
+    (v_chart, 20, 28.9, 6200),
+    (v_chart, 20, 32.5, 6300),
+    (v_chart, 20, 36.1, 6200),
+    (v_chart, 20, 39.7, 6000),
+    (v_chart, 20, 43.3, 5700),
+    (v_chart, 20, 46.9, 5500),
+    (v_chart, 20, 50, 5100),
+    (v_chart, 22, 25.4, 5400),
+    (v_chart, 22, 28.9, 5400),
+    (v_chart, 22, 32.5, 5400),
+    (v_chart, 22, 36.1, 5300),
+    (v_chart, 22, 39.7, 5000),
+    (v_chart, 22, 43.3, 5100),
+    (v_chart, 22, 46.9, 4800),
+    (v_chart, 22, 50, 4600),
+    (v_chart, 24, 28.9, 4800),
+    (v_chart, 24, 32.5, 4700),
+    (v_chart, 24, 36.1, 4600),
+    (v_chart, 24, 39.7, 4500),
+    (v_chart, 24, 43.3, 4300),
+    (v_chart, 24, 46.9, 4000),
+    (v_chart, 24, 50, 3900),
+    (v_chart, 26, 28.9, 4200),
+    (v_chart, 26, 32.5, 4100),
+    (v_chart, 26, 36.1, 4000),
+    (v_chart, 26, 39.7, 3900),
+    (v_chart, 26, 43.3, 3700),
+    (v_chart, 26, 46.9, 3400),
+    (v_chart, 26, 50, 3400),
+    (v_chart, 28, 32.5, 3600),
+    (v_chart, 28, 36.1, 3500),
+    (v_chart, 28, 39.7, 3400),
+    (v_chart, 28, 43.3, 3200),
+    (v_chart, 28, 46.9, 2900),
+    (v_chart, 28, 50, 2900),
+    (v_chart, 30, 32.5, 3100),
+    (v_chart, 30, 36.1, 3000),
+    (v_chart, 30, 39.7, 2900),
+    (v_chart, 30, 43.3, 2700),
+    (v_chart, 30, 46.9, 2500),
+    (v_chart, 30, 50, 2500),
+    (v_chart, 32, 36.1, 2600),
+    (v_chart, 32, 39.7, 2500),
+    (v_chart, 32, 43.3, 2300),
+    (v_chart, 32, 46.9, 2100),
+    (v_chart, 32, 50, 2100),
+    (v_chart, 34, 39.7, 2100),
+    (v_chart, 34, 43.3, 2000),
+    (v_chart, 34, 46.9, 1700),
+    (v_chart, 34, 50, 1700),
+    (v_chart, 36, 39.7, 1800),
+    (v_chart, 36, 43.3, 1700),
+    (v_chart, 36, 46.9, 1400),
+    (v_chart, 36, 50, 1400),
+    (v_chart, 38, 43.3, 1400),
+    (v_chart, 38, 46.9, 1100),
+    (v_chart, 38, 50, 1200),
+    (v_chart, 40, 43.3, 1200),
+    (v_chart, 40, 46.9, 900),
+    (v_chart, 40, 50, 900);
+  -- configuration flechette-9-5m-0deg
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'flechette-9-5m-0deg';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique + fléchette 9,5 m à 0°, calage sorti, 360°, contrepoids 14,5 t', '{"longueur_fleche_m":"11 - 50","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":true,"longueur_flechette_m":9.5,"angle_flechette_deg":0,"categorie":"grue mobile sur pneus","slug":"flechette-9-5m-0deg"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « EN » seul (référence EN 13000 non écrite). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Tableau p. 5 (2 blocs) : seule la colonne 0° des 12 longueurs (11 à 50 m) est saisie = 6 x 23 portées (3-36 m) + 6 x 24 portées (4,5-44 m) = 282 cellules. Angles 20°/40°/60° non saisis. Diff intégral : 47 lignes x 24 colonnes (toutes colonnes imprimées), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : e343332cec6510aa27c6628a0b2edb0d2e32c533d1fbac6272dfd2256badc226') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique + fléchette 9,5 m à 0°, calage sorti, 360°, contrepoids 14,5 t', params = '{"longueur_fleche_m":"11 - 50","contrepoids_t":14.5,"zone":"360°","base_calage_mm":null,"flechette":true,"longueur_flechette_m":9.5,"angle_flechette_deg":0,"categorie":"grue mobile sur pneus","slug":"flechette-9-5m-0deg"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « EN » seul (référence EN 13000 non écrite). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Tableau p. 5 (2 blocs) : seule la colonne 0° des 12 longueurs (11 à 50 m) est saisie = 6 x 23 portées (3-36 m) + 6 x 24 portées (4,5-44 m) = 282 cellules. Angles 20°/40°/60° non saisis. Diff intégral : 47 lignes x 24 colonnes (toutes colonnes imprimées), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue. | Pages : p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : e343332cec6510aa27c6628a0b2edb0d2e32c533d1fbac6272dfd2256badc226', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN (picto imprimé « EN »)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN (picto imprimé « EN »)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 11, 11400),
+    (v_chart, 3, 14.6, 11400),
+    (v_chart, 3, 18.2, 11400),
+    (v_chart, 3, 21.8, 11400),
+    (v_chart, 3, 25.4, 11400),
+    (v_chart, 3.5, 11, 11400),
+    (v_chart, 3.5, 14.6, 11400),
+    (v_chart, 3.5, 18.2, 11400),
+    (v_chart, 3.5, 21.8, 11400),
+    (v_chart, 3.5, 25.4, 11400),
+    (v_chart, 3.5, 28.9, 11400),
+    (v_chart, 4, 11, 11400),
+    (v_chart, 4, 14.6, 11400),
+    (v_chart, 4, 18.2, 11400),
+    (v_chart, 4, 21.8, 11400),
+    (v_chart, 4, 25.4, 11400),
+    (v_chart, 4, 28.9, 11400),
+    (v_chart, 4.5, 11, 11400),
+    (v_chart, 4.5, 14.6, 11400),
+    (v_chart, 4.5, 18.2, 11400),
+    (v_chart, 4.5, 21.8, 11400),
+    (v_chart, 4.5, 25.4, 11400),
+    (v_chart, 4.5, 28.9, 11400),
+    (v_chart, 5, 11, 11400),
+    (v_chart, 5, 14.6, 11400),
+    (v_chart, 5, 18.2, 11400),
+    (v_chart, 5, 21.8, 11400),
+    (v_chart, 5, 25.4, 11400),
+    (v_chart, 5, 28.9, 11400),
+    (v_chart, 6, 11, 11300),
+    (v_chart, 6, 14.6, 11400),
+    (v_chart, 6, 18.2, 11400),
+    (v_chart, 6, 21.8, 11400),
+    (v_chart, 6, 25.4, 11400),
+    (v_chart, 6, 28.9, 11400),
+    (v_chart, 7, 11, 10800),
+    (v_chart, 7, 14.6, 11400),
+    (v_chart, 7, 18.2, 11400),
+    (v_chart, 7, 21.8, 11400),
+    (v_chart, 7, 25.4, 11400),
+    (v_chart, 7, 28.9, 11200),
+    (v_chart, 8, 11, 10100),
+    (v_chart, 8, 14.6, 11100),
+    (v_chart, 8, 18.2, 11400),
+    (v_chart, 8, 21.8, 11200),
+    (v_chart, 8, 25.4, 11400),
+    (v_chart, 8, 28.9, 11000),
+    (v_chart, 9, 11, 9400),
+    (v_chart, 9, 14.6, 10500),
+    (v_chart, 9, 18.2, 11300),
+    (v_chart, 9, 21.8, 11000),
+    (v_chart, 9, 25.4, 11200),
+    (v_chart, 9, 28.9, 10800),
+    (v_chart, 10, 11, 8700),
+    (v_chart, 10, 14.6, 9900),
+    (v_chart, 10, 18.2, 10800),
+    (v_chart, 10, 21.8, 10700),
+    (v_chart, 10, 25.4, 10900),
+    (v_chart, 10, 28.9, 10600),
+    (v_chart, 12, 11, 7000),
+    (v_chart, 12, 14.6, 8600),
+    (v_chart, 12, 18.2, 9600),
+    (v_chart, 12, 21.8, 10000),
+    (v_chart, 12, 25.4, 10200),
+    (v_chart, 12, 28.9, 9900),
+    (v_chart, 14, 11, 5800),
+    (v_chart, 14, 14.6, 7300),
+    (v_chart, 14, 18.2, 8400),
+    (v_chart, 14, 21.8, 8900),
+    (v_chart, 14, 25.4, 9400),
+    (v_chart, 14, 28.9, 9200),
+    (v_chart, 16, 11, 4900),
+    (v_chart, 16, 14.6, 6100),
+    (v_chart, 16, 18.2, 7300),
+    (v_chart, 16, 21.8, 8000),
+    (v_chart, 16, 25.4, 8300),
+    (v_chart, 16, 28.9, 8300),
+    (v_chart, 18, 11, 4300),
+    (v_chart, 18, 14.6, 5200),
+    (v_chart, 18, 18.2, 6300),
+    (v_chart, 18, 21.8, 7100),
+    (v_chart, 18, 25.4, 6800),
+    (v_chart, 18, 28.9, 7000),
+    (v_chart, 20, 14.6, 4600),
+    (v_chart, 20, 18.2, 5500),
+    (v_chart, 20, 21.8, 5900),
+    (v_chart, 20, 25.4, 5600),
+    (v_chart, 20, 28.9, 5900),
+    (v_chart, 22, 18.2, 4900),
+    (v_chart, 22, 21.8, 5000),
+    (v_chart, 22, 25.4, 4700),
+    (v_chart, 22, 28.9, 4900),
+    (v_chart, 24, 18.2, 4400),
+    (v_chart, 24, 21.8, 4200),
+    (v_chart, 24, 25.4, 3900),
+    (v_chart, 24, 28.9, 4100),
+    (v_chart, 26, 21.8, 3600),
+    (v_chart, 26, 25.4, 3200),
+    (v_chart, 26, 28.9, 3500),
+    (v_chart, 28, 21.8, 3000),
+    (v_chart, 28, 25.4, 2600),
+    (v_chart, 28, 28.9, 2900),
+    (v_chart, 30, 25.4, 2200),
+    (v_chart, 30, 28.9, 2400),
+    (v_chart, 32, 25.4, 1800),
+    (v_chart, 32, 28.9, 2000),
+    (v_chart, 34, 28.9, 1700),
+    (v_chart, 36, 28.9, 1400),
+    (v_chart, 4.5, 32.5, 11000),
+    (v_chart, 5, 32.5, 10900),
+    (v_chart, 5, 36.1, 8000),
+    (v_chart, 6, 32.5, 10700),
+    (v_chart, 6, 36.1, 7900),
+    (v_chart, 6, 39.7, 6900),
+    (v_chart, 7, 32.5, 10500),
+    (v_chart, 7, 36.1, 7700),
+    (v_chart, 7, 39.7, 6800),
+    (v_chart, 7, 43.3, 4700),
+    (v_chart, 7, 46.9, 4200),
+    (v_chart, 8, 32.5, 10300),
+    (v_chart, 8, 36.1, 7500),
+    (v_chart, 8, 39.7, 6600),
+    (v_chart, 8, 43.3, 4700),
+    (v_chart, 8, 46.9, 4200),
+    (v_chart, 8, 50, 3600),
+    (v_chart, 9, 32.5, 10100),
+    (v_chart, 9, 36.1, 7300),
+    (v_chart, 9, 39.7, 6500),
+    (v_chart, 9, 43.3, 4700),
+    (v_chart, 9, 46.9, 4200),
+    (v_chart, 9, 50, 3500),
+    (v_chart, 10, 32.5, 9900),
+    (v_chart, 10, 36.1, 7200),
+    (v_chart, 10, 39.7, 6300),
+    (v_chart, 10, 43.3, 4700),
+    (v_chart, 10, 46.9, 4100),
+    (v_chart, 10, 50, 3500),
+    (v_chart, 12, 32.5, 9400),
+    (v_chart, 12, 36.1, 6900),
+    (v_chart, 12, 39.7, 6100),
+    (v_chart, 12, 43.3, 4500),
+    (v_chart, 12, 46.9, 4100),
+    (v_chart, 12, 50, 3400),
+    (v_chart, 14, 32.5, 8900),
+    (v_chart, 14, 36.1, 6500),
+    (v_chart, 14, 39.7, 5800),
+    (v_chart, 14, 43.3, 4400),
+    (v_chart, 14, 46.9, 4000),
+    (v_chart, 14, 50, 3400),
+    (v_chart, 16, 32.5, 7700),
+    (v_chart, 16, 36.1, 6100),
+    (v_chart, 16, 39.7, 5600),
+    (v_chart, 16, 43.3, 4200),
+    (v_chart, 16, 46.9, 3800),
+    (v_chart, 16, 50, 3300),
+    (v_chart, 18, 32.5, 6400),
+    (v_chart, 18, 36.1, 5600),
+    (v_chart, 18, 39.7, 5300),
+    (v_chart, 18, 43.3, 4000),
+    (v_chart, 18, 46.9, 3700),
+    (v_chart, 18, 50, 3200),
+    (v_chart, 20, 32.5, 5400),
+    (v_chart, 20, 36.1, 5200),
+    (v_chart, 20, 39.7, 5000),
+    (v_chart, 20, 43.3, 3800),
+    (v_chart, 20, 46.9, 3600),
+    (v_chart, 20, 50, 3100),
+    (v_chart, 22, 32.5, 4700),
+    (v_chart, 22, 36.1, 4700),
+    (v_chart, 22, 39.7, 4300),
+    (v_chart, 22, 43.3, 3500),
+    (v_chart, 22, 46.9, 3400),
+    (v_chart, 22, 50, 3000),
+    (v_chart, 24, 32.5, 4300),
+    (v_chart, 24, 36.1, 4100),
+    (v_chart, 24, 39.7, 3600),
+    (v_chart, 24, 43.3, 3300),
+    (v_chart, 24, 46.9, 3200),
+    (v_chart, 24, 50, 2900),
+    (v_chart, 26, 32.5, 3700),
+    (v_chart, 26, 36.1, 3400),
+    (v_chart, 26, 39.7, 3100),
+    (v_chart, 26, 43.3, 3100),
+    (v_chart, 26, 46.9, 3000),
+    (v_chart, 26, 50, 2800),
+    (v_chart, 28, 32.5, 3100),
+    (v_chart, 28, 36.1, 2900),
+    (v_chart, 28, 39.7, 2800),
+    (v_chart, 28, 43.3, 2900),
+    (v_chart, 28, 46.9, 2500),
+    (v_chart, 28, 50, 2400),
+    (v_chart, 30, 32.5, 2600),
+    (v_chart, 30, 36.1, 2400),
+    (v_chart, 30, 39.7, 2600),
+    (v_chart, 30, 43.3, 2400),
+    (v_chart, 30, 46.9, 2100),
+    (v_chart, 30, 50, 2000),
+    (v_chart, 32, 32.5, 2200),
+    (v_chart, 32, 36.1, 2000),
+    (v_chart, 32, 39.7, 2200),
+    (v_chart, 32, 43.3, 2000),
+    (v_chart, 32, 46.9, 1700),
+    (v_chart, 32, 50, 1600),
+    (v_chart, 34, 32.5, 1900),
+    (v_chart, 34, 36.1, 1700),
+    (v_chart, 34, 39.7, 1900),
+    (v_chart, 34, 43.3, 1700),
+    (v_chart, 34, 46.9, 1400),
+    (v_chart, 34, 50, 1300),
+    (v_chart, 36, 32.5, 1600),
+    (v_chart, 36, 36.1, 1300),
+    (v_chart, 36, 39.7, 1600),
+    (v_chart, 36, 43.3, 1400),
+    (v_chart, 36, 46.9, 1100),
+    (v_chart, 36, 50, 1000),
+    (v_chart, 38, 32.5, 1300),
+    (v_chart, 38, 36.1, 1100),
+    (v_chart, 38, 39.7, 1300),
+    (v_chart, 38, 43.3, 1100),
+    (v_chart, 38, 46.9, 800),
+    (v_chart, 38, 50, 800),
+    (v_chart, 40, 36.1, 800),
+    (v_chart, 40, 39.7, 1000),
+    (v_chart, 40, 43.3, 900),
+    (v_chart, 40, 46.9, 600),
+    (v_chart, 42, 36.1, 600),
+    (v_chart, 42, 39.7, 800),
+    (v_chart, 42, 43.3, 600),
+    (v_chart, 44, 39.7, 600);
+end $charts$;
+
+-- liebherr-ltm-1090-4-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1090-4.1 – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)'
+    and reference is not distinct from '90T-LIEBHERR LTM 1090-4.1.pdf (sha256 c7e9472d0d5f1dae)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1090-4.1 – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)', '90T-LIEBHERR LTM 1090-4.1.pdf (sha256 c7e9472d0d5f1dae)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1090-4.1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1090-4.1', null, '{"capacite_max_t":90,"contrepoids_t":21,"fleche_telescopique_m":"11,1 - 50"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":90,"contrepoids_t":21,"fleche_telescopique_m":"11,1 - 50"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw21t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw21t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 11,1-50 m, 360°, contrepoids 21 t', '{"longueur_fleche_m":"11,1 - 50","contrepoids_t":21,"base_calage_m":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw21t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l''utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 11,1-50 m / 360° / 21 t / DIN ISO). 12 colonnes de flèche (11,1 à 50 m) x 29 lignes de portée (3 à 46 m) ; 192 valeurs ; cellules vides du tableau non saisies. EXCLUE : la sous-colonne « * » de la colonne 11,1 m (« * en arrière » = secteur restreint arrière, incompatible avec 360°) ; la sous-colonne normale 11,1 m est saisie. Base de calage non cotée sur le tableau (pictogramme seulement ; null). Pas de donnée crochet/moufle (hook_block_mass_kg = null). Norme imprimée « DIN ISO » (non précisée). Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; sous-colonne « * » de 11,1 m bien exclue. | Pages : p. 3 : tableau « Flèche principale », 11,1-50 m / 360° / 21 t / DIN ISO. PDF sha256:c7e9472d0d5f1daeea8acb38c70efdf486729f723c2e16383bcddc73dda63952') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 11,1-50 m, 360°, contrepoids 21 t', params = '{"longueur_fleche_m":"11,1 - 50","contrepoids_t":21,"base_calage_m":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw21t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Fiche loueur fournie par l''utilisateur (PDF non copié dans le dépôt). Tableau p. 3 (pictos : 11,1-50 m / 360° / 21 t / DIN ISO). 12 colonnes de flèche (11,1 à 50 m) x 29 lignes de portée (3 à 46 m) ; 192 valeurs ; cellules vides du tableau non saisies. EXCLUE : la sous-colonne « * » de la colonne 11,1 m (« * en arrière » = secteur restreint arrière, incompatible avec 360°) ; la sous-colonne normale 11,1 m est saisie. Base de calage non cotée sur le tableau (pictogramme seulement ; null). Pas de donnée crochet/moufle (hook_block_mass_kg = null). Norme imprimée « DIN ISO » (non précisée). Contrôle : extraction A pdfplumber, extraction B poppler pdftotext -bbox, diff intégral 0 écart ; relecture visuelle du rendu PNG. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; sous-colonne « * » de 11,1 m bien exclue. | Pages : p. 3 : tableau « Flèche principale », 11,1-50 m / 360° / 21 t / DIN ISO. PDF sha256:c7e9472d0d5f1daeea8acb38c70efdf486729f723c2e16383bcddc73dda63952', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN / ISO', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN / ISO', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 11.1, 67000),
+    (v_chart, 3.5, 11.1, 62000),
+    (v_chart, 4, 11.1, 57000),
+    (v_chart, 4.5, 11.1, 52000),
+    (v_chart, 5, 11.1, 48500),
+    (v_chart, 6, 11.1, 42000),
+    (v_chart, 7, 11.1, 36500),
+    (v_chart, 8, 11.1, 31500),
+    (v_chart, 9, 11.1, 27300),
+    (v_chart, 3, 14.7, 63000),
+    (v_chart, 3.5, 14.7, 62000),
+    (v_chart, 4, 14.7, 57000),
+    (v_chart, 4.5, 14.7, 53000),
+    (v_chart, 5, 14.7, 49000),
+    (v_chart, 6, 14.7, 42500),
+    (v_chart, 7, 14.7, 37000),
+    (v_chart, 8, 14.7, 32000),
+    (v_chart, 9, 14.7, 28100),
+    (v_chart, 10, 14.7, 24800),
+    (v_chart, 11, 14.7, 21900),
+    (v_chart, 12, 14.7, 19400),
+    (v_chart, 3, 18.3, 63000),
+    (v_chart, 3.5, 18.3, 61000),
+    (v_chart, 4, 18.3, 57000),
+    (v_chart, 4.5, 18.3, 53000),
+    (v_chart, 5, 18.3, 49000),
+    (v_chart, 6, 18.3, 42500),
+    (v_chart, 7, 18.3, 37000),
+    (v_chart, 8, 18.3, 32500),
+    (v_chart, 9, 18.3, 28300),
+    (v_chart, 10, 18.3, 25000),
+    (v_chart, 11, 18.3, 22200),
+    (v_chart, 12, 18.3, 19900),
+    (v_chart, 14, 18.3, 15800),
+    (v_chart, 16, 18.3, 12900),
+    (v_chart, 3.5, 21.9, 53000),
+    (v_chart, 4, 21.9, 52000),
+    (v_chart, 4.5, 21.9, 50000),
+    (v_chart, 5, 21.9, 48000),
+    (v_chart, 6, 21.9, 42500),
+    (v_chart, 7, 21.9, 37500),
+    (v_chart, 8, 21.9, 32000),
+    (v_chart, 9, 21.9, 28300),
+    (v_chart, 10, 21.9, 24900),
+    (v_chart, 11, 21.9, 22400),
+    (v_chart, 12, 21.9, 20100),
+    (v_chart, 14, 21.9, 15900),
+    (v_chart, 16, 21.9, 13000),
+    (v_chart, 18, 21.9, 10900),
+    (v_chart, 4, 25.4, 42500),
+    (v_chart, 4.5, 25.4, 41500),
+    (v_chart, 5, 25.4, 40500),
+    (v_chart, 6, 25.4, 38500),
+    (v_chart, 7, 25.4, 36500),
+    (v_chart, 8, 25.4, 31500),
+    (v_chart, 9, 25.4, 28300),
+    (v_chart, 10, 25.4, 25000),
+    (v_chart, 11, 25.4, 22200),
+    (v_chart, 12, 25.4, 19900),
+    (v_chart, 14, 25.4, 15700),
+    (v_chart, 16, 25.4, 12800),
+    (v_chart, 18, 25.4, 10700),
+    (v_chart, 20, 25.4, 9100),
+    (v_chart, 22, 25.4, 7900),
+    (v_chart, 4.5, 29, 34000),
+    (v_chart, 5, 29, 33500),
+    (v_chart, 6, 29, 32000),
+    (v_chart, 7, 29, 30500),
+    (v_chart, 8, 29, 29400),
+    (v_chart, 9, 29, 26800),
+    (v_chart, 10, 29, 23600),
+    (v_chart, 11, 29, 21000),
+    (v_chart, 12, 29, 18800),
+    (v_chart, 14, 29, 15400),
+    (v_chart, 16, 29, 12500),
+    (v_chart, 18, 29, 11100),
+    (v_chart, 20, 29, 9500),
+    (v_chart, 22, 29, 8200),
+    (v_chart, 24, 29, 7100),
+    (v_chart, 26, 29, 6300),
+    (v_chart, 5, 32.6, 27300),
+    (v_chart, 6, 32.6, 26400),
+    (v_chart, 7, 32.6, 25400),
+    (v_chart, 8, 32.6, 24000),
+    (v_chart, 9, 32.6, 22300),
+    (v_chart, 10, 32.6, 20500),
+    (v_chart, 11, 32.6, 19000),
+    (v_chart, 12, 32.6, 17700),
+    (v_chart, 14, 32.6, 15000),
+    (v_chart, 16, 32.6, 13000),
+    (v_chart, 18, 32.6, 10800),
+    (v_chart, 20, 32.6, 9200),
+    (v_chart, 22, 32.6, 7900),
+    (v_chart, 24, 32.6, 7100),
+    (v_chart, 26, 32.6, 6300),
+    (v_chart, 28, 32.6, 5700),
+    (v_chart, 30, 32.6, 5100),
+    (v_chart, 6, 36.2, 22500),
+    (v_chart, 7, 36.2, 22100),
+    (v_chart, 8, 36.2, 21200),
+    (v_chart, 9, 36.2, 19900),
+    (v_chart, 10, 36.2, 18600),
+    (v_chart, 11, 36.2, 17400),
+    (v_chart, 12, 36.2, 16300),
+    (v_chart, 14, 36.2, 14100),
+    (v_chart, 16, 36.2, 11800),
+    (v_chart, 18, 36.2, 10500),
+    (v_chart, 20, 36.2, 8900),
+    (v_chart, 22, 36.2, 8100),
+    (v_chart, 24, 36.2, 7000),
+    (v_chart, 26, 36.2, 6200),
+    (v_chart, 28, 36.2, 5500),
+    (v_chart, 30, 36.2, 4900),
+    (v_chart, 32, 36.2, 4600),
+    (v_chart, 34, 36.2, 4100),
+    (v_chart, 7, 39.7, 17700),
+    (v_chart, 8, 39.7, 17500),
+    (v_chart, 9, 39.7, 16900),
+    (v_chart, 10, 39.7, 16100),
+    (v_chart, 11, 39.7, 15200),
+    (v_chart, 12, 39.7, 14400),
+    (v_chart, 14, 39.7, 12900),
+    (v_chart, 16, 39.7, 11600),
+    (v_chart, 18, 39.7, 10000),
+    (v_chart, 20, 39.7, 8600),
+    (v_chart, 22, 39.7, 7700),
+    (v_chart, 24, 39.7, 6800),
+    (v_chart, 26, 39.7, 6100),
+    (v_chart, 28, 39.7, 5500),
+    (v_chart, 30, 39.7, 4900),
+    (v_chart, 32, 39.7, 4400),
+    (v_chart, 34, 39.7, 3900),
+    (v_chart, 36, 39.7, 3500),
+    (v_chart, 8, 43.3, 14000),
+    (v_chart, 9, 43.3, 13800),
+    (v_chart, 10, 43.3, 13400),
+    (v_chart, 11, 43.3, 12800),
+    (v_chart, 12, 43.3, 12200),
+    (v_chart, 14, 43.3, 11100),
+    (v_chart, 16, 43.3, 10200),
+    (v_chart, 18, 43.3, 9300),
+    (v_chart, 20, 43.3, 8600),
+    (v_chart, 22, 43.3, 7500),
+    (v_chart, 24, 43.3, 6500),
+    (v_chart, 26, 43.3, 5900),
+    (v_chart, 28, 43.3, 5400),
+    (v_chart, 30, 43.3, 4800),
+    (v_chart, 32, 43.3, 4200),
+    (v_chart, 34, 43.3, 3800),
+    (v_chart, 36, 43.3, 3300),
+    (v_chart, 38, 43.3, 2900),
+    (v_chart, 40, 43.3, 2600),
+    (v_chart, 9, 46.9, 10900),
+    (v_chart, 10, 46.9, 10700),
+    (v_chart, 11, 46.9, 10400),
+    (v_chart, 12, 46.9, 10100),
+    (v_chart, 14, 46.9, 9500),
+    (v_chart, 16, 46.9, 8800),
+    (v_chart, 18, 46.9, 8100),
+    (v_chart, 20, 46.9, 7500),
+    (v_chart, 22, 46.9, 7000),
+    (v_chart, 24, 46.9, 6500),
+    (v_chart, 26, 46.9, 5900),
+    (v_chart, 28, 46.9, 5100),
+    (v_chart, 30, 46.9, 4400),
+    (v_chart, 32, 46.9, 3900),
+    (v_chart, 34, 46.9, 3500),
+    (v_chart, 36, 46.9, 3100),
+    (v_chart, 38, 46.9, 2700),
+    (v_chart, 40, 46.9, 2300),
+    (v_chart, 42, 46.9, 2000),
+    (v_chart, 44, 46.9, 1800),
+    (v_chart, 10, 50, 9000),
+    (v_chart, 11, 50, 9000),
+    (v_chart, 12, 50, 8800),
+    (v_chart, 14, 50, 8300),
+    (v_chart, 16, 50, 7800),
+    (v_chart, 18, 50, 7200),
+    (v_chart, 20, 50, 6700),
+    (v_chart, 22, 50, 6200),
+    (v_chart, 24, 50, 5800),
+    (v_chart, 26, 50, 5400),
+    (v_chart, 28, 50, 5100),
+    (v_chart, 30, 50, 4400),
+    (v_chart, 32, 50, 3900),
+    (v_chart, 34, 50, 3400),
+    (v_chart, 36, 50, 3000),
+    (v_chart, 38, 50, 2700),
+    (v_chart, 40, 50, 2300),
+    (v_chart, 42, 50, 2000),
+    (v_chart, 44, 50, 1800),
+    (v_chart, 46, 50, 1500);
+end $charts$;
+
+-- liebherr-ltm-1100-4-2
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1100-4.2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)'
+    and reference is not distinct from '100T-LIEBHERR LTM 1100-4.2.pdf ; sha256:bc8f2e6de2d6c9e0' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1100-4.2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)', '100T-LIEBHERR LTM 1100-4.2.pdf ; sha256:bc8f2e6de2d6c9e0', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1100-4.2');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1100-4.2', null, '{"capacite_max_t":100,"contrepoids_t":28.2,"fleche_principale_m":"11,5 - 60"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":100,"contrepoids_t":28.2,"fleche_principale_m":"11,5 - 60"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw28t2
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw28t2';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 11,5-60 m, 360°, contrepoids 28,2 t', '{"contrepoids_t":28.2,"zone":"360°","calage":"calage complet (pictogramme, cote non imprimée)","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw28t2"}'::jsonb, null, 'Tableau p. 3, 17 colonnes de flèche saisies (11,5 à 60 m) et 31 lignes de portée (3 à 50 m). Colonne 11,5 m : sous-colonne marquée * (« en arrière ») EXCLUE (secteur restreint, non 360°) ; sous-colonne sans astérisque saisie. Diff intégral : 314 cellules (dont colonne exclue), 0 écart (extraction pdfplumber par coordonnées + pdftotext -layout + lecture visuelle du rendu PNG). Tableaux flèche + extension (p. 5) non saisis : dimension angle de déport non représentable. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d''une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; sous-colonne « * » de 11,5 m bien exclue. | Pages : p. 3 : tableau flèche principale 11,5-60 m, 360°, contrepoids 28,2 t, pictogramme EN ; renvoi « * en arrière »') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 11,5-60 m, 360°, contrepoids 28,2 t', params = '{"contrepoids_t":28.2,"zone":"360°","calage":"calage complet (pictogramme, cote non imprimée)","flechette":false,"categorie":"grue mobile sur pneus","slug":"fleche-principale-360-cw28t2"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3, 17 colonnes de flèche saisies (11,5 à 60 m) et 31 lignes de portée (3 à 50 m). Colonne 11,5 m : sous-colonne marquée * (« en arrière ») EXCLUE (secteur restreint, non 360°) ; sous-colonne sans astérisque saisie. Diff intégral : 314 cellules (dont colonne exclue), 0 écart (extraction pdfplumber par coordonnées + pdftotext -layout + lecture visuelle du rendu PNG). Tableaux flèche + extension (p. 5) non saisis : dimension angle de déport non représentable. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l''utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d''une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; sous-colonne « * » de 11,5 m bien exclue. | Pages : p. 3 : tableau flèche principale 11,5-60 m, 360°, contrepoids 28,2 t, pictogramme EN ; renvoi « * en arrière »', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'EN 13000 (pictogramme « EN » imprimé)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'EN 13000 (pictogramme « EN » imprimé)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 11.5, 61400),
+    (v_chart, 3, 15.2, 61300),
+    (v_chart, 3, 18.9, 61300),
+    (v_chart, 3, 22.6, 61100),
+    (v_chart, 3.5, 11.5, 59600),
+    (v_chart, 3.5, 15.2, 59500),
+    (v_chart, 3.5, 18.9, 59400),
+    (v_chart, 3.5, 22.6, 59400),
+    (v_chart, 3.5, 26.3, 59100),
+    (v_chart, 4, 11.5, 56800),
+    (v_chart, 4, 15.2, 57000),
+    (v_chart, 4, 18.9, 56800),
+    (v_chart, 4, 22.6, 56800),
+    (v_chart, 4, 26.3, 56400),
+    (v_chart, 4, 30.1, 49000),
+    (v_chart, 4.5, 11.5, 52500),
+    (v_chart, 4.5, 15.2, 52800),
+    (v_chart, 4.5, 18.9, 52900),
+    (v_chart, 4.5, 22.6, 52800),
+    (v_chart, 4.5, 26.3, 52800),
+    (v_chart, 4.5, 30.1, 48600),
+    (v_chart, 5, 11.5, 48500),
+    (v_chart, 5, 15.2, 48900),
+    (v_chart, 5, 18.9, 49000),
+    (v_chart, 5, 22.6, 49100),
+    (v_chart, 5, 26.3, 48900),
+    (v_chart, 5, 30.1, 47900),
+    (v_chart, 5, 33.8, 39900),
+    (v_chart, 6, 11.5, 42100),
+    (v_chart, 6, 15.2, 42700),
+    (v_chart, 6, 18.9, 43000),
+    (v_chart, 6, 22.6, 42900),
+    (v_chart, 6, 26.3, 42700),
+    (v_chart, 6, 30.1, 42300),
+    (v_chart, 6, 33.8, 40100),
+    (v_chart, 6, 37.5, 32800),
+    (v_chart, 7, 11.5, 37000),
+    (v_chart, 7, 15.2, 37600),
+    (v_chart, 7, 18.9, 38300),
+    (v_chart, 7, 22.6, 38400),
+    (v_chart, 7, 26.3, 38300),
+    (v_chart, 7, 30.1, 38000),
+    (v_chart, 7, 33.8, 37200),
+    (v_chart, 7, 37.5, 32600),
+    (v_chart, 7, 41.2, 26800),
+    (v_chart, 7, 45, 21800),
+    (v_chart, 8, 11.5, 32700),
+    (v_chart, 8, 15.2, 33600),
+    (v_chart, 8, 18.9, 34100),
+    (v_chart, 8, 22.6, 34300),
+    (v_chart, 8, 26.3, 34200),
+    (v_chart, 8, 30.1, 33800),
+    (v_chart, 8, 33.8, 33400),
+    (v_chart, 8, 37.5, 31900),
+    (v_chart, 8, 41.2, 26500),
+    (v_chart, 8, 45, 22100),
+    (v_chart, 9, 11.5, 29100),
+    (v_chart, 9, 15.2, 30100),
+    (v_chart, 9, 18.9, 30600),
+    (v_chart, 9, 22.6, 30700),
+    (v_chart, 9, 26.3, 30600),
+    (v_chart, 9, 30.1, 30300),
+    (v_chart, 9, 33.8, 29900),
+    (v_chart, 9, 37.5, 29000),
+    (v_chart, 9, 41.2, 26000),
+    (v_chart, 9, 45, 21900),
+    (v_chart, 9, 47.5, 15600),
+    (v_chart, 9, 48.7, 18200),
+    (v_chart, 10, 15.2, 26800),
+    (v_chart, 10, 18.9, 27400),
+    (v_chart, 10, 22.6, 27500),
+    (v_chart, 10, 26.3, 27400),
+    (v_chart, 10, 30.1, 27000),
+    (v_chart, 10, 33.8, 27000),
+    (v_chart, 10, 37.5, 26100),
+    (v_chart, 10, 41.2, 25000),
+    (v_chart, 10, 45, 21700),
+    (v_chart, 10, 47.5, 15200),
+    (v_chart, 10, 48.7, 18000),
+    (v_chart, 10, 51.9, 13400),
+    (v_chart, 10, 52.4, 15100),
+    (v_chart, 10, 55.6, 12000),
+    (v_chart, 10, 56.1, 12400),
+    (v_chart, 11, 15.2, 23900),
+    (v_chart, 11, 18.9, 24500),
+    (v_chart, 11, 22.6, 24600),
+    (v_chart, 11, 26.3, 24500),
+    (v_chart, 11, 30.1, 24200),
+    (v_chart, 11, 33.8, 24200),
+    (v_chart, 11, 37.5, 24000),
+    (v_chart, 11, 41.2, 23200),
+    (v_chart, 11, 45, 21100),
+    (v_chart, 11, 47.5, 14700),
+    (v_chart, 11, 48.7, 17900),
+    (v_chart, 11, 51.9, 13100),
+    (v_chart, 11, 52.4, 15000),
+    (v_chart, 11, 55.6, 11900),
+    (v_chart, 11, 56.1, 12300),
+    (v_chart, 11, 60, 10200),
+    (v_chart, 12, 15.2, 21500),
+    (v_chart, 12, 18.9, 22100),
+    (v_chart, 12, 22.6, 22200),
+    (v_chart, 12, 26.3, 22100),
+    (v_chart, 12, 30.1, 22200),
+    (v_chart, 12, 33.8, 22200),
+    (v_chart, 12, 37.5, 21900),
+    (v_chart, 12, 41.2, 21100),
+    (v_chart, 12, 45, 20000),
+    (v_chart, 12, 47.5, 14300),
+    (v_chart, 12, 48.7, 17500),
+    (v_chart, 12, 51.9, 12900),
+    (v_chart, 12, 52.4, 14900),
+    (v_chart, 12, 55.6, 11700),
+    (v_chart, 12, 56.1, 12200),
+    (v_chart, 12, 60, 10200),
+    (v_chart, 14, 18.9, 18300),
+    (v_chart, 14, 22.6, 18500),
+    (v_chart, 14, 26.3, 18300),
+    (v_chart, 14, 30.1, 18700),
+    (v_chart, 14, 33.8, 18400),
+    (v_chart, 14, 37.5, 18100),
+    (v_chart, 14, 41.2, 17700),
+    (v_chart, 14, 45, 17100),
+    (v_chart, 14, 47.5, 13300),
+    (v_chart, 14, 48.7, 16100),
+    (v_chart, 14, 51.9, 12200),
+    (v_chart, 14, 52.4, 14400),
+    (v_chart, 14, 55.6, 11400),
+    (v_chart, 14, 56.1, 12000),
+    (v_chart, 14, 60, 10000),
+    (v_chart, 16, 18.9, 15300),
+    (v_chart, 16, 22.6, 15500),
+    (v_chart, 16, 26.3, 15900),
+    (v_chart, 16, 30.1, 15800),
+    (v_chart, 16, 33.8, 15500),
+    (v_chart, 16, 37.5, 15500),
+    (v_chart, 16, 41.2, 15100),
+    (v_chart, 16, 45, 14700),
+    (v_chart, 16, 47.5, 12400),
+    (v_chart, 16, 48.7, 14100),
+    (v_chart, 16, 51.9, 11500),
+    (v_chart, 16, 52.4, 13200),
+    (v_chart, 16, 55.6, 10900),
+    (v_chart, 16, 56.1, 11600),
+    (v_chart, 16, 60, 9900),
+    (v_chart, 18, 22.6, 13100),
+    (v_chart, 18, 26.3, 13600),
+    (v_chart, 18, 30.1, 13400),
+    (v_chart, 18, 33.8, 13400),
+    (v_chart, 18, 37.5, 13300),
+    (v_chart, 18, 41.2, 13200),
+    (v_chart, 18, 45, 12700),
+    (v_chart, 18, 47.5, 11500),
+    (v_chart, 18, 48.7, 12100),
+    (v_chart, 18, 51.9, 10800),
+    (v_chart, 18, 52.4, 11700),
+    (v_chart, 18, 55.6, 10400),
+    (v_chart, 18, 56.1, 11000),
+    (v_chart, 18, 60, 9500),
+    (v_chart, 20, 22.6, 11600),
+    (v_chart, 20, 26.3, 11600),
+    (v_chart, 20, 30.1, 11400),
+    (v_chart, 20, 33.8, 11600),
+    (v_chart, 20, 37.5, 11300),
+    (v_chart, 20, 41.2, 11400),
+    (v_chart, 20, 45, 11300),
+    (v_chart, 20, 47.5, 10600),
+    (v_chart, 20, 48.7, 10700),
+    (v_chart, 20, 51.9, 10000),
+    (v_chart, 20, 52.4, 10200),
+    (v_chart, 20, 55.6, 9700),
+    (v_chart, 20, 56.1, 9400),
+    (v_chart, 20, 60, 8900),
+    (v_chart, 22, 26.3, 10000),
+    (v_chart, 22, 30.1, 10200),
+    (v_chart, 22, 33.8, 10100),
+    (v_chart, 22, 37.5, 10000),
+    (v_chart, 22, 41.2, 9900),
+    (v_chart, 22, 45, 9700),
+    (v_chart, 22, 47.5, 9600),
+    (v_chart, 22, 48.7, 9300),
+    (v_chart, 22, 51.9, 9200),
+    (v_chart, 22, 52.4, 8800),
+    (v_chart, 22, 55.6, 8600),
+    (v_chart, 22, 56.1, 8100),
+    (v_chart, 22, 60, 7800),
+    (v_chart, 24, 26.3, 8600),
+    (v_chart, 24, 30.1, 8900),
+    (v_chart, 24, 33.8, 8700),
+    (v_chart, 24, 37.5, 8800),
+    (v_chart, 24, 41.2, 8500),
+    (v_chart, 24, 45, 8400),
+    (v_chart, 24, 47.5, 8400),
+    (v_chart, 24, 48.7, 8100),
+    (v_chart, 24, 51.9, 8000),
+    (v_chart, 24, 52.4, 7600),
+    (v_chart, 24, 55.6, 7500),
+    (v_chart, 24, 56.1, 7000),
+    (v_chart, 24, 60, 6700),
+    (v_chart, 26, 30.1, 7900),
+    (v_chart, 26, 33.8, 7800),
+    (v_chart, 26, 37.5, 7700),
+    (v_chart, 26, 41.2, 7500),
+    (v_chart, 26, 45, 7300),
+    (v_chart, 26, 47.5, 7400),
+    (v_chart, 26, 48.7, 7000),
+    (v_chart, 26, 51.9, 7000),
+    (v_chart, 26, 52.4, 6700),
+    (v_chart, 26, 55.6, 6500),
+    (v_chart, 26, 56.1, 6000),
+    (v_chart, 26, 60, 5800),
+    (v_chart, 28, 33.8, 6800),
+    (v_chart, 28, 37.5, 6800),
+    (v_chart, 28, 41.2, 6600),
+    (v_chart, 28, 45, 6400),
+    (v_chart, 28, 47.5, 6400),
+    (v_chart, 28, 48.7, 6100),
+    (v_chart, 28, 51.9, 6200),
+    (v_chart, 28, 52.4, 5800),
+    (v_chart, 28, 55.6, 5700),
+    (v_chart, 28, 56.1, 5200),
+    (v_chart, 28, 60, 5000),
+    (v_chart, 30, 33.8, 6100),
+    (v_chart, 30, 37.5, 6000),
+    (v_chart, 30, 41.2, 5800),
+    (v_chart, 30, 45, 5600),
+    (v_chart, 30, 47.5, 5700),
+    (v_chart, 30, 48.7, 5300),
+    (v_chart, 30, 51.9, 5300),
+    (v_chart, 30, 52.4, 5000),
+    (v_chart, 30, 55.6, 5000),
+    (v_chart, 30, 56.1, 4500),
+    (v_chart, 30, 60, 4300),
+    (v_chart, 32, 37.5, 5300),
+    (v_chart, 32, 41.2, 5100),
+    (v_chart, 32, 45, 4900),
+    (v_chart, 32, 47.5, 5000),
+    (v_chart, 32, 48.7, 4600),
+    (v_chart, 32, 51.9, 4600),
+    (v_chart, 32, 52.4, 4300),
+    (v_chart, 32, 55.6, 4400),
+    (v_chart, 32, 56.1, 3900),
+    (v_chart, 32, 60, 3700),
+    (v_chart, 34, 37.5, 4800),
+    (v_chart, 34, 41.2, 4500),
+    (v_chart, 34, 45, 4300),
+    (v_chart, 34, 47.5, 4400),
+    (v_chart, 34, 48.7, 4000),
+    (v_chart, 34, 51.9, 4000),
+    (v_chart, 34, 52.4, 3700),
+    (v_chart, 34, 55.6, 3800),
+    (v_chart, 34, 56.1, 3300),
+    (v_chart, 34, 60, 3200),
+    (v_chart, 36, 41.2, 4000),
+    (v_chart, 36, 45, 3800),
+    (v_chart, 36, 47.5, 3800),
+    (v_chart, 36, 48.7, 3400),
+    (v_chart, 36, 51.9, 3500),
+    (v_chart, 36, 52.4, 3200),
+    (v_chart, 36, 55.6, 3200),
+    (v_chart, 36, 56.1, 2800),
+    (v_chart, 36, 60, 2700),
+    (v_chart, 38, 41.2, 3500),
+    (v_chart, 38, 45, 3300),
+    (v_chart, 38, 47.5, 3400),
+    (v_chart, 38, 48.7, 3000),
+    (v_chart, 38, 51.9, 3000),
+    (v_chart, 38, 52.4, 2700),
+    (v_chart, 38, 55.6, 2800),
+    (v_chart, 38, 56.1, 2300),
+    (v_chart, 38, 60, 2300),
+    (v_chart, 40, 45, 2900),
+    (v_chart, 40, 47.5, 2900),
+    (v_chart, 40, 48.7, 2500),
+    (v_chart, 40, 51.9, 2600),
+    (v_chart, 40, 52.4, 2300),
+    (v_chart, 40, 55.6, 2300),
+    (v_chart, 40, 56.1, 1900),
+    (v_chart, 40, 60, 1900),
+    (v_chart, 42, 45, 2500),
+    (v_chart, 42, 47.5, 2600),
+    (v_chart, 42, 48.7, 2200),
+    (v_chart, 42, 51.9, 2200),
+    (v_chart, 42, 52.4, 1900),
+    (v_chart, 42, 55.6, 2000),
+    (v_chart, 42, 56.1, 1500),
+    (v_chart, 42, 60, 1500),
+    (v_chart, 44, 47.5, 2200),
+    (v_chart, 44, 48.7, 1900),
+    (v_chart, 44, 51.9, 1900),
+    (v_chart, 44, 52.4, 1600),
+    (v_chart, 44, 55.6, 1600),
+    (v_chart, 44, 56.1, 1200),
+    (v_chart, 44, 60, 1200),
+    (v_chart, 46, 48.7, 1600),
+    (v_chart, 46, 51.9, 1600),
+    (v_chart, 46, 52.4, 1300),
+    (v_chart, 46, 55.6, 1300),
+    (v_chart, 46, 56.1, 900),
+    (v_chart, 46, 60, 900),
+    (v_chart, 48, 51.9, 1300),
+    (v_chart, 48, 52.4, 1000),
+    (v_chart, 48, 55.6, 1000),
+    (v_chart, 50, 52.4, 800),
+    (v_chart, 50, 55.6, 800);
+end $charts$;
+
+-- liebherr-ltm-1250-1
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR LTM 1250-1 – 250 tonnes – Capacité de levage (fiche FOSELEV)'
+    and reference is not distinct from '250T-LIEBHERR LTM 1250-1.pdf — sha256:7494d54bdbf938e0' and edition is not distinct from 'Catalogue FOSELEV, pages datées 31/03/11';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR LTM 1250-1 – 250 tonnes – Capacité de levage (fiche FOSELEV)', '250T-LIEBHERR LTM 1250-1.pdf — sha256:7494d54bdbf938e0', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1250-1');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'LTM 1250-1', null, '{"capacite_max_t":250,"fleche_telescopique_m":"15,5 - 72","contrepoids_tableaux_t":"97,5 / 72,5"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":250,"fleche_telescopique_m":"15,5 - 72","contrepoids_tableaux_t":"97,5 / 72,5"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration telescopique-360-cw97-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw97-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 15,5-72 m, calage, 360°, contrepoids 97,5 t', '{"longueur_fleche_m":"15,5 - 72","contrepoids_t":97.5,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw97-5t"}'::jsonb, null, 'Tableau du haut p. 3 du PDF (pictos flèche MAX de 15,5 à 72 m, calage, 97,5 t, 360°). Table entière : 10 colonnes de flèche x 24 lignes de portée (3 à 66 m) = 240 cellules, 137 valeurs, 103 vides. EXCLU : cellule 3 m / 15,5 m imprimée « 250* » — astérisque sans légende dans la fiche (habituellement secteur/équipement particulier) : laissée vide dans cette config 360°, à vérifier sur la doc constructeur. Mention « Egalement disponible en 25m900 & 41m500 de flèche principale » (pas de valeurs : non saisi). Diff intégral des deux passes : 240 cellules, 0 écart. Capacités croissant avec la portée/la longueur sur certaines cellules (ex. 12 m : 15,5 m < 20,7 m) : reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. Chute imprimée flèche 20,7 m : 49,5/45 t à 16 m puis 25,8 t à 18 m (fidèle à la fiche, à vérifier). | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 144 ») : Flèche principale 15,5-72 m, tableau du haut 97,5 t, tableau du bas 72,5 t ; p. 5 : Extension treillis ; p. 6-7 : Volée variable. PDF sha256:7494d54bdbf938e0e97b0547b17168a278a8e1e8930542f66f118feb9941742c') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 15,5-72 m, calage, 360°, contrepoids 97,5 t', params = '{"longueur_fleche_m":"15,5 - 72","contrepoids_t":97.5,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw97-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau du haut p. 3 du PDF (pictos flèche MAX de 15,5 à 72 m, calage, 97,5 t, 360°). Table entière : 10 colonnes de flèche x 24 lignes de portée (3 à 66 m) = 240 cellules, 137 valeurs, 103 vides. EXCLU : cellule 3 m / 15,5 m imprimée « 250* » — astérisque sans légende dans la fiche (habituellement secteur/équipement particulier) : laissée vide dans cette config 360°, à vérifier sur la doc constructeur. Mention « Egalement disponible en 25m900 & 41m500 de flèche principale » (pas de valeurs : non saisi). Diff intégral des deux passes : 240 cellules, 0 écart. Capacités croissant avec la portée/la longueur sur certaines cellules (ex. 12 m : 15,5 m < 20,7 m) : reproduites telles qu''imprimées. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. Chute imprimée flèche 20,7 m : 49,5/45 t à 16 m puis 25,8 t à 18 m (fidèle à la fiche, à vérifier). | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 144 ») : Flèche principale 15,5-72 m, tableau du haut 97,5 t, tableau du bas 72,5 t ; p. 5 : Extension treillis ; p. 6-7 : Volée variable. PDF sha256:7494d54bdbf938e0e97b0547b17168a278a8e1e8930542f66f118feb9941742c', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 4, 15.5, 157000),
+    (v_chart, 4, 20.7, 135000),
+    (v_chart, 6, 15.5, 123000),
+    (v_chart, 6, 20.7, 115000),
+    (v_chart, 6, 31.1, 86000),
+    (v_chart, 6, 36.3, 71000),
+    (v_chart, 8, 15.5, 101000),
+    (v_chart, 8, 20.7, 96000),
+    (v_chart, 8, 31.1, 82000),
+    (v_chart, 8, 36.3, 69000),
+    (v_chart, 8, 46.7, 43000),
+    (v_chart, 10, 15.5, 83000),
+    (v_chart, 10, 20.7, 83000),
+    (v_chart, 10, 31.1, 74000),
+    (v_chart, 10, 36.3, 65000),
+    (v_chart, 10, 46.7, 40500),
+    (v_chart, 10, 51.9, 33500),
+    (v_chart, 10, 57.1, 26200),
+    (v_chart, 12, 15.5, 63000),
+    (v_chart, 12, 20.7, 69000),
+    (v_chart, 12, 31.1, 65000),
+    (v_chart, 12, 36.3, 58000),
+    (v_chart, 12, 46.7, 37000),
+    (v_chart, 12, 51.9, 31500),
+    (v_chart, 12, 57.1, 26200),
+    (v_chart, 12, 62.3, 20700),
+    (v_chart, 12, 67.5, 17000),
+    (v_chart, 14, 20.7, 58000),
+    (v_chart, 14, 31.1, 57000),
+    (v_chart, 14, 36.3, 52000),
+    (v_chart, 14, 46.7, 33500),
+    (v_chart, 14, 51.9, 29200),
+    (v_chart, 14, 57.1, 24800),
+    (v_chart, 14, 62.3, 20600),
+    (v_chart, 14, 67.5, 16900),
+    (v_chart, 14, 72, 14000),
+    (v_chart, 16, 20.7, 49500),
+    (v_chart, 16, 31.1, 49000),
+    (v_chart, 16, 36.3, 46500),
+    (v_chart, 16, 46.7, 29900),
+    (v_chart, 16, 51.9, 26600),
+    (v_chart, 16, 57.1, 23300),
+    (v_chart, 16, 62.3, 19900),
+    (v_chart, 16, 67.5, 16800),
+    (v_chart, 16, 72, 14000),
+    (v_chart, 18, 20.7, 25800),
+    (v_chart, 18, 31.1, 42500),
+    (v_chart, 18, 36.3, 42500),
+    (v_chart, 18, 46.7, 27200),
+    (v_chart, 18, 51.9, 24300),
+    (v_chart, 18, 57.1, 21600),
+    (v_chart, 18, 62.3, 18900),
+    (v_chart, 18, 67.5, 16200),
+    (v_chart, 18, 72, 13900),
+    (v_chart, 20, 31.1, 37000),
+    (v_chart, 20, 36.3, 38000),
+    (v_chart, 20, 46.7, 25200),
+    (v_chart, 20, 51.9, 22100),
+    (v_chart, 20, 57.1, 19900),
+    (v_chart, 20, 62.3, 17700),
+    (v_chart, 20, 67.5, 15600),
+    (v_chart, 20, 72, 13500),
+    (v_chart, 22, 31.1, 32500),
+    (v_chart, 22, 36.3, 33500),
+    (v_chart, 22, 46.7, 23700),
+    (v_chart, 22, 51.9, 20000),
+    (v_chart, 22, 57.1, 18400),
+    (v_chart, 22, 62.3, 16500),
+    (v_chart, 22, 67.5, 14800),
+    (v_chart, 22, 72, 13100),
+    (v_chart, 24, 31.1, 28900),
+    (v_chart, 24, 36.3, 31000),
+    (v_chart, 24, 46.7, 22400),
+    (v_chart, 24, 51.9, 18400),
+    (v_chart, 24, 57.1, 17000),
+    (v_chart, 24, 62.3, 15400),
+    (v_chart, 24, 67.5, 14000),
+    (v_chart, 24, 72, 12400),
+    (v_chart, 26, 31.1, 25800),
+    (v_chart, 26, 36.3, 28400),
+    (v_chart, 26, 46.7, 21100),
+    (v_chart, 26, 51.9, 17200),
+    (v_chart, 26, 57.1, 15600),
+    (v_chart, 26, 62.3, 14400),
+    (v_chart, 26, 67.5, 13200),
+    (v_chart, 26, 72, 11700),
+    (v_chart, 28, 31.1, 21100),
+    (v_chart, 28, 36.3, 25700),
+    (v_chart, 28, 46.7, 20000),
+    (v_chart, 28, 51.9, 16000),
+    (v_chart, 28, 57.1, 14400),
+    (v_chart, 28, 62.3, 13400),
+    (v_chart, 28, 67.5, 12400),
+    (v_chart, 28, 72, 11000),
+    (v_chart, 30, 36.3, 23400),
+    (v_chart, 30, 46.7, 18900),
+    (v_chart, 30, 51.9, 15000),
+    (v_chart, 30, 57.1, 13300),
+    (v_chart, 30, 62.3, 12500),
+    (v_chart, 30, 67.5, 11700),
+    (v_chart, 30, 72, 10400),
+    (v_chart, 34, 46.7, 17400),
+    (v_chart, 34, 51.9, 13100),
+    (v_chart, 34, 57.1, 11700),
+    (v_chart, 34, 62.3, 10900),
+    (v_chart, 34, 67.5, 10300),
+    (v_chart, 34, 72, 9200),
+    (v_chart, 38, 46.7, 16200),
+    (v_chart, 38, 51.9, 12000),
+    (v_chart, 38, 57.1, 10300),
+    (v_chart, 38, 62.3, 9600),
+    (v_chart, 38, 67.5, 9100),
+    (v_chart, 38, 72, 8100),
+    (v_chart, 42, 46.7, 14300),
+    (v_chart, 42, 51.9, 11100),
+    (v_chart, 42, 57.1, 9200),
+    (v_chart, 42, 62.3, 8500),
+    (v_chart, 42, 67.5, 7900),
+    (v_chart, 42, 72, 7200),
+    (v_chart, 46, 51.9, 10200),
+    (v_chart, 46, 57.1, 8300),
+    (v_chart, 46, 62.3, 7700),
+    (v_chart, 46, 67.5, 6900),
+    (v_chart, 46, 72, 6300),
+    (v_chart, 50, 57.1, 7600),
+    (v_chart, 50, 62.3, 7000),
+    (v_chart, 50, 67.5, 6100),
+    (v_chart, 50, 72, 5500),
+    (v_chart, 54, 57.1, 6600),
+    (v_chart, 54, 62.3, 6400),
+    (v_chart, 54, 67.5, 5300),
+    (v_chart, 54, 72, 4900),
+    (v_chart, 58, 67.5, 4700),
+    (v_chart, 58, 72, 4300),
+    (v_chart, 62, 67.5, 4000),
+    (v_chart, 62, 72, 3700),
+    (v_chart, 66, 72, 3100);
+  -- configuration telescopique-360-cw72-5t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'telescopique-360-cw72-5t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche télescopique 15,5-72 m, calage, 360°, contrepoids 72,5 t', '{"longueur_fleche_m":"15,5 - 72","contrepoids_t":72.5,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw72-5t"}'::jsonb, null, 'Tableau du bas p. 3 du PDF (pictos flèche MAX de 15,5 à 72 m, calage, 72,5 t, 360°). Table entière : 10 colonnes x 24 lignes (3 à 66 m) = 240 cellules, 138 valeurs, 102 vides. Diff intégral des deux passes : 240 cellules, 0 écart. Capacités croissant avec la portée/la longueur sur certaines cellules (ex. 42 m : 46,7 m < 51,9 m ; 58 m : 67,5 m < 72 m) : reproduites telles qu''imprimées. NON saisis : Extension treillis (p. 5) et Volée variable (p. 6-7). Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. Chute imprimée flèche 20,7 m : 49,5/45 t à 16 m puis 25,8 t à 18 m (fidèle à la fiche, à vérifier). | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 144 ») : Flèche principale 15,5-72 m, tableau du haut 97,5 t, tableau du bas 72,5 t ; p. 5 : Extension treillis ; p. 6-7 : Volée variable. PDF sha256:7494d54bdbf938e0e97b0547b17168a278a8e1e8930542f66f118feb9941742c') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche télescopique 15,5-72 m, calage, 360°, contrepoids 72,5 t', params = '{"longueur_fleche_m":"15,5 - 72","contrepoids_t":72.5,"base_calage_mm":null,"zone":"360°","flechette":false,"slug":"telescopique-360-cw72-5t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau du bas p. 3 du PDF (pictos flèche MAX de 15,5 à 72 m, calage, 72,5 t, 360°). Table entière : 10 colonnes x 24 lignes (3 à 66 m) = 240 cellules, 138 valeurs, 102 vides. Diff intégral des deux passes : 240 cellules, 0 écart. Capacités croissant avec la portée/la longueur sur certaines cellules (ex. 42 m : 46,7 m < 51,9 m ; 58 m : 67,5 m < 72 m) : reproduites telles qu''imprimées. NON saisis : Extension treillis (p. 5) et Volée variable (p. 6-7). Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document = catalogue loueur FOSELEV (pages datées 31/03/11), tableaux imprimés en image (PDF sans couche texte pour les valeurs) : lecture VISUELLE en deux passes indépendantes (passe 1 : rendu pdftoppm 200 dpi, tableau entier, saisie ligne par ligne ; passe 2 : rendu 400 dpi recadré en deux demi-tableaux, contraste renforcé, saisie colonne par colonne) puis diff intégral automatisé. Pictos de la fiche : calage sur stabilisateurs, rotation 360°, « DIN ISO », « 75 % » (taux de basculement DIN/ISO, PAS EN 13000 : standard non EN 13000, à confirmer sur la doc constructeur). Unités : t et m (édition métrique, pas de conversion US apparente). « - » dans le tableau = cellule vide (hors abaque). Base de calage non cotée sur le tableau. La fiche ne précise pas si le moufle/crochet est déduit : deductions_included = false par prudence (moufle à ajouter à la charge) ; masse du moufle non donnée (hook_block_mass_kg = null). Aucune mention d''interpolation : interpolation_allowed = false. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux contre le rendu 200 dpi p. 3 : 0 écart. Chute imprimée flèche 20,7 m : 49,5/45 t à 16 m puis 25,8 t à 18 m (fidèle à la fiche, à vérifier). | Pages : p. 1 (PDF) : cotation ; p. 3 (PDF, « Page 144 ») : Flèche principale 15,5-72 m, tableau du haut 97,5 t, tableau du bas 72,5 t ; p. 5 : Extension treillis ; p. 6-7 : Volée variable. PDF sha256:7494d54bdbf938e0e97b0547b17168a278a8e1e8930542f66f118feb9941742c', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO (75 %)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO (75 %)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 15.5, 176000),
+    (v_chart, 4, 15.5, 157000),
+    (v_chart, 4, 20.7, 135000),
+    (v_chart, 6, 15.5, 123000),
+    (v_chart, 6, 20.7, 115000),
+    (v_chart, 6, 31.1, 86000),
+    (v_chart, 6, 36.3, 71000),
+    (v_chart, 8, 15.5, 97000),
+    (v_chart, 8, 20.7, 96000),
+    (v_chart, 8, 31.1, 82000),
+    (v_chart, 8, 36.3, 69000),
+    (v_chart, 8, 46.7, 43000),
+    (v_chart, 10, 15.5, 77000),
+    (v_chart, 10, 20.7, 77000),
+    (v_chart, 10, 31.1, 74000),
+    (v_chart, 10, 36.3, 65000),
+    (v_chart, 10, 46.7, 40500),
+    (v_chart, 10, 51.9, 33500),
+    (v_chart, 10, 57.1, 26200),
+    (v_chart, 12, 15.5, 63000),
+    (v_chart, 12, 20.7, 63000),
+    (v_chart, 12, 31.1, 62000),
+    (v_chart, 12, 36.3, 58000),
+    (v_chart, 12, 46.7, 37000),
+    (v_chart, 12, 51.9, 31500),
+    (v_chart, 12, 57.1, 26200),
+    (v_chart, 12, 62.3, 20700),
+    (v_chart, 12, 67.5, 17000),
+    (v_chart, 14, 20.7, 52000),
+    (v_chart, 14, 31.1, 51000),
+    (v_chart, 14, 36.3, 52000),
+    (v_chart, 14, 46.7, 33500),
+    (v_chart, 14, 51.9, 29200),
+    (v_chart, 14, 57.1, 24800),
+    (v_chart, 14, 62.3, 20600),
+    (v_chart, 14, 67.5, 16900),
+    (v_chart, 14, 72, 14000),
+    (v_chart, 16, 20.7, 45000),
+    (v_chart, 16, 31.1, 43500),
+    (v_chart, 16, 36.3, 44500),
+    (v_chart, 16, 46.7, 29900),
+    (v_chart, 16, 51.9, 26600),
+    (v_chart, 16, 57.1, 23300),
+    (v_chart, 16, 62.3, 19900),
+    (v_chart, 16, 67.5, 16800),
+    (v_chart, 16, 72, 14000),
+    (v_chart, 18, 20.7, 25800),
+    (v_chart, 18, 31.1, 37000),
+    (v_chart, 18, 36.3, 38500),
+    (v_chart, 18, 46.7, 27200),
+    (v_chart, 18, 51.9, 24300),
+    (v_chart, 18, 57.1, 21600),
+    (v_chart, 18, 62.3, 18900),
+    (v_chart, 18, 67.5, 16200),
+    (v_chart, 18, 72, 13900),
+    (v_chart, 20, 31.1, 32000),
+    (v_chart, 20, 36.3, 35000),
+    (v_chart, 20, 46.7, 25200),
+    (v_chart, 20, 51.9, 22100),
+    (v_chart, 20, 57.1, 19900),
+    (v_chart, 20, 62.3, 17700),
+    (v_chart, 20, 67.5, 15600),
+    (v_chart, 20, 72, 13500),
+    (v_chart, 22, 31.1, 29400),
+    (v_chart, 22, 36.3, 30500),
+    (v_chart, 22, 46.7, 23700),
+    (v_chart, 22, 51.9, 20000),
+    (v_chart, 22, 57.1, 18400),
+    (v_chart, 22, 62.3, 16500),
+    (v_chart, 22, 67.5, 14800),
+    (v_chart, 22, 72, 13100),
+    (v_chart, 24, 31.1, 27100),
+    (v_chart, 24, 36.3, 26600),
+    (v_chart, 24, 46.7, 22400),
+    (v_chart, 24, 51.9, 18400),
+    (v_chart, 24, 57.1, 17000),
+    (v_chart, 24, 62.3, 15400),
+    (v_chart, 24, 67.5, 14000),
+    (v_chart, 24, 72, 12400),
+    (v_chart, 26, 31.1, 24000),
+    (v_chart, 26, 36.3, 23500),
+    (v_chart, 26, 46.7, 21100),
+    (v_chart, 26, 51.9, 17200),
+    (v_chart, 26, 57.1, 15600),
+    (v_chart, 26, 62.3, 14400),
+    (v_chart, 26, 67.5, 13200),
+    (v_chart, 26, 72, 11700),
+    (v_chart, 28, 31.1, 21100),
+    (v_chart, 28, 36.3, 21000),
+    (v_chart, 28, 46.7, 20000),
+    (v_chart, 28, 51.9, 16000),
+    (v_chart, 28, 57.1, 14400),
+    (v_chart, 28, 62.3, 13400),
+    (v_chart, 28, 67.5, 12400),
+    (v_chart, 28, 72, 11000),
+    (v_chart, 30, 36.3, 18800),
+    (v_chart, 30, 46.7, 18800),
+    (v_chart, 30, 51.9, 15000),
+    (v_chart, 30, 57.1, 13300),
+    (v_chart, 30, 62.3, 12500),
+    (v_chart, 30, 67.5, 11700),
+    (v_chart, 30, 72, 10400),
+    (v_chart, 34, 46.7, 15300),
+    (v_chart, 34, 51.9, 13100),
+    (v_chart, 34, 57.1, 11700),
+    (v_chart, 34, 62.3, 10900),
+    (v_chart, 34, 67.5, 10300),
+    (v_chart, 34, 72, 9200),
+    (v_chart, 38, 46.7, 12600),
+    (v_chart, 38, 51.9, 12000),
+    (v_chart, 38, 57.1, 10300),
+    (v_chart, 38, 62.3, 9600),
+    (v_chart, 38, 67.5, 9100),
+    (v_chart, 38, 72, 8100),
+    (v_chart, 42, 46.7, 10400),
+    (v_chart, 42, 51.9, 10800),
+    (v_chart, 42, 57.1, 9200),
+    (v_chart, 42, 62.3, 8500),
+    (v_chart, 42, 67.5, 7900),
+    (v_chart, 42, 72, 7200),
+    (v_chart, 46, 51.9, 9000),
+    (v_chart, 46, 57.1, 8300),
+    (v_chart, 46, 62.3, 7700),
+    (v_chart, 46, 67.5, 6900),
+    (v_chart, 46, 72, 6300),
+    (v_chart, 50, 57.1, 7500),
+    (v_chart, 50, 62.3, 7000),
+    (v_chart, 50, 67.5, 6100),
+    (v_chart, 50, 72, 5500),
+    (v_chart, 54, 57.1, 6300),
+    (v_chart, 54, 62.3, 6000),
+    (v_chart, 54, 67.5, 5300),
+    (v_chart, 54, 72, 4900),
+    (v_chart, 58, 67.5, 4200),
+    (v_chart, 58, 72, 4300),
+    (v_chart, 62, 67.5, 3400),
+    (v_chart, 62, 72, 3300),
+    (v_chart, 66, 72, 2600);
+end $charts$;
+
+-- liebherr-mk-110
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_tour';
+  if v_type is null then raise exception 'type_code inconnu : grue_tour'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR MK 110 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)'
+    and reference is not distinct from '8T-LIEBHERR MK 110.pdf (sha256 0c32e528a198ed5e…)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR MK 110 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 110.pdf (sha256 0c32e528a198ed5e…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('MK 110');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'MK 110', null, '{"capacite_max_t":8,"categorie":"grue mobile de chantier","capacite_max_kg":8000}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":8,"categorie":"grue mobile de chantier","capacite_max_kg":8000}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-0deg
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-0deg';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Calage 8,25 x 8,20 m, flèche 0°, longueurs 52,0 et 44,0 m', '{"categorie":"grue mobile de chantier","calage_m":"8,25 x 8,20","angle_fleche_deg":0,"vent_max":"8,0 Bft (20 m/s)","slug":"fleche-0deg"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. y = valeur de la colonne « m » (52,0 / 44,0), égale à la portée maximale à 0° (cf. schéma p. 2 : 52,0 m). Portées 14,0 à 52,0 m (52,0) et 14,0 à 44,0 m (44,0). Les tableaux 15° et 45° ne donnent qu''une plage de portée et une charge unique : non saisis. RELECTURE 2026-10-11 : diff intégral visuel contre le rendu 200 dpi p. 3 : 0 écart (condition de vent imprimée : max. 8,0 Bft / 20 m/s). | Pages : p. 3 du PDF : tableaux 8,25 m x 8,20 m, flèche 0° (52,0 et 44,0 m) et 30°. PDF sha256 complet : 0c32e528a198ed5eec378a02476d0801f999d6d2ee81606f670018a124af7501') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Calage 8,25 x 8,20 m, flèche 0°, longueurs 52,0 et 44,0 m', params = '{"categorie":"grue mobile de chantier","calage_m":"8,25 x 8,20","angle_fleche_deg":0,"vent_max":"8,0 Bft (20 m/s)","slug":"fleche-0deg"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. y = valeur de la colonne « m » (52,0 / 44,0), égale à la portée maximale à 0° (cf. schéma p. 2 : 52,0 m). Portées 14,0 à 52,0 m (52,0) et 14,0 à 44,0 m (44,0). Les tableaux 15° et 45° ne donnent qu''une plage de portée et une charge unique : non saisis. RELECTURE 2026-10-11 : diff intégral visuel contre le rendu 200 dpi p. 3 : 0 écart (condition de vent imprimée : max. 8,0 Bft / 20 m/s). | Pages : p. 3 du PDF : tableaux 8,25 m x 8,20 m, flèche 0° (52,0 et 44,0 m) et 30°. PDF sha256 complet : 0c32e528a198ed5eec378a02476d0801f999d6d2ee81606f670018a124af7501', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 14, 52, 8000),
+    (v_chart, 18, 52, 6370),
+    (v_chart, 22, 52, 5060),
+    (v_chart, 26, 52, 4180),
+    (v_chart, 28, 52, 3830),
+    (v_chart, 30, 52, 3530),
+    (v_chart, 32, 52, 3280),
+    (v_chart, 34, 52, 3050),
+    (v_chart, 36, 52, 2850),
+    (v_chart, 38, 52, 2670),
+    (v_chart, 40, 52, 2500),
+    (v_chart, 42, 52, 2360),
+    (v_chart, 44, 52, 2230),
+    (v_chart, 46, 52, 2100),
+    (v_chart, 48, 52, 1990),
+    (v_chart, 50, 52, 1890),
+    (v_chart, 52, 52, 1800),
+    (v_chart, 14, 44, 8000),
+    (v_chart, 18, 44, 6550),
+    (v_chart, 22, 44, 5220),
+    (v_chart, 26, 44, 4300),
+    (v_chart, 28, 44, 3950),
+    (v_chart, 30, 44, 3640),
+    (v_chart, 32, 44, 3380),
+    (v_chart, 34, 44, 3140),
+    (v_chart, 36, 44, 2940),
+    (v_chart, 38, 44, 2750),
+    (v_chart, 40, 44, 2590),
+    (v_chart, 42, 44, 2440),
+    (v_chart, 44, 44, 2300);
+  -- configuration fleche-30deg
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-30deg';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Calage 8,25 x 8,20 m, flèche à 30°, longueurs 52,0 et 44,0 m', '{"categorie":"grue mobile de chantier","calage_m":"8,25 x 8,20","angle_fleche_deg":30,"vent_max":"8,0 Bft (20 m/s)","slug":"fleche-30deg"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. y = valeur de la colonne « m » (52,0 / 44,0) ; portées 14,0 à 45,3 m (52,0) et 14,0 à 38,4 m (44,0). RELECTURE 2026-10-11 : diff intégral visuel contre le rendu 200 dpi p. 3 : 0 écart (condition de vent imprimée : max. 8,0 Bft / 20 m/s). | Pages : p. 3 du PDF : tableaux 8,25 m x 8,20 m, flèche 0° (52,0 et 44,0 m) et 30°. PDF sha256 complet : 0c32e528a198ed5eec378a02476d0801f999d6d2ee81606f670018a124af7501') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Calage 8,25 x 8,20 m, flèche à 30°, longueurs 52,0 et 44,0 m', params = '{"categorie":"grue mobile de chantier","calage_m":"8,25 x 8,20","angle_fleche_deg":30,"vent_max":"8,0 Bft (20 m/s)","slug":"fleche-30deg"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. y = valeur de la colonne « m » (52,0 / 44,0) ; portées 14,0 à 45,3 m (52,0) et 14,0 à 38,4 m (44,0). RELECTURE 2026-10-11 : diff intégral visuel contre le rendu 200 dpi p. 3 : 0 écart (condition de vent imprimée : max. 8,0 Bft / 20 m/s). | Pages : p. 3 du PDF : tableaux 8,25 m x 8,20 m, flèche 0° (52,0 et 44,0 m) et 30°. PDF sha256 complet : 0c32e528a198ed5eec378a02476d0801f999d6d2ee81606f670018a124af7501', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 14, 52, 6000),
+    (v_chart, 16, 52, 5530),
+    (v_chart, 18, 52, 4930),
+    (v_chart, 20, 52, 4430),
+    (v_chart, 22, 52, 4020),
+    (v_chart, 24, 52, 3680),
+    (v_chart, 26, 52, 3380),
+    (v_chart, 28, 52, 3120),
+    (v_chart, 30, 52, 2890),
+    (v_chart, 32, 52, 2700),
+    (v_chart, 34, 52, 2520),
+    (v_chart, 36, 52, 2360),
+    (v_chart, 38.4, 52, 2190),
+    (v_chart, 40, 52, 2090),
+    (v_chart, 42, 52, 1970),
+    (v_chart, 44, 52, 1860),
+    (v_chart, 45.3, 52, 1800),
+    (v_chart, 14, 44, 6000),
+    (v_chart, 16, 44, 5910),
+    (v_chart, 18, 44, 5250),
+    (v_chart, 20, 44, 4710),
+    (v_chart, 22, 44, 4260),
+    (v_chart, 24, 44, 3890),
+    (v_chart, 26, 44, 3570),
+    (v_chart, 28, 44, 3290),
+    (v_chart, 30, 44, 3050),
+    (v_chart, 32, 44, 2840),
+    (v_chart, 34, 44, 2650),
+    (v_chart, 36, 44, 2480),
+    (v_chart, 38.4, 44, 2300);
+end $charts$;
+
+-- liebherr-mk-140
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_tour';
+  if v_type is null then raise exception 'type_code inconnu : grue_tour'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR MK 140 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)'
+    and reference is not distinct from '8T-LIEBHERR MK 140.pdf (sha256 9f3b74a35845402e…)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR MK 140 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 140.pdf (sha256 9f3b74a35845402e…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('MK 140');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'MK 140', null, '{"capacite_max_t":8,"categorie":"grue mobile de chantier","capacite_max_kg":8000}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":8,"categorie":"grue mobile de chantier","capacite_max_kg":8000}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration 9t-8-20x8-25-0deg-ligne1
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = '9t-8-20x8-25-0deg-ligne1';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Calage 8,20 x 8,25 m, +9 t, flèche 0° — pictogramme manche à air pendante', '{"categorie":"grue mobile de chantier","calage_m":"8,20 x 8,25","lest_icone":"+9 t","angle_fleche_deg":0,"ligne_tableau":1,"vent_icone":"manche à air pendante (limite non imprimée)","slug":"9t-8-20x8-25-0deg-ligne1"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 13,4 / 8000 » ; colonnes = portées 3,0 à 58,5 m ; la cellule fusionnée 8000 (3,0 à 12,0 m) est répétée sur les 4 colonnes couvertes. y=0. Lignes 15°, 30°, 45°, « Plus* 2 » et autres calages non saisis. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 3 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft (20 m/s) » ; limite de vent non imprimée ici). CORRECTION DE SÉCURITÉ : le 1er nœud est placé à 3,3 m (portée minimale imprimée « 3,3 - 13,4 » / « 3,3 - 12,0 ») au lieu de 3,0 m (début de la cellule fusionnée) : aucune capacité sous la portée minimale. | Pages : p. 3 du PDF : premier tableau 8,20 x 8,25 m (icône +9 t), flèche 0°, 58,5 m. PDF sha256 complet : 9f3b74a35845402e7ef856ab47b9f797943cce8df5728f8747f935a8e86e1871') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Calage 8,20 x 8,25 m, +9 t, flèche 0° — pictogramme manche à air pendante', params = '{"categorie":"grue mobile de chantier","calage_m":"8,20 x 8,25","lest_icone":"+9 t","angle_fleche_deg":0,"ligne_tableau":1,"vent_icone":"manche à air pendante (limite non imprimée)","slug":"9t-8-20x8-25-0deg-ligne1"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 13,4 / 8000 » ; colonnes = portées 3,0 à 58,5 m ; la cellule fusionnée 8000 (3,0 à 12,0 m) est répétée sur les 4 colonnes couvertes. y=0. Lignes 15°, 30°, 45°, « Plus* 2 » et autres calages non saisis. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 3 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft (20 m/s) » ; limite de vent non imprimée ici). CORRECTION DE SÉCURITÉ : le 1er nœud est placé à 3,3 m (portée minimale imprimée « 3,3 - 13,4 » / « 3,3 - 12,0 ») au lieu de 3,0 m (début de la cellule fusionnée) : aucune capacité sous la portée minimale. | Pages : p. 3 du PDF : premier tableau 8,20 x 8,25 m (icône +9 t), flèche 0°, 58,5 m. PDF sha256 complet : 9f3b74a35845402e7ef856ab47b9f797943cce8df5728f8747f935a8e86e1871', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3.3, 0, 8000),
+    (v_chart, 6, 0, 8000),
+    (v_chart, 9, 0, 8000),
+    (v_chart, 12, 0, 8000),
+    (v_chart, 15, 0, 7290),
+    (v_chart, 18, 0, 6220),
+    (v_chart, 21, 0, 5400),
+    (v_chart, 24, 0, 4750),
+    (v_chart, 27, 0, 4230),
+    (v_chart, 30, 0, 3790),
+    (v_chart, 33, 0, 3420),
+    (v_chart, 36, 0, 3110),
+    (v_chart, 39, 0, 2830),
+    (v_chart, 42, 0, 2600),
+    (v_chart, 45, 0, 2390),
+    (v_chart, 48, 0, 2200),
+    (v_chart, 51, 0, 2040),
+    (v_chart, 54, 0, 1890),
+    (v_chart, 57, 0, 1760),
+    (v_chart, 58.5, 0, 1700);
+  -- configuration 9t-8-20x8-25-0deg-ligne2
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = '9t-8-20x8-25-0deg-ligne2';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Calage 8,20 x 8,25 m, +9 t, flèche 0° — pictogramme manche à air horizontale (vent)', '{"categorie":"grue mobile de chantier","calage_m":"8,20 x 8,25","lest_icone":"+9 t","angle_fleche_deg":0,"ligne_tableau":2,"vent_icone":"manche à air horizontale (même icône que « max. 8,0 Bft » sur la fiche MK 110 ; non légendée ici)","slug":"9t-8-20x8-25-0deg-ligne2"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 12,0 / 8000 » ; même structure que la ligne 1 (cellule fusionnée 3,0 à 12,0 m répétée). RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 3 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft (20 m/s) » ; limite de vent non imprimée ici). CORRECTION DE SÉCURITÉ : le 1er nœud est placé à 3,3 m (portée minimale imprimée « 3,3 - 13,4 » / « 3,3 - 12,0 ») au lieu de 3,0 m (début de la cellule fusionnée) : aucune capacité sous la portée minimale. | Pages : p. 3 du PDF : premier tableau 8,20 x 8,25 m (icône +9 t), flèche 0°, 58,5 m. PDF sha256 complet : 9f3b74a35845402e7ef856ab47b9f797943cce8df5728f8747f935a8e86e1871') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Calage 8,20 x 8,25 m, +9 t, flèche 0° — pictogramme manche à air horizontale (vent)', params = '{"categorie":"grue mobile de chantier","calage_m":"8,20 x 8,25","lest_icone":"+9 t","angle_fleche_deg":0,"ligne_tableau":2,"vent_icone":"manche à air horizontale (même icône que « max. 8,0 Bft » sur la fiche MK 110 ; non légendée ici)","slug":"9t-8-20x8-25-0deg-ligne2"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 12,0 / 8000 » ; même structure que la ligne 1 (cellule fusionnée 3,0 à 12,0 m répétée). RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 3 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft (20 m/s) » ; limite de vent non imprimée ici). CORRECTION DE SÉCURITÉ : le 1er nœud est placé à 3,3 m (portée minimale imprimée « 3,3 - 13,4 » / « 3,3 - 12,0 ») au lieu de 3,0 m (début de la cellule fusionnée) : aucune capacité sous la portée minimale. | Pages : p. 3 du PDF : premier tableau 8,20 x 8,25 m (icône +9 t), flèche 0°, 58,5 m. PDF sha256 complet : 9f3b74a35845402e7ef856ab47b9f797943cce8df5728f8747f935a8e86e1871', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3.3, 0, 8000),
+    (v_chart, 6, 0, 8000),
+    (v_chart, 9, 0, 8000),
+    (v_chart, 12, 0, 8000),
+    (v_chart, 15, 0, 6630),
+    (v_chart, 18, 0, 5630),
+    (v_chart, 21, 0, 4870),
+    (v_chart, 24, 0, 4270),
+    (v_chart, 27, 0, 3780),
+    (v_chart, 30, 0, 3380),
+    (v_chart, 33, 0, 3050),
+    (v_chart, 36, 0, 2760),
+    (v_chart, 39, 0, 2520),
+    (v_chart, 42, 0, 2310),
+    (v_chart, 45, 0, 2120),
+    (v_chart, 48, 0, 1950),
+    (v_chart, 51, 0, 1800),
+    (v_chart, 54, 0, 1670),
+    (v_chart, 57, 0, 1550),
+    (v_chart, 58.5, 0, 1500);
+end $charts$;
+
+-- liebherr-mk-88
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_tour';
+  if v_type is null then raise exception 'type_code inconnu : grue_tour'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Liebherr');
+  if v_manu is null then raise exception 'constructeur inconnu : Liebherr'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'LIEBHERR MK 88 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)'
+    and reference is not distinct from '8T-LIEBHERR MK 88.pdf (sha256 0653aa72146cebbf…)' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'LIEBHERR MK 88 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 88.pdf (sha256 0653aa72146cebbf…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('MK 88');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'MK 88', null, '{"capacite_max_t":8,"categorie":"grue mobile de chantier","capacite_max_kg":8000}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":8,"categorie":"grue mobile de chantier","capacite_max_kg":8000}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration lest-add-0deg-ligne1
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'lest-add-0deg-ligne1';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Calage 7,30 x 7,0 m, avec lest additionnel, flèche 0° — pictogramme manche à air pendante', '{"categorie":"grue mobile de chantier","calage_m":"7,30 x 7,0","lest_additionnel":true,"angle_fleche_deg":0,"ligne_tableau":1,"vent_icone":"manche à air pendante (limite non imprimée)","slug":"lest-add-0deg-ligne1"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 12,0 / 8000 » ; colonnes = portées 10 à 45 m ; y=0 (pas de longueur de flèche variable dans ce tableau : l''angle est un paramètre). Les rangées 15°, 30°, 45° et « Plus* 2 » (renvoi *2 non expliqué) ne sont pas saisies. La portée 3,3 à 12,0 m annoncée à 8000 kg n''est pas matérialisée en nœuds hors colonnes imprimées. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 4 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft » ; limite de vent non imprimée ici). Sous 10 m : hors abaque (plage 3,3-12,0 m à 8 000 kg non matérialisée en nœuds). | Pages : p. 4 du PDF : tableau 7,30 x 7,0 m « Avec lest additionnel », flèche 0°, 45,0 m. PDF sha256 complet : 0653aa72146cebbf0ee1bfc830a4b896804080a2f745ea297dfef71f15723d43') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Calage 7,30 x 7,0 m, avec lest additionnel, flèche 0° — pictogramme manche à air pendante', params = '{"categorie":"grue mobile de chantier","calage_m":"7,30 x 7,0","lest_additionnel":true,"angle_fleche_deg":0,"ligne_tableau":1,"vent_icone":"manche à air pendante (limite non imprimée)","slug":"lest-add-0deg-ligne1"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 12,0 / 8000 » ; colonnes = portées 10 à 45 m ; y=0 (pas de longueur de flèche variable dans ce tableau : l''angle est un paramètre). Les rangées 15°, 30°, 45° et « Plus* 2 » (renvoi *2 non expliqué) ne sont pas saisies. La portée 3,3 à 12,0 m annoncée à 8000 kg n''est pas matérialisée en nœuds hors colonnes imprimées. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 4 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft » ; limite de vent non imprimée ici). Sous 10 m : hors abaque (plage 3,3-12,0 m à 8 000 kg non matérialisée en nœuds). | Pages : p. 4 du PDF : tableau 7,30 x 7,0 m « Avec lest additionnel », flèche 0°, 45,0 m. PDF sha256 complet : 0653aa72146cebbf0ee1bfc830a4b896804080a2f745ea297dfef71f15723d43', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 10, 0, 8000),
+    (v_chart, 12, 0, 8000),
+    (v_chart, 14, 0, 6900),
+    (v_chart, 16, 0, 6070),
+    (v_chart, 18, 0, 5410),
+    (v_chart, 20, 0, 4870),
+    (v_chart, 22, 0, 4420),
+    (v_chart, 24, 0, 4050),
+    (v_chart, 26, 0, 3730),
+    (v_chart, 28, 0, 3450),
+    (v_chart, 30, 0, 3210),
+    (v_chart, 32, 0, 2990),
+    (v_chart, 34, 0, 2800),
+    (v_chart, 36, 0, 2630),
+    (v_chart, 38, 0, 2480),
+    (v_chart, 40, 0, 2340),
+    (v_chart, 42, 0, 2220),
+    (v_chart, 44, 0, 2100),
+    (v_chart, 45, 0, 2050);
+  -- configuration lest-add-0deg-ligne2
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'lest-add-0deg-ligne2';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Calage 7,30 x 7,0 m, avec lest additionnel, flèche 0° — pictogramme manche à air horizontale (vent)', '{"categorie":"grue mobile de chantier","calage_m":"7,30 x 7,0","lest_additionnel":true,"angle_fleche_deg":0,"ligne_tableau":2,"vent_icone":"manche à air horizontale (même icône que « max. 8,0 Bft » sur la fiche MK 110 ; non légendée ici)","slug":"lest-add-0deg-ligne2"}'::jsonb, null, 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 11,0 / 8000 » ; colonnes = portées 10 à 45 m ; y=0. Voir configuration ligne 1 pour les lignes non saisies. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 4 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft » ; limite de vent non imprimée ici). Sous 10 m : hors abaque (plage 3,3-12,0 m à 8 000 kg non matérialisée en nœuds). | Pages : p. 4 du PDF : tableau 7,30 x 7,0 m « Avec lest additionnel », flèche 0°, 45,0 m. PDF sha256 complet : 0653aa72146cebbf0ee1bfc830a4b896804080a2f745ea297dfef71f15723d43') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Calage 7,30 x 7,0 m, avec lest additionnel, flèche 0° — pictogramme manche à air horizontale (vent)', params = '{"categorie":"grue mobile de chantier","calage_m":"7,30 x 7,0","lest_additionnel":true,"angle_fleche_deg":0,"ligne_tableau":2,"vent_icone":"manche à air horizontale (même icône que « max. 8,0 Bft » sur la fiche MK 110 ; non légendée ici)","slug":"lest-add-0deg-ligne2"}'::jsonb, hook_block_mass_kg = null, notes = 'valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Ligne « 3,3 - 11,0 / 8000 » ; colonnes = portées 10 à 45 m ; y=0. Voir configuration ligne 1 pour les lignes non saisies. RELECTURE 2026-10-11 : diff intégral visuel des 2 lignes contre le rendu 200 dpi p. 4 : 0 écart. Labels explicités d''après les pictogrammes (ligne 1 : manche à air pendante ; ligne 2 : manche à air horizontale = vent, cf. fiche MK 110 « max. 8,0 Bft » ; limite de vent non imprimée ici). Sous 10 m : hors abaque (plage 3,3-12,0 m à 8 000 kg non matérialisée en nœuds). | Pages : p. 4 du PDF : tableau 7,30 x 7,0 m « Avec lest additionnel », flèche 0°, 45,0 m. PDF sha256 complet : 0653aa72146cebbf0ee1bfc830a4b896804080a2f745ea297dfef71f15723d43', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 10, 0, 8000),
+    (v_chart, 12, 0, 7370),
+    (v_chart, 14, 0, 6360),
+    (v_chart, 16, 0, 5580),
+    (v_chart, 18, 0, 4960),
+    (v_chart, 20, 0, 4460),
+    (v_chart, 22, 0, 4050),
+    (v_chart, 24, 0, 3700),
+    (v_chart, 26, 0, 3400),
+    (v_chart, 28, 0, 3140),
+    (v_chart, 30, 0, 2920),
+    (v_chart, 32, 0, 2720),
+    (v_chart, 34, 0, 2540),
+    (v_chart, 36, 0, 2390),
+    (v_chart, 38, 0, 2250),
+    (v_chart, 40, 0, 2120),
+    (v_chart, 42, 0, 2000),
+    (v_chart, 44, 0, 1900),
+    (v_chart, 45, 0, 1850);
+end $charts$;
+
+-- tadano-faun-atf-50g-3
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Tadano');
+  if v_manu is null then raise exception 'constructeur inconnu : Tadano'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TADANO FAUN ATF 50G-3 — 50 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)'
+    and reference is not distinct from '50T-TADANO FAUN ATF 50G-3.pdf, sha256:2b28b74f84b93dec' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TADANO FAUN ATF 50G-3 — 50 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '50T-TADANO FAUN ATF 50G-3.pdf, sha256:2b28b74f84b93dec', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('ATF 50G-3');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'ATF 50G-3', null, '{"capacite_max_t":50,"fleche_principale_m":"10,0 - 40,0","contrepoids_max_t":10,"base_calage_m":6.3}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":50,"fleche_principale_m":"10,0 - 40,0","contrepoids_max_t":10,"base_calage_m":6.3}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw10t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw10t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 10,0-40,0 m, calage 6,3 m, 360°, contrepoids 10 t', '{"contrepoids_t":10,"base_calage_m":6.3,"zone":"360°","flechette":false,"slug":"fleche-principale-360-cw10t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique métrique imprimé p. 3 (pictogramme « DIN/ISO/EN » ; norme EN 13000 non nommée, donc standard = null), en tonnes ; PDF texte, extraction pdfplumber par coordonnées (passe A) et pdftotext -layout par position de caractères (passe B) + contrôle visuel du rendu ; diff intégral : 139 cellules numériques du tableau, 0 écart. EXCLUS (non 360° / équipement supplémentaire) : colonne « 10,0 m* (« * A l''arrière ») » entière (8 valeurs) ; cellules « ** » (« Avec équipements supplémentaires ») des colonnes 360° : (3.0 m ; flèche 10.0 m)=45.4 (1 cellules, non saisies). 130 valeurs saisies ; cellules vides = vides dans le tableau. Aucun signe de conversion d''édition US (valeurs métriques natives). Prise en compte du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence) ; masse moufle, mouflage et vent non documentés. PDF sha256 complet 2b28b74f84b93decd4030b9878b87af78f097d706c4cc3750427274a2fce0e45. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « * à l''arrière » et cellules « ** » bien exclues. Champ standard renseigné avec le pictogramme imprimé « DIN/ISO/EN » (au lieu de null). | Pages : p. 1 : cotation (non utilisée) ; p. 3 : tableau flèche principale 10,0-40,0 m, calage 6,3 m, 360°, contrepoids 10 t, pictogramme DIN/ISO/EN ; p. 2 (autre configuration) et p. 4-5 (flèche + fléchette) non saisies') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 10,0-40,0 m, calage 6,3 m, 360°, contrepoids 10 t', params = '{"contrepoids_t":10,"base_calage_m":6.3,"zone":"360°","flechette":false,"slug":"fleche-principale-360-cw10t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique métrique imprimé p. 3 (pictogramme « DIN/ISO/EN » ; norme EN 13000 non nommée, donc standard = null), en tonnes ; PDF texte, extraction pdfplumber par coordonnées (passe A) et pdftotext -layout par position de caractères (passe B) + contrôle visuel du rendu ; diff intégral : 139 cellules numériques du tableau, 0 écart. EXCLUS (non 360° / équipement supplémentaire) : colonne « 10,0 m* (« * A l''arrière ») » entière (8 valeurs) ; cellules « ** » (« Avec équipements supplémentaires ») des colonnes 360° : (3.0 m ; flèche 10.0 m)=45.4 (1 cellules, non saisies). 130 valeurs saisies ; cellules vides = vides dans le tableau. Aucun signe de conversion d''édition US (valeurs métriques natives). Prise en compte du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence) ; masse moufle, mouflage et vent non documentés. PDF sha256 complet 2b28b74f84b93decd4030b9878b87af78f097d706c4cc3750427274a2fce0e45. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « * à l''arrière » et cellules « ** » bien exclues. Champ standard renseigné avec le pictogramme imprimé « DIN/ISO/EN » (au lieu de null). | Pages : p. 1 : cotation (non utilisée) ; p. 3 : tableau flèche principale 10,0-40,0 m, calage 6,3 m, 360°, contrepoids 10 t, pictogramme DIN/ISO/EN ; p. 2 (autre configuration) et p. 4-5 (flèche + fléchette) non saisies', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO/EN (pictogramme imprimé, norme exacte non précisée)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO/EN (pictogramme imprimé, norme exacte non précisée)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 13.8, 30000),
+    (v_chart, 3, 17.5, 30000),
+    (v_chart, 3, 21.3, 20000),
+    (v_chart, 3.5, 10, 41600),
+    (v_chart, 3.5, 13.8, 30000),
+    (v_chart, 3.5, 17.5, 30000),
+    (v_chart, 3.5, 21.3, 20000),
+    (v_chart, 3.5, 25, 20000),
+    (v_chart, 4, 10, 38400),
+    (v_chart, 4, 13.8, 30000),
+    (v_chart, 4, 17.5, 30000),
+    (v_chart, 4, 21.3, 20000),
+    (v_chart, 4, 25, 20000),
+    (v_chart, 4, 28.8, 17600),
+    (v_chart, 4.5, 10, 35100),
+    (v_chart, 4.5, 13.8, 30000),
+    (v_chart, 4.5, 17.5, 28700),
+    (v_chart, 4.5, 21.3, 20000),
+    (v_chart, 4.5, 25, 20000),
+    (v_chart, 4.5, 28.8, 17600),
+    (v_chart, 5, 10, 31800),
+    (v_chart, 5, 13.8, 30000),
+    (v_chart, 5, 17.5, 26900),
+    (v_chart, 5, 21.3, 20000),
+    (v_chart, 5, 25, 20000),
+    (v_chart, 5, 28.8, 17200),
+    (v_chart, 5, 32.5, 12800),
+    (v_chart, 6, 10, 26600),
+    (v_chart, 6, 13.8, 26100),
+    (v_chart, 6, 17.5, 23800),
+    (v_chart, 6, 21.3, 20000),
+    (v_chart, 6, 25, 18200),
+    (v_chart, 6, 28.8, 15600),
+    (v_chart, 6, 32.5, 12800),
+    (v_chart, 6, 36.3, 9900),
+    (v_chart, 7, 10, 22300),
+    (v_chart, 7, 13.8, 21700),
+    (v_chart, 7, 17.5, 21300),
+    (v_chart, 7, 21.3, 18900),
+    (v_chart, 7, 25, 16500),
+    (v_chart, 7, 28.8, 14300),
+    (v_chart, 7, 32.5, 12400),
+    (v_chart, 7, 36.3, 9900),
+    (v_chart, 7, 40, 7500),
+    (v_chart, 8, 13.8, 19100),
+    (v_chart, 8, 17.5, 19500),
+    (v_chart, 8, 21.3, 17500),
+    (v_chart, 8, 25, 15100),
+    (v_chart, 8, 28.8, 13100),
+    (v_chart, 8, 32.5, 11500),
+    (v_chart, 8, 36.3, 9900),
+    (v_chart, 8, 40, 7500),
+    (v_chart, 9, 13.8, 15700),
+    (v_chart, 9, 17.5, 16000),
+    (v_chart, 9, 21.3, 16100),
+    (v_chart, 9, 25, 13800),
+    (v_chart, 9, 28.8, 12100),
+    (v_chart, 9, 32.5, 10600),
+    (v_chart, 9, 36.3, 9500),
+    (v_chart, 9, 40, 7500),
+    (v_chart, 10, 13.8, 13200),
+    (v_chart, 10, 17.5, 13500),
+    (v_chart, 10, 21.3, 13700),
+    (v_chart, 10, 25, 12400),
+    (v_chart, 10, 28.8, 11200),
+    (v_chart, 10, 32.5, 9900),
+    (v_chart, 10, 36.3, 8800),
+    (v_chart, 10, 40, 7500),
+    (v_chart, 11, 13.8, 11300),
+    (v_chart, 11, 17.5, 11600),
+    (v_chart, 11, 21.3, 11700),
+    (v_chart, 11, 25, 10600),
+    (v_chart, 11, 28.8, 10400),
+    (v_chart, 11, 32.5, 9200),
+    (v_chart, 11, 36.3, 8200),
+    (v_chart, 11, 40, 7300),
+    (v_chart, 12, 17.5, 10100),
+    (v_chart, 12, 21.3, 10200),
+    (v_chart, 12, 25, 9100),
+    (v_chart, 12, 28.8, 9300),
+    (v_chart, 12, 32.5, 8600),
+    (v_chart, 12, 36.3, 7700),
+    (v_chart, 12, 40, 6900),
+    (v_chart, 14, 17.5, 7800),
+    (v_chart, 14, 21.3, 8000),
+    (v_chart, 14, 25, 8100),
+    (v_chart, 14, 28.8, 7100),
+    (v_chart, 14, 32.5, 7300),
+    (v_chart, 14, 36.3, 6800),
+    (v_chart, 14, 40, 6100),
+    (v_chart, 16, 21.3, 6400),
+    (v_chart, 16, 25, 6500),
+    (v_chart, 16, 28.8, 6200),
+    (v_chart, 16, 32.5, 5800),
+    (v_chart, 16, 36.3, 5900),
+    (v_chart, 16, 40, 5400),
+    (v_chart, 18, 21.3, 5300),
+    (v_chart, 18, 25, 5400),
+    (v_chart, 18, 28.8, 5400),
+    (v_chart, 18, 32.5, 4800),
+    (v_chart, 18, 36.3, 4800),
+    (v_chart, 18, 40, 4900),
+    (v_chart, 20, 25, 4500),
+    (v_chart, 20, 28.8, 4500),
+    (v_chart, 20, 32.5, 4300),
+    (v_chart, 20, 36.3, 3900),
+    (v_chart, 20, 40, 4000),
+    (v_chart, 22, 25, 3800),
+    (v_chart, 22, 28.8, 3800),
+    (v_chart, 22, 32.5, 3800),
+    (v_chart, 22, 36.3, 3200),
+    (v_chart, 22, 40, 3300),
+    (v_chart, 24, 28.8, 3300),
+    (v_chart, 24, 32.5, 3300),
+    (v_chart, 24, 36.3, 2600),
+    (v_chart, 24, 40, 2700),
+    (v_chart, 26, 28.8, 2800),
+    (v_chart, 26, 32.5, 2800),
+    (v_chart, 26, 36.3, 2100),
+    (v_chart, 26, 40, 2300),
+    (v_chart, 28, 32.5, 2400),
+    (v_chart, 28, 36.3, 1700),
+    (v_chart, 28, 40, 1800),
+    (v_chart, 30, 32.5, 2100),
+    (v_chart, 30, 36.3, 1400),
+    (v_chart, 30, 40, 1500),
+    (v_chart, 32, 36.3, 1100),
+    (v_chart, 32, 40, 1200),
+    (v_chart, 34, 40, 1000),
+    (v_chart, 36, 40, 700);
+end $charts$;
+
+-- tadano-faun-atf-60g-3
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Tadano');
+  if v_manu is null then raise exception 'constructeur inconnu : Tadano'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TADANO FAUN ATF 60G-3 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)'
+    and reference is not distinct from '60T-TADANO FAUN ATF 60G-3.pdf, sha256:bc8d17a735012768' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TADANO FAUN ATF 60G-3 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '60T-TADANO FAUN ATF 60G-3.pdf, sha256:bc8d17a735012768', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('ATF 60G-3');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'ATF 60G-3', null, '{"capacite_max_t":60,"fleche_principale_m":"9,5 - 48,0","contrepoids_max_t":13,"base_calage_m":6.4}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":60,"fleche_principale_m":"9,5 - 48,0","contrepoids_max_t":13,"base_calage_m":6.4}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw13t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw13t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 9,5-48,0 m, calage 6,4 m, 360°, contrepoids 13 t', '{"contrepoids_t":13,"base_calage_m":6.4,"zone":"360°","flechette":false,"slug":"fleche-principale-360-cw13t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique métrique imprimé p. 3 (pictogramme « DIN/ISO/EN » ; norme EN 13000 non nommée, donc standard = null), en tonnes ; PDF texte, extraction pdfplumber par coordonnées (passe A) et pdftotext -layout par position de caractères (passe B) + contrôle visuel du rendu ; diff intégral : 187 cellules numériques du tableau, 0 écart. EXCLUS (non 360° / équipement supplémentaire) : colonne « 9,5 m* (« * A l''arrière ») » entière (8 valeurs) ; cellules « ** » (« Avec équipements supplémentaires ») des colonnes 360° : (2.5 m ; flèche 9.5 m)=49.0, (2.5 m ; flèche 13.8 m)=45.1, (2.5 m ; flèche 18.4 m)=45.1 (3 cellules, non saisies). 176 valeurs saisies ; cellules vides = vides dans le tableau. Aucun signe de conversion d''édition US (valeurs métriques natives). Prise en compte du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence) ; masse moufle, mouflage et vent non documentés. PDF sha256 complet bc8d17a73501276806807a4966c37c2d1a76e8b30a09e0b45bae15048faea439. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « * à l''arrière » et cellules « ** » bien exclues. Champ standard renseigné avec le pictogramme imprimé « DIN/ISO/EN » (au lieu de null). | Pages : p. 1 : cotation (non utilisée) ; p. 3 : tableau flèche principale 9,5-48,0 m, calage 6,4 m, 360°, contrepoids 13 t, pictogramme DIN/ISO/EN ; p. 2 (autre configuration) et p. 4-5 (flèche + fléchette) non saisies') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 9,5-48,0 m, calage 6,4 m, 360°, contrepoids 13 t', params = '{"contrepoids_t":13,"base_calage_m":6.4,"zone":"360°","flechette":false,"slug":"fleche-principale-360-cw13t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique métrique imprimé p. 3 (pictogramme « DIN/ISO/EN » ; norme EN 13000 non nommée, donc standard = null), en tonnes ; PDF texte, extraction pdfplumber par coordonnées (passe A) et pdftotext -layout par position de caractères (passe B) + contrôle visuel du rendu ; diff intégral : 187 cellules numériques du tableau, 0 écart. EXCLUS (non 360° / équipement supplémentaire) : colonne « 9,5 m* (« * A l''arrière ») » entière (8 valeurs) ; cellules « ** » (« Avec équipements supplémentaires ») des colonnes 360° : (2.5 m ; flèche 9.5 m)=49.0, (2.5 m ; flèche 13.8 m)=45.1, (2.5 m ; flèche 18.4 m)=45.1 (3 cellules, non saisies). 176 valeurs saisies ; cellules vides = vides dans le tableau. Aucun signe de conversion d''édition US (valeurs métriques natives). Prise en compte du crochet/moufle non indiquée sur la fiche (deductions_included = false par prudence) ; masse moufle, mouflage et vent non documentés. PDF sha256 complet bc8d17a73501276806807a4966c37c2d1a76e8b30a09e0b45bae15048faea439. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « * à l''arrière » et cellules « ** » bien exclues. Champ standard renseigné avec le pictogramme imprimé « DIN/ISO/EN » (au lieu de null). | Pages : p. 1 : cotation (non utilisée) ; p. 3 : tableau flèche principale 9,5-48,0 m, calage 6,4 m, 360°, contrepoids 13 t, pictogramme DIN/ISO/EN ; p. 2 (autre configuration) et p. 4-5 (flèche + fléchette) non saisies', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO/EN (pictogramme imprimé, norme exacte non précisée)', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO/EN (pictogramme imprimé, norme exacte non précisée)', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 2.5, 22.8, 34300),
+    (v_chart, 2.5, 27.4, 22100),
+    (v_chart, 2.5, 31.8, 15200),
+    (v_chart, 3, 9.5, 43300),
+    (v_chart, 3, 13.8, 43300),
+    (v_chart, 3, 18.4, 42000),
+    (v_chart, 3, 22.8, 34300),
+    (v_chart, 3, 27.4, 22100),
+    (v_chart, 3, 31.8, 15200),
+    (v_chart, 3.5, 9.5, 38700),
+    (v_chart, 3.5, 13.8, 38700),
+    (v_chart, 3.5, 18.4, 38000),
+    (v_chart, 3.5, 22.8, 34300),
+    (v_chart, 3.5, 27.4, 22100),
+    (v_chart, 3.5, 31.8, 15200),
+    (v_chart, 3.5, 36.3, 13600),
+    (v_chart, 4, 9.5, 34800),
+    (v_chart, 4, 13.8, 34800),
+    (v_chart, 4, 18.4, 34100),
+    (v_chart, 4, 22.8, 32200),
+    (v_chart, 4, 27.4, 22100),
+    (v_chart, 4, 31.8, 15200),
+    (v_chart, 4, 36.3, 13600),
+    (v_chart, 4.5, 9.5, 31600),
+    (v_chart, 4.5, 13.8, 31600),
+    (v_chart, 4.5, 18.4, 30900),
+    (v_chart, 4.5, 22.8, 30200),
+    (v_chart, 4.5, 27.4, 22100),
+    (v_chart, 4.5, 31.8, 15200),
+    (v_chart, 4.5, 36.3, 13600),
+    (v_chart, 4.5, 40.3, 9400),
+    (v_chart, 5, 9.5, 28800),
+    (v_chart, 5, 13.8, 29100),
+    (v_chart, 5, 18.4, 28100),
+    (v_chart, 5, 22.8, 28000),
+    (v_chart, 5, 27.4, 22100),
+    (v_chart, 5, 31.8, 15200),
+    (v_chart, 5, 36.3, 13600),
+    (v_chart, 5, 40.3, 9400),
+    (v_chart, 6, 9.5, 24300),
+    (v_chart, 6, 13.8, 24600),
+    (v_chart, 6, 18.4, 23700),
+    (v_chart, 6, 22.8, 23900),
+    (v_chart, 6, 27.4, 21000),
+    (v_chart, 6, 31.8, 15200),
+    (v_chart, 6, 36.3, 13600),
+    (v_chart, 6, 40.3, 9400),
+    (v_chart, 6, 44.4, 7700),
+    (v_chart, 6, 48, 6300),
+    (v_chart, 7, 9.5, 20400),
+    (v_chart, 7, 13.8, 21200),
+    (v_chart, 7, 18.4, 20700),
+    (v_chart, 7, 22.8, 20400),
+    (v_chart, 7, 27.4, 19200),
+    (v_chart, 7, 31.8, 15200),
+    (v_chart, 7, 36.3, 13600),
+    (v_chart, 7, 40.3, 9400),
+    (v_chart, 7, 44.4, 7700),
+    (v_chart, 7, 48, 6300),
+    (v_chart, 8, 13.8, 18500),
+    (v_chart, 8, 18.4, 18000),
+    (v_chart, 8, 22.8, 17700),
+    (v_chart, 8, 27.4, 17700),
+    (v_chart, 8, 31.8, 14500),
+    (v_chart, 8, 36.3, 13400),
+    (v_chart, 8, 40.3, 9400),
+    (v_chart, 8, 44.4, 7700),
+    (v_chart, 8, 48, 6300),
+    (v_chart, 9, 13.8, 16500),
+    (v_chart, 9, 18.4, 16100),
+    (v_chart, 9, 22.8, 15500),
+    (v_chart, 9, 27.4, 15900),
+    (v_chart, 9, 31.8, 13500),
+    (v_chart, 9, 36.3, 12500),
+    (v_chart, 9, 40.3, 9400),
+    (v_chart, 9, 44.4, 7700),
+    (v_chart, 9, 48, 6300),
+    (v_chart, 10, 13.8, 14600),
+    (v_chart, 10, 18.4, 14400),
+    (v_chart, 10, 22.8, 13800),
+    (v_chart, 10, 27.4, 14000),
+    (v_chart, 10, 31.8, 12600),
+    (v_chart, 10, 36.3, 11700),
+    (v_chart, 10, 40.3, 9400),
+    (v_chart, 10, 44.4, 7700),
+    (v_chart, 10, 48, 6300),
+    (v_chart, 11, 13.8, 13000),
+    (v_chart, 11, 18.4, 12800),
+    (v_chart, 11, 22.8, 12700),
+    (v_chart, 11, 27.4, 12400),
+    (v_chart, 11, 31.8, 11800),
+    (v_chart, 11, 36.3, 10900),
+    (v_chart, 11, 40.3, 9400),
+    (v_chart, 11, 44.4, 7700),
+    (v_chart, 11, 48, 6300),
+    (v_chart, 12, 18.4, 11500),
+    (v_chart, 12, 22.8, 11400),
+    (v_chart, 12, 27.4, 11000),
+    (v_chart, 12, 31.8, 11100),
+    (v_chart, 12, 36.3, 10300),
+    (v_chart, 12, 40.3, 8900),
+    (v_chart, 12, 44.4, 7700),
+    (v_chart, 12, 48, 6300),
+    (v_chart, 14, 18.4, 9000),
+    (v_chart, 14, 22.8, 9400),
+    (v_chart, 14, 27.4, 9100),
+    (v_chart, 14, 31.8, 8900),
+    (v_chart, 14, 36.3, 8500),
+    (v_chart, 14, 40.3, 8000),
+    (v_chart, 14, 44.4, 7000),
+    (v_chart, 14, 48, 6300),
+    (v_chart, 16, 18.4, 7800),
+    (v_chart, 16, 22.8, 7700),
+    (v_chart, 16, 27.4, 7400),
+    (v_chart, 16, 31.8, 7300),
+    (v_chart, 16, 36.3, 6700),
+    (v_chart, 16, 40.3, 7300),
+    (v_chart, 16, 44.4, 6400),
+    (v_chart, 16, 48, 5800),
+    (v_chart, 18, 22.8, 6300),
+    (v_chart, 18, 27.4, 6700),
+    (v_chart, 18, 31.8, 6500),
+    (v_chart, 18, 36.3, 5800),
+    (v_chart, 18, 40.3, 5900),
+    (v_chart, 18, 44.4, 5800),
+    (v_chart, 18, 48, 5300),
+    (v_chart, 20, 22.8, 5500),
+    (v_chart, 20, 27.4, 5700),
+    (v_chart, 20, 31.8, 5500),
+    (v_chart, 20, 36.3, 5200),
+    (v_chart, 20, 40.3, 4900),
+    (v_chart, 20, 44.4, 5000),
+    (v_chart, 20, 48, 4900),
+    (v_chart, 22, 27.4, 4900),
+    (v_chart, 22, 31.8, 4800),
+    (v_chart, 22, 36.3, 4700),
+    (v_chart, 22, 40.3, 4500),
+    (v_chart, 22, 44.4, 4400),
+    (v_chart, 22, 48, 4300),
+    (v_chart, 24, 27.4, 4200),
+    (v_chart, 24, 31.8, 4200),
+    (v_chart, 24, 36.3, 4100),
+    (v_chart, 24, 40.3, 4100),
+    (v_chart, 24, 44.4, 3700),
+    (v_chart, 24, 48, 3700),
+    (v_chart, 26, 31.8, 3600),
+    (v_chart, 26, 36.3, 3700),
+    (v_chart, 26, 40.3, 3600),
+    (v_chart, 26, 44.4, 3100),
+    (v_chart, 26, 48, 3100),
+    (v_chart, 28, 31.8, 3200),
+    (v_chart, 28, 36.3, 3300),
+    (v_chart, 28, 40.3, 3100),
+    (v_chart, 28, 44.4, 2700),
+    (v_chart, 28, 48, 2600),
+    (v_chart, 30, 36.3, 2900),
+    (v_chart, 30, 40.3, 2700),
+    (v_chart, 30, 44.4, 2300),
+    (v_chart, 30, 48, 2200),
+    (v_chart, 32, 36.3, 2600),
+    (v_chart, 32, 40.3, 2400),
+    (v_chart, 32, 44.4, 1900),
+    (v_chart, 32, 48, 1900),
+    (v_chart, 34, 40.3, 2100),
+    (v_chart, 34, 44.4, 1700),
+    (v_chart, 34, 48, 1600),
+    (v_chart, 36, 40.3, 1900),
+    (v_chart, 36, 44.4, 1400),
+    (v_chart, 36, 48, 1400),
+    (v_chart, 38, 44.4, 1200),
+    (v_chart, 38, 48, 1100),
+    (v_chart, 40, 44.4, 1000),
+    (v_chart, 40, 48, 900),
+    (v_chart, 42, 44.4, 600),
+    (v_chart, 42, 48, 700),
+    (v_chart, 44, 48, 600);
+end $charts$;
+
+-- tadano-faun-atf-90g-4
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Tadano');
+  if v_manu is null then raise exception 'constructeur inconnu : Tadano'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TADANO FAUN ATF 90G-4 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)'
+    and reference is not distinct from '3-90T-TADANO FAUN ATF 90G-4.pdf sha256:6edb7a8720327438' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TADANO FAUN ATF 90G-4 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)', '3-90T-TADANO FAUN ATF 90G-4.pdf sha256:6edb7a8720327438', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('ATF 90G-4');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'ATF 90G-4', null, '{"capacite_max_t":90,"fleche_principale_m":"11,1 - 51,2"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":90,"fleche_principale_m":"11,1 - 51,2"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw22-3t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw22-3t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 11,1-51,2 m, appui 7,2 m, 360°, contrepoids 22,3 t', '{"contrepoids_t":22.3,"base_calage_m":7.2,"zone":"360°","flechette":false,"categorie":"grue mobile tout-terrain","slug":"fleche-principale-360-cw22-3t"}'::jsonb, null, 'Tableau p. 3 : 12 colonnes de flèche (11,1 à 51,2 m), 30 lignes de portée (3,0 à 48,0 m). Colonne ''11,1 m*'' (à l''arrière) et ligne 2,5 m exclues du 360° ; valeur 76,1** (3,0 m, flèche 11,1 m, ''avec équipements supplémentaires'') non saisie car équipement non décrit. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 360 cellules, 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « 11.1 m* » et cellules « ** » bien exclues. Chute imprimée flèche 11,1 m : 35,4 t à 8 m puis 24,0 t à 9 m (fidèle). | Pages : p. 3 : Flèche principale (appui 7,2 m, 360°, contrepoids 22,3 t, DIN/ISO/EN). sha256 complet : 6edb7a8720327438e35a52eecd3323e4d99811070dfee55caa3916b0023c672f') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 11,1-51,2 m, appui 7,2 m, 360°, contrepoids 22,3 t', params = '{"contrepoids_t":22.3,"base_calage_m":7.2,"zone":"360°","flechette":false,"categorie":"grue mobile tout-terrain","slug":"fleche-principale-360-cw22-3t"}'::jsonb, hook_block_mass_kg = null, notes = 'Tableau p. 3 : 12 colonnes de flèche (11,1 à 51,2 m), 30 lignes de portée (3,0 à 48,0 m). Colonne ''11,1 m*'' (à l''arrière) et ligne 2,5 m exclues du 360° ; valeur 76,1** (3,0 m, flèche 11,1 m, ''avec équipements supplémentaires'') non saisie car équipement non décrit. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Tableau numérique imprimé (jamais lu sur courbe). Cellule ''-'' = vide dans le tableau. Masse de crochet/moufle et déductions non indiquées sur la page. Relecture : deux passes indépendantes, diff intégral 360 cellules, 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « 11.1 m* » et cellules « ** » bien exclues. Chute imprimée flèche 11,1 m : 35,4 t à 8 m puis 24,0 t à 9 m (fidèle). | Pages : p. 3 : Flèche principale (appui 7,2 m, 360°, contrepoids 22,3 t, DIN/ISO/EN). sha256 complet : 6edb7a8720327438e35a52eecd3323e4d99811070dfee55caa3916b0023c672f', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', 'DIN/ISO/EN', false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = 'DIN/ISO/EN', deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 14.8, 65000),
+    (v_chart, 3, 18.5, 65000),
+    (v_chart, 3.5, 11.1, 70100),
+    (v_chart, 3.5, 14.8, 65000),
+    (v_chart, 3.5, 18.5, 63200),
+    (v_chart, 3.5, 22.1, 50000),
+    (v_chart, 4, 11.1, 64200),
+    (v_chart, 4, 14.8, 63500),
+    (v_chart, 4, 18.5, 59200),
+    (v_chart, 4, 22.1, 50000),
+    (v_chart, 4, 25.8, 41300),
+    (v_chart, 4.5, 11.1, 59100),
+    (v_chart, 4.5, 14.8, 58700),
+    (v_chart, 4.5, 18.5, 55600),
+    (v_chart, 4.5, 22.1, 50000),
+    (v_chart, 4.5, 25.8, 40900),
+    (v_chart, 5, 11.1, 54600),
+    (v_chart, 5, 14.8, 54200),
+    (v_chart, 5, 18.5, 52300),
+    (v_chart, 5, 22.1, 50000),
+    (v_chart, 5, 25.8, 39200),
+    (v_chart, 5, 29.5, 31600),
+    (v_chart, 6, 11.1, 47300),
+    (v_chart, 6, 14.8, 46800),
+    (v_chart, 6, 18.5, 46800),
+    (v_chart, 6, 22.1, 45900),
+    (v_chart, 6, 25.8, 35000),
+    (v_chart, 6, 29.5, 31100),
+    (v_chart, 6, 33.2, 23800),
+    (v_chart, 7, 11.1, 41200),
+    (v_chart, 7, 14.8, 40700),
+    (v_chart, 7, 18.5, 40800),
+    (v_chart, 7, 22.1, 40800),
+    (v_chart, 7, 25.8, 33100),
+    (v_chart, 7, 29.5, 28800),
+    (v_chart, 7, 33.2, 23800),
+    (v_chart, 7, 36.9, 19700),
+    (v_chart, 7, 40.5, 15800),
+    (v_chart, 8, 11.1, 35400),
+    (v_chart, 8, 14.8, 35400),
+    (v_chart, 8, 18.5, 35500),
+    (v_chart, 8, 22.1, 35800),
+    (v_chart, 8, 25.8, 31200),
+    (v_chart, 8, 29.5, 28500),
+    (v_chart, 8, 33.2, 23600),
+    (v_chart, 8, 36.9, 19700),
+    (v_chart, 8, 40.5, 15800),
+    (v_chart, 8, 44.2, 12900),
+    (v_chart, 9, 11.1, 24000),
+    (v_chart, 9, 14.8, 31200),
+    (v_chart, 9, 18.5, 31400),
+    (v_chart, 9, 22.1, 31600),
+    (v_chart, 9, 25.8, 29500),
+    (v_chart, 9, 29.5, 28500),
+    (v_chart, 9, 33.2, 22000),
+    (v_chart, 9, 36.9, 19700),
+    (v_chart, 9, 40.5, 15800),
+    (v_chart, 9, 44.2, 12900),
+    (v_chart, 9, 47.9, 10200),
+    (v_chart, 10, 14.8, 26500),
+    (v_chart, 10, 18.5, 26700),
+    (v_chart, 10, 22.1, 27100),
+    (v_chart, 10, 25.8, 28000),
+    (v_chart, 10, 29.5, 27200),
+    (v_chart, 10, 33.2, 20600),
+    (v_chart, 10, 36.9, 18500),
+    (v_chart, 10, 40.5, 15800),
+    (v_chart, 10, 44.2, 12900),
+    (v_chart, 10, 47.9, 10200),
+    (v_chart, 10, 51.2, 8900),
+    (v_chart, 11, 14.8, 22600),
+    (v_chart, 11, 18.5, 23500),
+    (v_chart, 11, 22.1, 24700),
+    (v_chart, 11, 25.8, 24800),
+    (v_chart, 11, 29.5, 24100),
+    (v_chart, 11, 33.2, 19300),
+    (v_chart, 11, 36.9, 17400),
+    (v_chart, 11, 40.5, 15600),
+    (v_chart, 11, 44.2, 12900),
+    (v_chart, 11, 47.9, 10200),
+    (v_chart, 11, 51.2, 8900),
+    (v_chart, 12, 14.8, 20100),
+    (v_chart, 12, 18.5, 21800),
+    (v_chart, 12, 22.1, 21900),
+    (v_chart, 12, 25.8, 21600),
+    (v_chart, 12, 29.5, 21200),
+    (v_chart, 12, 33.2, 18100),
+    (v_chart, 12, 36.9, 16400),
+    (v_chart, 12, 40.5, 14800),
+    (v_chart, 12, 44.2, 12900),
+    (v_chart, 12, 47.9, 10200),
+    (v_chart, 12, 51.2, 8900),
+    (v_chart, 14, 18.5, 17200),
+    (v_chart, 14, 22.1, 17200),
+    (v_chart, 14, 25.8, 17000),
+    (v_chart, 14, 29.5, 16600),
+    (v_chart, 14, 33.2, 16200),
+    (v_chart, 14, 36.9, 14600),
+    (v_chart, 14, 40.5, 13300),
+    (v_chart, 14, 44.2, 12200),
+    (v_chart, 14, 47.9, 10200),
+    (v_chart, 14, 51.2, 8900),
+    (v_chart, 16, 18.5, 14000),
+    (v_chart, 16, 22.1, 14000),
+    (v_chart, 16, 25.8, 13800),
+    (v_chart, 16, 29.5, 13400),
+    (v_chart, 16, 33.2, 13800),
+    (v_chart, 16, 36.9, 13000),
+    (v_chart, 16, 40.5, 12000),
+    (v_chart, 16, 44.2, 11100),
+    (v_chart, 16, 47.9, 10200),
+    (v_chart, 16, 51.2, 8900),
+    (v_chart, 18, 22.1, 11700),
+    (v_chart, 18, 25.8, 11500),
+    (v_chart, 18, 29.5, 11100),
+    (v_chart, 18, 33.2, 11500),
+    (v_chart, 18, 36.9, 11200),
+    (v_chart, 18, 40.5, 10800),
+    (v_chart, 18, 44.2, 10100),
+    (v_chart, 18, 47.9, 9300),
+    (v_chart, 18, 51.2, 8700),
+    (v_chart, 20, 22.1, 9600),
+    (v_chart, 20, 25.8, 9700),
+    (v_chart, 20, 29.5, 9300),
+    (v_chart, 20, 33.2, 9700),
+    (v_chart, 20, 36.9, 9900),
+    (v_chart, 20, 40.5, 9000),
+    (v_chart, 20, 44.2, 9200),
+    (v_chart, 20, 47.9, 8600),
+    (v_chart, 20, 51.2, 8000),
+    (v_chart, 22, 25.8, 8300),
+    (v_chart, 22, 29.5, 8400),
+    (v_chart, 22, 33.2, 8300),
+    (v_chart, 22, 36.9, 8500),
+    (v_chart, 22, 40.5, 8300),
+    (v_chart, 22, 44.2, 8400),
+    (v_chart, 22, 47.9, 7900),
+    (v_chart, 22, 51.2, 7400),
+    (v_chart, 24, 29.5, 7800),
+    (v_chart, 24, 33.2, 7100),
+    (v_chart, 24, 36.9, 7500),
+    (v_chart, 24, 40.5, 7400),
+    (v_chart, 24, 44.2, 7300),
+    (v_chart, 24, 47.9, 7000),
+    (v_chart, 24, 51.2, 6900),
+    (v_chart, 26, 29.5, 6900),
+    (v_chart, 26, 33.2, 6300),
+    (v_chart, 26, 36.9, 6700),
+    (v_chart, 26, 40.5, 6500),
+    (v_chart, 26, 44.2, 6300),
+    (v_chart, 26, 47.9, 6000),
+    (v_chart, 26, 51.2, 6000),
+    (v_chart, 28, 33.2, 5900),
+    (v_chart, 28, 36.9, 5900),
+    (v_chart, 28, 40.5, 5700),
+    (v_chart, 28, 44.2, 5500),
+    (v_chart, 28, 47.9, 5200),
+    (v_chart, 28, 51.2, 5200),
+    (v_chart, 30, 33.2, 5300),
+    (v_chart, 30, 36.9, 5200),
+    (v_chart, 30, 40.5, 5000),
+    (v_chart, 30, 44.2, 4800),
+    (v_chart, 30, 47.9, 4500),
+    (v_chart, 30, 51.2, 4500),
+    (v_chart, 32, 36.9, 4700),
+    (v_chart, 32, 40.5, 4400),
+    (v_chart, 32, 44.2, 4200),
+    (v_chart, 32, 47.9, 3900),
+    (v_chart, 32, 51.2, 3900),
+    (v_chart, 34, 36.9, 4200),
+    (v_chart, 34, 40.5, 3900),
+    (v_chart, 34, 44.2, 3700),
+    (v_chart, 34, 47.9, 3400),
+    (v_chart, 34, 51.2, 3400),
+    (v_chart, 36, 40.5, 3500),
+    (v_chart, 36, 44.2, 3300),
+    (v_chart, 36, 47.9, 3000),
+    (v_chart, 36, 51.2, 3000),
+    (v_chart, 38, 40.5, 3100),
+    (v_chart, 38, 44.2, 2900),
+    (v_chart, 38, 47.9, 2600),
+    (v_chart, 38, 51.2, 2600),
+    (v_chart, 40, 44.2, 2600),
+    (v_chart, 40, 47.9, 2200),
+    (v_chart, 40, 51.2, 2200),
+    (v_chart, 42, 44.2, 2300),
+    (v_chart, 42, 47.9, 1900),
+    (v_chart, 42, 51.2, 1900),
+    (v_chart, 44, 47.9, 1700),
+    (v_chart, 44, 51.2, 1600),
+    (v_chart, 46, 51.2, 1400),
+    (v_chart, 48, 51.2, 1200);
+end $charts$;
+
+-- terex-a600
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_mobile';
+  if v_type is null then raise exception 'type_code inconnu : grue_mobile'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Terex');
+  if v_manu is null then raise exception 'constructeur inconnu : Terex'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'TEREX A600 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale + fléchette (fiche loueur FOSELEV)'
+    and reference is not distinct from '60T-TEREX A 600.pdf, sha256:5ef2a50a467bfeee' and edition is not distinct from null;
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)
+    values (null, 'TEREX A600 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale + fléchette (fiche loueur FOSELEV)', '60T-TEREX A 600.pdf, sha256:5ef2a50a467bfeee', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('A600');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'A600', null, '{"capacite_max_t":60,"fleche_principale_m":"10,3 - 32,4","flechette_m":"8 / 14 / 20","contrepoids_t":8.7,"base_calage_m":"7,2 x 6,6"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"capacite_max_t":60,"fleche_principale_m":"10,3 - 32,4","flechette_m":"8 / 14 / 20","contrepoids_t":8.7,"base_calage_m":"7,2 x 6,6"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration fleche-principale-360-cw8-7t
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'fleche-principale-360-cw8-7t';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Flèche principale 10,3-32,4 m, calage 7,2 x 6,6 m, 360°, contrepoids 8,7 t', '{"contrepoids_t":8.7,"base_calage_m":"7,2 x 6,6","zone":"360°","flechette":false,"slug":"fleche-principale-360-cw8-7t"}'::jsonb, null, 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Constructeur « Terex » (et non « Demag ») : la fiche est titrée « TEREX A600 » et ne porte aucune mention Demag. PDF vectorisé sans texte extractible : lecture visuelle du tableau p. 3 haut en deux passes indépendantes (passe 1 : rendu 200 dpi découpé par lignes ; passe 2 : rendu 300 dpi découpé par colonnes) ; diff intégral : 210 cellules (7 colonnes de flèche 10,3 à 32,4 m × 30 lignes de portée 3,0 à 30,0 m), 0 écart. 110 valeurs ; « - » du tableau = cellule vide. Norme : la mention « EUROPEAN STANDARD EN13000 » ne figure que sur le bandeau du tableau fléchette, pas sur celui-ci (standard = null). Unités métriques (t, m, décimale point). Prise en compte du crochet/moufle non indiquée (deductions_included = false par prudence : moufle non réputée déduite). Mouflage et vent non indiqués. Irrégularités reproduites telles qu''imprimées (ex. flèche 25,0 m : 3,2 t à 21 m puis 2,3 t à 22 m ; flèche 28,7 m : 3,4 t à 20 et 21 m ; capacités qui remontent quand la flèche s''allonge à certaines portées) — à contrôler en priorité sur l''abaque constructeur. RELECTURE 2026-10-11 : diff intégral des 7 colonnes contre le rendu 200 dpi p. 3 : 0 écart. Irrégularités vérifiées et FIDÈLES au tableau imprimé (à confirmer sur la doc constructeur) : flèche 25,0 m 3,2 t à 21 m puis 2,3 t à 22 m ; flèche 28,7 m 3,4 t à 20 et 21 m ; flèche 17,7 m 6,8 t à 14 m puis 6,6 t à 15 m. La mention « EUROPEAN STANDARD EN13000 » n''est imprimée que sur le bandeau du tableau fléchette (non saisi) : norme laissée à null pour la flèche principale. | Pages : p. 1 : cotation (dimensions) ; p. 2 : diagramme hauteurs/portées (non utilisé, courbes) ; p. 3 haut : tableau flèche principale 10,3-32,4 m, contrepoids 8,7 t, calage 7,2 x 6,6, 360° ; p. 3 bas : fléchette 8/14/20 m à 0°/20° sur flèche 32,4 m, bandeau « EUROPEAN STANDARD EN13000 » (non saisie)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Flèche principale 10,3-32,4 m, calage 7,2 x 6,6 m, 360°, contrepoids 8,7 t', params = '{"contrepoids_t":8.7,"base_calage_m":"7,2 x 6,6","zone":"360°","flechette":false,"slug":"fleche-principale-360-cw8-7t"}'::jsonb, hook_block_mass_kg = null, notes = 'Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Constructeur « Terex » (et non « Demag ») : la fiche est titrée « TEREX A600 » et ne porte aucune mention Demag. PDF vectorisé sans texte extractible : lecture visuelle du tableau p. 3 haut en deux passes indépendantes (passe 1 : rendu 200 dpi découpé par lignes ; passe 2 : rendu 300 dpi découpé par colonnes) ; diff intégral : 210 cellules (7 colonnes de flèche 10,3 à 32,4 m × 30 lignes de portée 3,0 à 30,0 m), 0 écart. 110 valeurs ; « - » du tableau = cellule vide. Norme : la mention « EUROPEAN STANDARD EN13000 » ne figure que sur le bandeau du tableau fléchette, pas sur celui-ci (standard = null). Unités métriques (t, m, décimale point). Prise en compte du crochet/moufle non indiquée (deductions_included = false par prudence : moufle non réputée déduite). Mouflage et vent non indiqués. Irrégularités reproduites telles qu''imprimées (ex. flèche 25,0 m : 3,2 t à 21 m puis 2,3 t à 22 m ; flèche 28,7 m : 3,4 t à 20 et 21 m ; capacités qui remontent quand la flèche s''allonge à certaines portées) — à contrôler en priorité sur l''abaque constructeur. RELECTURE 2026-10-11 : diff intégral des 7 colonnes contre le rendu 200 dpi p. 3 : 0 écart. Irrégularités vérifiées et FIDÈLES au tableau imprimé (à confirmer sur la doc constructeur) : flèche 25,0 m 3,2 t à 21 m puis 2,3 t à 22 m ; flèche 28,7 m 3,4 t à 20 et 21 m ; flèche 17,7 m 6,8 t à 14 m puis 6,6 t à 15 m. La mention « EUROPEAN STANDARD EN13000 » n''est imprimée que sur le bandeau du tableau fléchette (non saisi) : norme laissée à null pour la flèche principale. | Pages : p. 1 : cotation (dimensions) ; p. 2 : diagramme hauteurs/portées (non utilisé, courbes) ; p. 3 haut : tableau flèche principale 10,3-32,4 m, contrepoids 8,7 t, calage 7,2 x 6,6, 360° ; p. 3 bas : fléchette 8/14/20 m à 0°/20° sur flèche 32,4 m, bandeau « EUROPEAN STANDARD EN13000 » (non saisie)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'boom_length_m', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-10-11'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'boom_length_m', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-10-11'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 3, 10.3, 60000),
+    (v_chart, 3.5, 10.3, 49200),
+    (v_chart, 4, 10.3, 45000),
+    (v_chart, 4, 14, 41000),
+    (v_chart, 4, 17.7, 33800),
+    (v_chart, 4.5, 10.3, 38600),
+    (v_chart, 4.5, 14, 36500),
+    (v_chart, 4.5, 17.7, 31200),
+    (v_chart, 5, 10.3, 36000),
+    (v_chart, 5, 14, 36000),
+    (v_chart, 5, 17.7, 28500),
+    (v_chart, 5, 21.3, 24700),
+    (v_chart, 5, 25, 19900),
+    (v_chart, 6, 10.3, 31500),
+    (v_chart, 6, 14, 29000),
+    (v_chart, 6, 17.7, 25500),
+    (v_chart, 6, 21.3, 21800),
+    (v_chart, 6, 25, 18100),
+    (v_chart, 6, 28.7, 15500),
+    (v_chart, 7, 10.3, 25000),
+    (v_chart, 7, 14, 24000),
+    (v_chart, 7, 17.7, 21500),
+    (v_chart, 7, 21.3, 19000),
+    (v_chart, 7, 25, 16400),
+    (v_chart, 7, 28.7, 14400),
+    (v_chart, 7, 32.4, 11700),
+    (v_chart, 8, 10.3, 19800),
+    (v_chart, 8, 14, 19500),
+    (v_chart, 8, 17.7, 18600),
+    (v_chart, 8, 21.3, 16900),
+    (v_chart, 8, 25, 14700),
+    (v_chart, 8, 28.7, 13100),
+    (v_chart, 8, 32.4, 11000),
+    (v_chart, 9, 14, 17000),
+    (v_chart, 9, 17.7, 16800),
+    (v_chart, 9, 21.3, 14700),
+    (v_chart, 9, 25, 13400),
+    (v_chart, 9, 28.7, 12300),
+    (v_chart, 9, 32.4, 10600),
+    (v_chart, 10, 14, 14000),
+    (v_chart, 10, 17.7, 13800),
+    (v_chart, 10, 21.3, 13500),
+    (v_chart, 10, 25, 12100),
+    (v_chart, 10, 28.7, 11200),
+    (v_chart, 10, 32.4, 9600),
+    (v_chart, 11, 14, 13000),
+    (v_chart, 11, 17.7, 11300),
+    (v_chart, 11, 21.3, 11300),
+    (v_chart, 11, 25, 9800),
+    (v_chart, 11, 28.7, 10300),
+    (v_chart, 11, 32.4, 8800),
+    (v_chart, 12, 14, 10900),
+    (v_chart, 12, 17.7, 9700),
+    (v_chart, 12, 21.3, 9700),
+    (v_chart, 12, 25, 9000),
+    (v_chart, 12, 28.7, 9500),
+    (v_chart, 12, 32.4, 8200),
+    (v_chart, 13, 17.7, 8400),
+    (v_chart, 13, 21.3, 8400),
+    (v_chart, 13, 25, 8400),
+    (v_chart, 13, 28.7, 8800),
+    (v_chart, 13, 32.4, 7600),
+    (v_chart, 14, 17.7, 6800),
+    (v_chart, 14, 21.3, 7200),
+    (v_chart, 14, 25, 7200),
+    (v_chart, 14, 28.7, 7100),
+    (v_chart, 14, 32.4, 7100),
+    (v_chart, 15, 17.7, 6600),
+    (v_chart, 15, 21.3, 6400),
+    (v_chart, 15, 25, 6400),
+    (v_chart, 15, 28.7, 6400),
+    (v_chart, 15, 32.4, 6400),
+    (v_chart, 16, 21.3, 5800),
+    (v_chart, 16, 25, 5800),
+    (v_chart, 16, 28.7, 5800),
+    (v_chart, 16, 32.4, 5800),
+    (v_chart, 17, 21.3, 5100),
+    (v_chart, 17, 25, 5100),
+    (v_chart, 17, 28.7, 5500),
+    (v_chart, 17, 32.4, 5600),
+    (v_chart, 18, 21.3, 4500),
+    (v_chart, 18, 25, 4500),
+    (v_chart, 18, 28.7, 4400),
+    (v_chart, 18, 32.4, 4300),
+    (v_chart, 19, 21.3, 4000),
+    (v_chart, 19, 25, 4000),
+    (v_chart, 19, 28.7, 4100),
+    (v_chart, 19, 32.4, 4000),
+    (v_chart, 20, 25, 3600),
+    (v_chart, 20, 28.7, 3400),
+    (v_chart, 20, 32.4, 3700),
+    (v_chart, 21, 25, 3200),
+    (v_chart, 21, 28.7, 3400),
+    (v_chart, 21, 32.4, 3500),
+    (v_chart, 22, 25, 2300),
+    (v_chart, 22, 28.7, 2800),
+    (v_chart, 22, 32.4, 3100),
+    (v_chart, 23, 25, 2200),
+    (v_chart, 23, 28.7, 2700),
+    (v_chart, 23, 32.4, 2900),
+    (v_chart, 24, 28.7, 2600),
+    (v_chart, 24, 32.4, 2800),
+    (v_chart, 25, 28.7, 2400),
+    (v_chart, 25, 32.4, 2600),
+    (v_chart, 26, 28.7, 2000),
+    (v_chart, 26, 32.4, 2300),
+    (v_chart, 27, 32.4, 2100),
+    (v_chart, 28, 32.4, 1800),
+    (v_chart, 29, 32.4, 1600),
+    (v_chart, 30, 32.4, 1500);
 end $charts$;

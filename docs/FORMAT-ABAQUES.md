@@ -33,6 +33,7 @@ Les clés inconnues sont refusées (schéma strict). `chart.notes` et `source.pa
 - `y` = longueur de flèche ou hauteur (m) selon `axis_y` ; `y = 0` si `axis_y = none`.
 - `capacity` dans l'unité déclarée (`unit`) ; convertie en kg à l'import. Maximum 1 décimale en kg, 2 décimales pour portée et y.
 - **Cellule vide = capacité vide dans le tableau constructeur (pas 0).** Elle est signalée en warning et non insérée en base (absence de nœud = hors abaque).
+- **Case vide intérieure = ERREUR bloquante.** Pour une ligne y, toute portée de la grille de la configuration (union des portées de toutes les lignes) strictement comprise entre la plus petite et la plus grande portée renseignée de la ligne doit être renseignée (sinon le moteur lirait le minimum des voisins là où le tableau imprime « - »). Une portée omise du CSV est détectée de la même façon. Correction : couper la ligne au trou en gardant le segment des petites portées (le reste devient hors abaque), ou corriger la saisie. Exception `axis_y = height_m` (ISO 10567) : la portée maximale propre à chaque ligne n'est pas une colonne de la grille.
 
 ## Commandes
 

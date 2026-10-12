@@ -1,0 +1,65 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile_chenilles",
+  "model": "LR 1200",
+  "specs": {
+    "capacite_nominale_t": 220,
+    "fleche_principale_m": "20 - 62",
+    "contrepoids": "50,9 t + 36 t ; 81 t + 36 t (libellés de la fiche)"
+  },
+  "source": {
+    "document_title": "LIEBHERR LR 1200 — 220 tonnes : Cotation, Capacité de levage, Flèche principale, Flèche principale + Volée variable, Automontage (fiche FOSELEV, 5 pages, pages catalogue 202-206)",
+    "reference": "200T-LIEBHERR LR 1200.pdf ; sha256:1db941b4012052077a",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 (page catalogue 204) : deux tableaux « Flèche principale » 20-62 m, 360°, DIN ISO 75 % — haut : 50,9 t + 36 t ; bas : 81 t + 36 t. PDF sha256:1db941b4012052077a866ec506da8a2ab390770fa12141f86f4ffe42610d107e"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw50t9-36t",
+      "label": "Flèche principale 20-62 m, 360°, contrepoids 50,9 t + 36 t (fiche incohérente, voir notes)",
+      "params": {
+        "longueur_fleche_m_plage": "20 - 62",
+        "contrepoids_t": "50,9 + 36",
+        "zone": "360°",
+        "flechette": "non",
+        "categorie": "grue sur chenilles (flèche treillis)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "lr1200-fleche-principale-360-cw50t9-36t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (pictogramme fiche FOSELEV), 75 %",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 haut (page catalogue 204), 10 colonnes de flèche (20 à 62 m) x 23 lignes de portée (4 à 62 m), toutes saisies. Mention de la fiche : également disponible en 26, 32, 38, 47 et 53 m de flèche principale (non tabulé). INCOHÉRENCE DE LA FICHE (à lever avant tout usage) : le tableau étiqueté « 81 t + 36 t » donne des capacités INFÉRIEURES au tableau « 50,9 t + 36 t » à partir de 6 m de portée (ex. flèche 20 m : 84,9 contre 113,5 t à 10 m) — étiquettes de contrepoids possiblement inversées par le loueur ; les deux tableaux partagent aussi des valeurs identiques suspectes (flèche 29 m à 30 m : 12,1 t dans les deux, après 30,4/21,7 t à 26 m ; lignes 7-8 m des flèches 50-62 m). Valeurs reproduites telles qu'imprimées, relues au zoom 450 dpi.  Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 230 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d'une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). EXCLU DE LA MISE EN LIGNE (relecture 2026-10-11, décision de sécurité) : dossier renommé _exclu-… (ignoré par charts:sql) — voir docs/ABAQUES.md."
+      }
+    },
+    {
+      "slug": "fleche-principale-360-cw81t-36t",
+      "label": "Flèche principale 20-62 m, 360°, contrepoids 81 t + 36 t (fiche incohérente, voir notes)",
+      "params": {
+        "longueur_fleche_m_plage": "20 - 62",
+        "contrepoids_t": "81 + 36",
+        "zone": "360°",
+        "flechette": "non",
+        "categorie": "grue sur chenilles (flèche treillis)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "lr1200-fleche-principale-360-cw81t-36t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (pictogramme fiche FOSELEV), 75 %",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 bas (page catalogue 204), 10 colonnes de flèche (20 à 62 m) x 23 lignes de portée (4 à 62 m), toutes saisies. INCOHÉRENCE DE LA FICHE (à lever avant tout usage) : le tableau étiqueté « 81 t + 36 t » donne des capacités INFÉRIEURES au tableau « 50,9 t + 36 t » à partir de 6 m de portée (ex. flèche 20 m : 84,9 contre 113,5 t à 10 m) — étiquettes de contrepoids possiblement inversées par le loueur ; les deux tableaux partagent aussi des valeurs identiques suspectes (flèche 29 m à 30 m : 12,1 t dans les deux, après 30,4/21,7 t à 26 m ; lignes 7-8 m des flèches 50-62 m). Valeurs reproduites telles qu'imprimées, relues au zoom 450 dpi. Autres anomalies : flèche 59 m 58,4 t à 7 m puis 66,8 t à 8 m ; flèche 62 m 11,8 t à 34 m (13,2 t pour 59 m). Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 230 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d'une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). EXCLU DE LA MISE EN LIGNE (relecture 2026-10-11, décision de sécurité) : dossier renommé _exclu-… (ignoré par charts:sql) — voir docs/ABAQUES.md."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

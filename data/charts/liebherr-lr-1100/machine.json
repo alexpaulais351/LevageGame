@@ -1,0 +1,65 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile_chenilles",
+  "model": "LR 1100",
+  "specs": {
+    "capacite_nominale_t": 100,
+    "fleche_principale_m": "14 - 68",
+    "contrepoids": "32 t + 15 t (max fiche) ; 26,3 t + 0 t"
+  },
+  "source": {
+    "document_title": "LIEBHERR LR 1100 — 100 tonnes : Cotation, Capacité de levage, Flèche principale (fiche FOSELEV, 3 pages, pages catalogue 198-200)",
+    "reference": "100T-LIEBHERR LR 1100.pdf ; sha256:8081115995a117cf",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 (page catalogue 200) : deux tableaux « Flèche principale » 360°, DIN ISO 75 % — haut : flèche 14-68 m, contrepoids 32 t + 15 t ; bas : flèche 14-59 m, contrepoids 26,3 t + 0 t. PDF sha256:8081115995a117cf74cd1ec9cff13a62c6761f2605bdfa558ea9d28ea4b3943d"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw32t-15t",
+      "label": "Flèche principale 14-68 m, 360°, contrepoids 32 t + 15 t",
+      "params": {
+        "longueur_fleche_m_plage": "14 - 68",
+        "contrepoids_t": "32 + 15",
+        "zone": "360°",
+        "flechette": "non",
+        "categorie": "grue sur chenilles (flèche treillis)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "lr1100-fleche-principale-360-cw32t-15t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (pictogramme fiche FOSELEV), 75 %",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 haut (page catalogue 200), 10 colonnes de flèche (14 à 68 m) x 22 lignes de portée (3,1 à 50 m), toutes saisies. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d'une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). Anomalies reproduites telles qu'imprimées : colonne 62 m inférieure à la colonne 68 m à 30 et 32 m de portée (5,3/5,5 ; 4,8/4,9) ; 104,5 t à 3,1 m pour une machine annoncée 100 t ; intitulé « Telescopic boom » imprimé par erreur sur une grue à flèche treillis. A vérifier sur la doc Liebherr. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (20 colonnes) contre le rendu 200 dpi p. 3 : 0 écart. NB : la fiche FOSELEV titre « Telescopic boom » un tableau de grue à flèche treillis (erreur de mise en page du loueur, sans effet sur les valeurs)."
+      }
+    },
+    {
+      "slug": "fleche-principale-360-cw26t3",
+      "label": "Flèche principale 14-59 m, 360°, contrepoids 26,3 t + 0 t",
+      "params": {
+        "longueur_fleche_m_plage": "14 - 59",
+        "contrepoids_t": "26,3 + 0",
+        "zone": "360°",
+        "flechette": "non",
+        "categorie": "grue sur chenilles (flèche treillis)"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "lr1100-fleche-principale-360-cw26t3.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (pictogramme fiche FOSELEV), 75 %",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3 bas (page catalogue 200), 10 colonnes de flèche (14 à 59 m) x 22 lignes de portée (4 à 44 m), toutes saisies. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), PDF scanné (quasi sans texte) : lecture VISUELLE du tableau imprimé (aucune lecture de courbe). Passe A : rendu pdftoppm 300 dpi (200 dpi pour LR 1100), tableau entier lu ligne par ligne ; passe B indépendante : rendu 450 dpi, recadrage en deux demi-tableaux (5 colonnes + colonne des portées), lu colonne par colonne ; diff intégral (en-têtes de flèche, portées et toutes cellules, vides compris) : 220 cellules, 0 écart. Cellules « - » (ou vides) = vides dans le tableau, non saisies. Pictogrammes de la fiche : 360°, « DIN ISO », 75 % (taux de basculement) ; aucune mention EN 13000 ; tableau métrique en t/m (pas de conversion d'une édition US apparente). Masse du crochet/moufle et mouflage non indiqués (hook_block_mass_kg = null) ; aucune déduction documentée (deductions_included = false par prudence). Intitulé « Telescopic boom » imprimé par erreur sur une grue à flèche treillis. RELECTURE 2026-10-11 : diff intégral visuel des 2 tableaux (20 colonnes) contre le rendu 200 dpi p. 3 : 0 écart. NB : la fiche FOSELEV titre « Telescopic boom » un tableau de grue à flèche treillis (erreur de mise en page du loueur, sans effet sur les valeurs)."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

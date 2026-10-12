@@ -1,0 +1,71 @@
+{
+  "manufacturer": "Caterpillar",
+  "type_code": "pelle_rail_route",
+  "model": "M323F",
+  "specs": {
+    "designation": "Pelle excavatrice à roues pour chemin de fer",
+    "poids_en_ordre_de_marche_kg": "22 900 - 23 900",
+    "contrepoids_standard_kg": 6400,
+    "contrepoids_option_kg": 7400,
+    "longueur_bras_mm": 2100
+  },
+  "source": {
+    "document_title": "M323F — Pelle excavatrice à roues pour chemin de fer — Caractéristiques techniques",
+    "reference": "AFXQ2372 (07-2018) (France, Allemagne) ; CATERPILLAR M323F Pelles-Rail-Route.pdf, sha256:0e6d8c5af3e5783a",
+    "edition": "07-2018 (France, Allemagne)",
+    "url": null,
+    "publisher": "Document constructeur fourni par l'utilisateur",
+    "page_refs": "p. 1-2 : spécifications (poids) ; p. 6 : capacités de levage contrepoids 6,4 t mode route (1re table, saisie) et 7,4 t mode route ; p. 7-10 : modes rail (voie en palier, dévers 200 mm) non saisis"
+  },
+  "configurations": [
+    {
+      "slug": "route-cw6-4t-devant",
+      "label": "Mode route, contrepoids 6,4 t, bras 2 100 mm, point de l'outil, charge au-dessus de l'avant (« Charge sur le devant », 1re colonne de chaque groupe)",
+      "params": {
+        "contrepoids_kg": 6400,
+        "mode": "route",
+        "bras_mm": 2100,
+        "fleche": "flèche à volée variable",
+        "point_de_charge": "POINT DE L'OUTIL",
+        "orientation": "devant",
+        "support": "sol ferme et uniforme, essieu oscillant verrouillé"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "route-cw6-4t-devant.csv",
+        "axis_y": "height_m",
+        "unit": "kg",
+        "standard": "ISO 10567:2007",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Document constructeur (Caterpillar, AFXQ2372 (07-2018), édition France/Allemagne, en français, unités kg/mm) fourni par l'utilisateur. Table p. 6 « Capacités de levage – Flèche – Volée variable – Contrepoids : 6,4 t – Mode route » (1re table de la page), bras 2 100 mm, lignes « POINT DE L'OUTIL » seules (les lignes « ALP », terme non défini dans le document, ne sont pas saisies). Colonnes : groupes de portée fixe 3 000/4 500/6 000/7 500 mm et groupe « charge à portée maximale » (portée réelle imprimée de chaque ligne dans la colonne mm, saisie en mm/1000 TRONQUÉE au centimètre par le format 2 décimales, donc jamais au-dessus de la portée imprimée : ex. 5 093 mm saisi 5,09 m) ; ici colonne devant ; ordre des pictogrammes (devant, arrière, côté) = ordre de la légende de la table. y = hauteur du point de chargement (7 500 à 0 mm). NON SAISI : lignes de hauteur négative −1 500 mm et −3 000 mm (le format refuse une hauteur négative) ; orientation « arrière » ; lignes ALP ; table contrepoids 7,4 t et modes rail (p. 7-10). Norme ISO 10567:2007 : capacités ≤ 87 % de la capacité hydraulique ou 75 % de la charge de basculement ; le poids du godet/attache rapide/accessoires doit être soustrait (deductions_included = false) ; sol ferme et uniforme, essieu oscillant verrouillé, vérin de flèche variable à longueur maximale ; « * » = limité par la charge hydraulique plutôt que par le basculement : 22 valeurs concernées saisies sans l'astérisque (portée m ; hauteur m) (4.5 m ; 7.5 m), (5.09 m ; 7.5 m), (4.5 m ; 6.0 m), (6.0 m ; 6.0 m), (6.44 m ; 6.0 m), (3.0 m ; 4.5 m), (4.5 m ; 4.5 m), (6.0 m ; 4.5 m), (7.21 m ; 4.5 m), (3.0 m ; 3.0 m), (4.5 m ; 3.0 m), (6.0 m ; 3.0 m), (7.59 m ; 3.0 m), (3.0 m ; 1.5 m), (4.5 m ; 1.5 m), (6.0 m ; 1.5 m), (7.5 m ; 1.5 m), (7.64 m ; 1.5 m), (3.0 m ; 0.0 m), (4.5 m ; 0.0 m), (6.0 m ; 0.0 m), (7.38 m ; 0.0 m). Cellules vides du tableau = vides dans le CSV (8 cellules de portée fixe vides) ; une cellule de portée maximale vide n'est pas listée. 22 valeurs saisies (30 lignes). Passe A : pdfplumber, colonnes par arête droite des nombres ; passe B : colonnes par les filets verticaux du tableau ; lecture visuelle du rendu 130 dpi ; diff intégral : 159 cellules numériques (lignes POINT et ALP, 3 colonnes × 5 groupes + portée), 0 écart. PDF sha256 complet 0e6d8c5af3e5783a8398f4b7762a4e7824b7a78b72500fa223e91788933c9a4c. RELECTURE 2026-10-11 (règle case vide intérieure) : ligne hauteur 3 000 mm, la colonne 7 500 mm est vide sur le tableau imprimé alors que la portée max imprimée est 7 593 mm ; ligne coupée au trou : le nœud de portée max 7,59 m de cette ligne est retiré (au-delà de 6 m à 3 m de hauteur = hors abaque, sens de la sécurité). Échantillonnage contre le rendu 200 dpi p. 6 : diff intégral des 2 configurations, 0 écart."
+      }
+    },
+    {
+      "slug": "route-cw6-4t-cote",
+      "label": "Mode route, contrepoids 6,4 t, bras 2 100 mm, point de l'outil, charge sur le côté (« Charge sur le côté », 3e colonne de chaque groupe)",
+      "params": {
+        "contrepoids_kg": 6400,
+        "mode": "route",
+        "bras_mm": 2100,
+        "fleche": "flèche à volée variable",
+        "point_de_charge": "POINT DE L'OUTIL",
+        "orientation": "côté",
+        "support": "sol ferme et uniforme, essieu oscillant verrouillé"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "route-cw6-4t-cote.csv",
+        "axis_y": "height_m",
+        "unit": "kg",
+        "standard": "ISO 10567:2007",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Document constructeur (Caterpillar, AFXQ2372 (07-2018), édition France/Allemagne, en français, unités kg/mm) fourni par l'utilisateur. Table p. 6 « Capacités de levage – Flèche – Volée variable – Contrepoids : 6,4 t – Mode route » (1re table de la page), bras 2 100 mm, lignes « POINT DE L'OUTIL » seules (les lignes « ALP », terme non défini dans le document, ne sont pas saisies). Colonnes : groupes de portée fixe 3 000/4 500/6 000/7 500 mm et groupe « charge à portée maximale » (portée réelle imprimée de chaque ligne dans la colonne mm, saisie en mm/1000 TRONQUÉE au centimètre par le format 2 décimales, donc jamais au-dessus de la portée imprimée : ex. 5 093 mm saisi 5,09 m) ; ici colonne côté ; ordre des pictogrammes (devant, arrière, côté) = ordre de la légende de la table. y = hauteur du point de chargement (7 500 à 0 mm). NON SAISI : lignes de hauteur négative −1 500 mm et −3 000 mm (le format refuse une hauteur négative) ; orientation « arrière » ; lignes ALP ; table contrepoids 7,4 t et modes rail (p. 7-10). Norme ISO 10567:2007 : capacités ≤ 87 % de la capacité hydraulique ou 75 % de la charge de basculement ; le poids du godet/attache rapide/accessoires doit être soustrait (deductions_included = false) ; sol ferme et uniforme, essieu oscillant verrouillé, vérin de flèche variable à longueur maximale ; « * » = limité par la charge hydraulique plutôt que par le basculement : 8 valeurs concernées saisies sans l'astérisque (portée m ; hauteur m) (4.5 m ; 7.5 m), (4.5 m ; 6.0 m), (3.0 m ; 4.5 m), (4.5 m ; 4.5 m), (3.0 m ; 3.0 m), (4.5 m ; 3.0 m), (3.0 m ; 1.5 m), (4.5 m ; 1.5 m). Cellules vides du tableau = vides dans le CSV (8 cellules de portée fixe vides) ; une cellule de portée maximale vide n'est pas listée. 22 valeurs saisies (30 lignes). Passe A : pdfplumber, colonnes par arête droite des nombres ; passe B : colonnes par les filets verticaux du tableau ; lecture visuelle du rendu 130 dpi ; diff intégral : 159 cellules numériques (lignes POINT et ALP, 3 colonnes × 5 groupes + portée), 0 écart. PDF sha256 complet 0e6d8c5af3e5783a8398f4b7762a4e7824b7a78b72500fa223e91788933c9a4c. RELECTURE 2026-10-11 (règle case vide intérieure) : ligne hauteur 3 000 mm, la colonne 7 500 mm est vide sur le tableau imprimé alors que la portée max imprimée est 7 593 mm ; ligne coupée au trou : le nœud de portée max 7,59 m de cette ligne est retiré (au-delà de 6 m à 3 m de hauteur = hors abaque, sens de la sécurité). Échantillonnage contre le rendu 200 dpi p. 6 : diff intégral des 2 configurations, 0 écart."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

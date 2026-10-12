@@ -1,0 +1,70 @@
+{
+  "manufacturer": "Liebherr",
+  "type_code": "grue_mobile",
+  "model": "LTM 1070-4.1",
+  "specs": {
+    "capacite_max_t": 70,
+    "contrepoids_t": 14.5,
+    "fleche_telescopique_m": "11 - 50",
+    "flechette_m": 9.5
+  },
+  "source": {
+    "document_title": "LIEBHERR LTM 1070-4.1 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)",
+    "reference": "70T-LIEBHERR LTM 1070-4.1.pdf (sha256:b3d53dd6f8a0c17c)",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : flèche principale 11-50 m, 360°, 14,5 t ; p. 5 : flèche principale + fléchette 9,5 m. PDF sha256 complet : b3d53dd6f8a0c17c8155c861b8da9733e015bec9136c026297de6cd603b6f951"
+  },
+  "configurations": [
+    {
+      "slug": "telescopique-360-cw14-5t",
+      "label": "Flèche télescopique 11-50 m, calage sorti, 360°, contrepoids 14,5 t",
+      "params": {
+        "longueur_fleche_m": "11 - 50",
+        "contrepoids_t": 14.5,
+        "zone": "360°",
+        "base_calage_mm": null,
+        "flechette": false,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "telescopique-360-cw14-5t.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (picto imprimé « DIN ISO »)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « DIN ISO » (pas EN 13000). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Saisi : 12 longueurs (11 à 50 m) x 26 portées (2,5 à 40 m) = 312 cellules. Aucune indication de déduction du crochet. Diff intégral : pdfplumber vs poppler -bbox vs pdftotext -layout, 26 lignes x 13 colonnes (colonne * incluse), 0 écart. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue."
+      }
+    },
+    {
+      "slug": "flechette-9-5m-0deg",
+      "label": "Flèche télescopique + fléchette 9,5 m à 0°, calage sorti, 360°, contrepoids 14,5 t",
+      "params": {
+        "longueur_fleche_m": "11 - 28,9",
+        "contrepoids_t": 14.5,
+        "zone": "360°",
+        "base_calage_mm": null,
+        "flechette": true,
+        "longueur_flechette_m": 9.5,
+        "angle_flechette_deg": 0,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "flechette-9-5m-0deg.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "DIN/ISO (picto imprimé « DIN ISO »)",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Norme imprimée : picto « DIN ISO » (pas EN 13000). Pictos imprimés : stabilisateurs sortis (pas de cote de base sur le tableau ; cotes de calage de la p. 1 non reprises), 360°, 14,5 t. Colonne « * en arrière » (secteur restreint) de 11 m EXCLUE ; cellules vides = vides dans le tableau. Tableau p. 5 : seule la colonne 0° des 6 longueurs imprimées (11 ; 14,6 ; 18,2 ; 21,8 ; 25,4 ; 28,9 m) est saisie = 6 x 23 portées (3 à 36 m) = 138 cellules (le tableau n'imprime pas les flèches > 28,9 m). Angles 20°/40°/60° non saisis. Diff intégral : 23 lignes x 24 colonnes (toutes colonnes imprimées), 0 écart entre les 3 lectures. RELECTURE 2026-10-11 : échantillon visuel 10 cellules par configuration (2 en bord) sur rendu 200 dpi (p. 3 et p. 5) : 0 écart ; sous-colonne « * en arrière » de 11 m bien exclue."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}

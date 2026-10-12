@@ -1,0 +1,45 @@
+{
+  "manufacturer": "Grove",
+  "type_code": "grue_mobile",
+  "model": "GMK 5130-2",
+  "specs": {
+    "capacite_max_t": 130,
+    "contrepoids_t": 40.1,
+    "fleche_principale_m": "12,9 - 60",
+    "base_calage_m": 7.5
+  },
+  "source": {
+    "document_title": "GROVE GMK 5130-2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)",
+    "reference": "130T-GROVE GMK 5130-2.pdf ; sha256:676eec7f29b2e3fb",
+    "edition": null,
+    "url": null,
+    "publisher": "Fiche loueur FOSELEV fournie par l'utilisateur",
+    "page_refs": "p. 3 : tableau flèche principale 12,9-60 m, base 7,5 m, 360°, 40,1 t, EN 13000"
+  },
+  "configurations": [
+    {
+      "slug": "fleche-principale-360-cw40t1",
+      "label": "Flèche principale 12,9-60 m, calage 7,5 m, 360°, contrepoids 40,1 t",
+      "params": {
+        "contrepoids_t": 40.1,
+        "base_calage_m": 7.5,
+        "zone": "360°",
+        "flechette": false,
+        "categorie": "grue mobile sur pneus"
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "gmk5130-360-40t1-fleche-principale.csv",
+        "axis_y": "boom_length_m",
+        "unit": "t",
+        "standard": "EN 13000",
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "Tableau p. 3, 11 colonnes de flèche 360° saisies (12,90 à 60,00 m ; valeurs de flèche telles qu'imprimées) et 34 lignes de portée (3 à 56 m). Colonne « 12,90* » (en arrière) et ligne 2,2 m (« 130,0**/116,0* », secteur restreint) EXCLUES. Diff intégral : 224 cellules (colonne exclue incluse), 0 écart (pdfplumber + pdftotext -layout + rendu PNG). Tableaux flèche + fléchette (p. 5) non saisis : dimension angle de déport non représentable. Valeurs reprises de la fiche FOSELEV ; conformité à la documentation constructeur à confirmer. Document fourni par l'utilisateur (aucun téléchargement), fiche mise en page par le loueur FOSELEV (logo FOSELEV), tableau métrique en tonnes/mètres (non converti d'une édition US : portées et capacités non multiples de pieds/livres). Cellules « - » = vides dans le tableau, non saisies. Capacités non monotones reproduites telles quelles. Masse du crochet et mouflage non indiqués (hook_block_mass_kg = null). Aucune déduction documentée (deductions_included = false par prudence). RELECTURE 2026-10-11 : échantillon visuel 10 cellules (2 en bord) sur rendu 200 dpi p. 3 : 0 écart ; colonne « 12,90* » et ligne 2,2 m bien exclues."
+      }
+    }
+  ],
+  "entered_at": "2026-10-11",
+  "entered_by": "agent-saisie",
+  "status": "a_verifier"
+}
