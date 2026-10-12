@@ -8,6 +8,7 @@ import type { FamilleVehicule } from "@/engine/transport";
 export const VEHICULES: FamilleVehicule[] = [
   {
     id: "porteur-grue",
+    silhouette: "porteur",
     nom: "Porteur plateau 6x4 avec grue auxiliaire",
     description: "Petites pièces et livraisons chantier ; se décharge seul avec sa grue.",
     plateauM: 7.2,
@@ -21,6 +22,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "porteur-8x4",
+    silhouette: "porteur",
     nom: "Porteur plateau 8x4",
     description: "Pièces compactes et lourdes, accès chantier étroits.",
     plateauM: 8.5,
@@ -34,6 +36,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "semi-plateau",
+    silhouette: "semi",
     nom: "Semi-remorque plateau standard",
     description: "Le cas courant : prédalles, poutres jusqu'à ~14 m, modules.",
     plateauM: 13.6,
@@ -47,6 +50,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "semi-extensible",
+    silhouette: "semi",
     nom: "Semi-remorque plateau extensible",
     description: "Pièces longues (poutres, charpente, éléments de grue) : le plateau s'allonge.",
     plateauM: 13.6,
@@ -60,6 +64,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "surbaissee",
+    silhouette: "surbaissee",
     nom: "Semi-surbaissée télescopique (porte-engins)",
     description: "Pièces hautes ou lourdes, engins : plancher bas pour gagner en hauteur (ex. Faymonville MAX : 9,3 à 22,6 m, plancher ≈ 0,9 m).",
     plateauM: 9.3,
@@ -73,6 +78,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "porte-panneaux",
+    silhouette: "porte-panneaux",
     nom: "Semi porte-panneaux (inloader)",
     description: "Voiles et panneaux béton transportés debout, calés entre les longerons : plancher très bas.",
     plateauM: 9,
@@ -87,6 +93,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "porte-poutres",
+    silhouette: "porte-poutres",
     nom: "Ensemble porte-poutres (tracteur + dolly autodirectionnel)",
     description: "Poutres béton précontraintes et grandes charpentes : la pièce fait la liaison entre la sellette et le dolly arrière.",
     plateauM: 12,
@@ -100,6 +107,7 @@ export const VEHICULES: FamilleVehicule[] = [
   },
   {
     id: "modulaire",
+    silhouette: "modulaire",
     nom: "Convoi modulaire (remorques à lignes d'essieux)",
     description: "Pièces très lourdes ou très larges (cuves, transformateurs) : modules assemblables, 3 m de large (ex. Goldhofer THP, plancher ≈ 1,2 m).",
     plateauM: 9,

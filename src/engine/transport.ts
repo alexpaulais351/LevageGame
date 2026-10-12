@@ -61,6 +61,8 @@ export interface FamilleVehicule {
   longueurStandardM: number;
   /** Transport debout (panneaux en pupitre / inloader) : la hauteur est mesurée depuis le plancher bas. */
   pupitre?: boolean;
+  /** Silhouette pour les schémas (sans effet sur le calcul). */
+  silhouette?: "porteur" | "semi" | "surbaissee" | "porte-poutres" | "modulaire" | "porte-panneaux";
 }
 
 export interface PieceTransport {
