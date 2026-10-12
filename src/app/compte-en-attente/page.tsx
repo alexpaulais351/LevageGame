@@ -28,7 +28,7 @@ export default async function PageCompteEnAttente({ searchParams }: { searchPara
   const ctx = await contexteUtilisateur();
   if (!ctx) redirect("/login");
   const etat = await etatCompte();
-  if (etat?.statut === "approuve") redirect("/projets");
+  if (etat?.statut === "approuve") redirect("/");
   const statut = etat?.statut ?? "en_attente";
   const { nouveau } = await searchParams;
   const texte = TEXTES[statut];

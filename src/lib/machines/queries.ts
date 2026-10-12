@@ -16,7 +16,7 @@ export interface SourceResume {
   edition: string | null;
   url: string | null;
   editeur: string | null;
-  /** PDF constructeur joint (machines personnelles uniquement). */
+  /** PDF source : bucket `chart-sources` (catalogue public) ou `user-files` (machine personnelle). */
   pdfPath: string | null;
 }
 

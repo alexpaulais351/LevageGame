@@ -10,6 +10,12 @@ export const sourceSchema = z
     edition: z.string().nullable(),
     url: z.string().nullable(),
     publisher: z.string().nullable(),
+    /** PDF source dans le bucket privé `chart-sources` (déposé hors dépôt : docs/ABAQUES.md). */
+    file_path: z
+      .string()
+      .regex(/^catalogue\/[a-z0-9-]+\.pdf$/, "chemin attendu : catalogue/<slug>.pdf")
+      .nullable()
+      .optional(),
     page_refs: z.string().nullable(),
   })
   .strict();

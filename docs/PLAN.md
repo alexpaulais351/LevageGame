@@ -20,4 +20,6 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 
 | 11 | Retours utilisateur 2026-10-12 | ✅ coef. de marge sur la charge, facteur de mode retiré, seuil vert 90 %, portance minimale (étape Sol), page Machines compacte + disponibilité des abaques, classeur `docs/Machines-abaques.xlsx` (D32–D35) ; migrations 20261012100741 (modèles d'exemple) et 20261012100800 (seuil 90) |
 
+| 12 | Accueil + PDF des abaques | ✅ page d'accueil (logo, raccourcis, présentation intégrée), liens PDF des abaques (D36–D37) ; PDF à déposer dans le bucket `chart-sources/catalogue/` |
+
 **Prochaine tâche** : contrôle humain des abaques et ajout des machines manquantes (docs/ABAQUES.md, data/machines-sans-abaque.json).

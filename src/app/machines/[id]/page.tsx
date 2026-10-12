@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, FileText, Pencil, Plus } from "lucide-react";
+import { Download, ExternalLink, FileText, Pencil, Plus } from "lucide-react";
 
 import { ApercuAbaque } from "@/components/modules/machines/ApercuAbaque";
 import { BadgeStatut } from "@/components/modules/machines/BadgeStatut";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { idSchema } from "@/lib/account/schemas";
 import type { LoadChart } from "@/engine";
+import { liensPdf, nomFichierPdf } from "@/lib/machines/pdf";
 import { lireAbaques, lireMachine } from "@/lib/machines/queries";
 import { exigerUtilisateur } from "@/lib/supabase/session";
 import { formatMasse, formatNombreFR } from "@/lib/utils";
@@ -56,13 +57,13 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
   const proprietaire = m.perso; // la RLS ne renvoie une machine personnelle qu'à son propriétaire
   const abaques = await lireAbaques(supabase, m.configurations.map((c) => c.id));
 
-  // Lien (URL signée) vers le PDF constructeur joint — bucket privé, propriétaire uniquement.
-  const pdfPaths = new Set(m.configurations.map((c) => c.abaque?.source?.pdfPath).filter((p): p is string => Boolean(p)));
-  const pdfUrls = new Map<string, string>();
-  if (proprietaire && pdfPaths.size) {
-    const { data } = await supabase.storage.from("user-files").createSignedUrls([...pdfPaths], 3600);
-    for (const s of data ?? []) if (s.path && s.signedUrl) pdfUrls.set(s.path, s.signedUrl);
-  }
+  // Liens (URL signées) vers le PDF source de chaque abaque : catalogue public ou machine personnelle.
+  const nomPdf = nomFichierPdf(m.manufacturerName, m.model);
+  const pdfUrls = await liensPdf(
+    supabase,
+    m.perso,
+    m.configurations.flatMap((c) => (c.abaque?.source?.pdfPath ? [{ chemin: c.abaque.source.pdfPath, nom: nomPdf }] : [])),
+  );
   const s = m.specs;
 
   return (
@@ -172,10 +173,16 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
                       </a>
                     )}
                     {pdfUrl && (
-                      <a href={pdfUrl} target="_blank" rel="noopener noreferrer" data-testid="lien-pdf-constructeur" className="inline-flex items-center gap-1 font-medium text-primary-light underline">
-                        <FileText className="size-4" aria-hidden />
-                        PDF constructeur joint
-                      </a>
+                      <>
+                        <a href={pdfUrl.voir} target="_blank" rel="noopener noreferrer" data-testid="lien-pdf-constructeur" className="inline-flex min-h-11 items-center gap-1 font-medium text-primary-light underline">
+                          <FileText className="size-4" aria-hidden />
+                          Voir le PDF de l&apos;abaque
+                        </a>
+                        <a href={pdfUrl.telecharger} data-testid="telecharger-pdf-constructeur" className="inline-flex min-h-11 items-center gap-1 font-medium text-primary-light underline">
+                          <Download className="size-4" aria-hidden />
+                          Télécharger
+                        </a>
+                      </>
                     )}
                   </p>
                 </div>

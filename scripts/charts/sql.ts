@@ -21,9 +21,9 @@ export function machineSql(r: MachineReport): string {
     `  select id into v_src from public.chart_sources where owner_id is null and document_title = ${q(s.document_title)}`,
     `    and reference is not distinct from ${q(s.reference)} and edition is not distinct from ${q(s.edition)};`,
     `  if v_src is null then`,
-    `    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher)`,
-    `    values (null, ${q(s.document_title)}, ${q(s.reference)}, ${q(s.edition)}, ${q(s.url)}, ${q(s.publisher)}) returning id into v_src;`,
-    `  else update public.chart_sources set url = ${q(s.url)}, publisher = ${q(s.publisher)}, updated_at = now() where id = v_src;`,
+    `    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)`,
+    `    values (null, ${q(s.document_title)}, ${q(s.reference)}, ${q(s.edition)}, ${q(s.url)}, ${q(s.publisher)}, ${q(s.file_path)}) returning id into v_src;`,
+    `  else update public.chart_sources set url = ${q(s.url)}, publisher = ${q(s.publisher)}, file_path = ${q(s.file_path)}, updated_at = now() where id = v_src;`,
     `  end if;`,
   );
   out.push(

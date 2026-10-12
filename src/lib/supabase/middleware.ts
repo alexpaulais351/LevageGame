@@ -14,7 +14,7 @@ const correspond = (pathname: string, prefixe: string) => pathname === prefixe |
  * Rafraîchit la session Supabase (cookies) à chaque requête et applique les règles d'accès :
  *  - non connecté → /login?suivant=<page demandée> (seules /login et /auth/callback sont publiques) ;
  *  - connecté mais compte non approuvé par l'administrateur → /compte-en-attente ;
- *  - compte approuvé sur /compte-en-attente → /projets.
+ *  - compte approuvé sur /compte-en-attente → / (accueil).
  * La RLS et les Server Actions revérifient le statut (défense en profondeur).
  * Les cookies rafraîchis sont recopiés sur la réponse, y compris sur une redirection.
  */
@@ -64,6 +64,6 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   const surAttente = correspond(pathname, PAGE_ATTENTE);
 
   if (!approuve) return surAttente ? response : rediriger(PAGE_ATTENTE);
-  if (surAttente) return rediriger("/projets");
+  if (surAttente) return rediriger("/");
   return response;
 }
