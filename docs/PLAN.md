@@ -22,6 +22,6 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 
 | 12 | Accueil + PDF des abaques | ✅ page d'accueil (logo, raccourcis, présentation intégrée), liens PDF des abaques (D36–D37) ; PDF à déposer dans le bucket `chart-sources/catalogue/` |
 
-| 13 | Transport des pièces | ✅ `/transport` : catégorie TE, voiture pilote, démarches, véhicules adaptés, schémas (D38, docs/TRANSPORT.md) ; art. 13 version 2024 à confirmer |
+| 13 | Transport des pièces | ✅ `/transport` : catégorie TE, voiture pilote, démarches, véhicules adaptés, schémas (D38, docs/TRANSPORT.md), demande Word (D39), synthèse PDF (D40) ; art. 13 version 2024 à confirmer |
 
 **Prochaine tâche** : contrôle humain des abaques et ajout des machines manquantes (docs/ABAQUES.md, data/machines-sans-abaque.json).

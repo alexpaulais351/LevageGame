@@ -47,3 +47,11 @@ choisi (nom, adresse du chantier = arrivée, client) ; pièce ; convoi (dimensio
 critères) ; nature cochée (déclaration 1TE si 1re catégorie et charge indivisible, sinon autorisation au voyage ;
 « Note de transport » sans demande en transport normal) ; itinéraire saisi ; accompagnement, signalisation,
 circulation ; schémas (SVG → PNG) ; pièces à joindre ; zone de signature. Champs inconnus : « à compléter ».
+
+## Synthèse PDF
+
+Bouton « Exporter la synthèse PDF » (section Verdict). Document de 2 pages, charte VINCI :
+décision (transport particulier ou non), réponses aux 5 questions (convoi exceptionnel, voiture pilote,
+démarche, signalisation, itinéraire), pièce et convoi, tableau des seuils réglementaires, schémas,
+accompagnement / démarches / circulation, véhicules alternatifs, mention et cadres de visa.
+Modèle : `src/lib/pdf/transport-model.ts` ; rendu : `src/lib/pdf/transport-document.tsx` (D40).

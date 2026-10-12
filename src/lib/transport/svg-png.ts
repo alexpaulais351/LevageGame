@@ -37,3 +37,10 @@ export async function svgEnPng(svg: SVGSVGElement, largeurPx = 1800): Promise<Im
     URL.revokeObjectURL(url);
   }
 }
+
+/** PNG → data-URI (pour @react-pdf/renderer). */
+export function pngEnDataUri(img: ImagePng): string {
+  let binaire = "";
+  for (let i = 0; i < img.png.length; i += 0x8000) binaire += String.fromCharCode(...img.png.subarray(i, i + 0x8000));
+  return `data:image/png;base64,${btoa(binaire)}`;
+}
