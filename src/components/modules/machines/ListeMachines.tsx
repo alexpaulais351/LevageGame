@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight, FileText, Search } from "lucide-react";
 
 import { filtrer, grouperParType, valeursDistinctes, type ItemListe } from "@/lib/machines/filtre";
 import { cn } from "@/lib/utils";
@@ -99,8 +99,8 @@ export function ListeMachines({ items, vide }: { items: ItemListe[]; vide: strin
             </summary>
             <ul className="divide-y divide-border border-t border-border">
               {g.items.map((m, i) => (
-                <li key={m.id} className={i % 2 === 1 ? "bg-muted" : undefined}>
-                  <Link href={`/machines/${m.id}`} data-testid="ligne-machine" className="flex min-h-11 flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 text-sm hover:bg-vinci-bleu-xlight">
+                <li key={m.id} className={cn("flex items-stretch", i % 2 === 1 && "bg-muted")}>
+                  <Link href={`/machines/${m.id}`} data-testid="ligne-machine" className="flex min-h-11 min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 text-sm hover:bg-vinci-bleu-xlight">
                     <span className="min-w-0 flex-1">
                       <span className="text-foreground/70">{m.manufacturerName}</span> <span className="font-bold text-primary">{m.model}</span>
                       {m.perso && <span className="text-foreground/70"> · personnelle</span>}
@@ -110,6 +110,22 @@ export function ListeMachines({ items, vide }: { items: ItemListe[]; vide: strin
                     </span>
                     <BadgeStatut status={m.statut} />
                   </Link>
+                  {m.pdfUrl ? (
+                    <a
+                      href={m.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid="pdf-abaque"
+                      aria-label={`PDF de l'abaque ${m.manufacturerName} ${m.model}`}
+                      title="Voir le PDF de l'abaque"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 border-l border-border px-3 text-sm font-semibold text-primary-light hover:bg-vinci-bleu-xlight"
+                    >
+                      <FileText className="size-4" aria-hidden />
+                      <span className="hidden sm:inline">PDF</span>
+                    </a>
+                  ) : (
+                    <span className="inline-flex min-w-11 border-l border-border px-3 sm:min-w-[4.25rem]" aria-hidden />
+                  )}
                 </li>
               ))}
             </ul>

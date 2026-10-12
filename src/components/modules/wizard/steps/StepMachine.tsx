@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Info } from "lucide-react";
+import { FileText, Info } from "lucide-react";
 
 import { chartSourceLabel, type LoadChart } from "@/engine";
 import { getCatalogProvider, getMesMachinesProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
@@ -201,6 +201,17 @@ export function StepMachine() {
                 {sel?.manufacturerName} {sel?.model} — {sel?.configurationLabel}
               </p>
               <p className="mt-1 text-muted-foreground">{chartSourceLabel(chart)}</p>
+              {sel?.machineId && (
+                <Link
+                  href={`/machines/${sel.machineId}`}
+                  target="_blank"
+                  data-testid="lien-fiche-machine"
+                  className="mt-1 inline-flex min-h-11 items-center gap-1 font-semibold text-primary-light underline"
+                >
+                  <FileText className="size-4" aria-hidden />
+                  Fiche machine et PDF de l&apos;abaque
+                </Link>
+              )}
               <p className="mt-1">
                 {chart.interpolationAllowed
                   ? "Interpolation en portée autorisée par le constructeur."

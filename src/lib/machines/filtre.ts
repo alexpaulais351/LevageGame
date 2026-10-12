@@ -15,6 +15,10 @@ export interface ItemListe {
   /** null = aucune configuration n'a d'abaque ; « vérifié » seulement si toutes les configurations le sont. */
   statut: StatutListe;
   perso: boolean;
+  /** Chemin du PDF source du premier abaque qui en a un (bucket selon `perso`). */
+  pdfPath: string | null;
+  /** URL signée d'ouverture du PDF (ajoutée côté serveur), sinon null. */
+  pdfUrl: string | null;
 }
 
 export interface Filtres {
@@ -52,6 +56,8 @@ export function versItem(m: MachineResume): ItemListe {
     nbConfigs: m.configurations.length,
     statut,
     perso: m.perso,
+    pdfPath: m.configurations.find((c) => c.abaque?.source?.pdfPath)?.abaque?.source?.pdfPath ?? null,
+    pdfUrl: null,
   };
 }
 

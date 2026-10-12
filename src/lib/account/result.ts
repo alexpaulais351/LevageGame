@@ -24,7 +24,7 @@ export interface EtatForm {
  * domaine (pas de `//`, de `\\`, de schéma, ni de caractère de contrôle ou d'espace que le navigateur
  * supprimerait pour reformer `//hôte`).
  */
-export function cheminInterne(valeur: unknown, defaut = "/projets"): string {
+export function cheminInterne(valeur: unknown, defaut = "/"): string {
   if (typeof valeur !== "string" || valeur.length > 2000) return defaut;
   if (!valeur.startsWith("/") || valeur.startsWith("//") || valeur.includes("\\")) return defaut;
   if (/[\u0000-\u0020\u007f]/.test(valeur)) return defaut;

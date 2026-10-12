@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FolderOpen, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
+import { FolderOpen, Home, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
 
 import { deconnexion } from "@/actions/auth";
 import type { Utilisateur } from "@/lib/supabase/session";
@@ -16,6 +16,7 @@ interface Lien {
 }
 
 const LIENS: Lien[] = [
+  { href: "/", label: "Accueil", icon: Home },
   { href: "/outil", label: "Nouvelle adéquation", icon: PlusCircle },
   { href: "/projets", label: "Projets", icon: FolderOpen },
   { href: "/machines", label: "Machines", icon: Truck },
@@ -50,9 +51,13 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
         )}
       >
         <div className="flex items-start justify-between border-b border-white/20 px-4 py-5">
-          <Link href="/" onClick={onClose} className="block">
-            <div className="text-base font-bold tracking-wide">ADÉQUATION LEVAGE</div>
-            <div className="mt-1 text-xs text-white/70">Vérification des levages</div>
+          <Link href="/" onClick={onClose} className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="" width={36} height={36} className="size-9 shrink-0" />
+            <span className="block">
+              <span className="block text-base font-bold tracking-wide">ADÉQUATION LEVAGE</span>
+              <span className="mt-1 block text-xs text-white/70">Vérification des levages</span>
+            </span>
           </Link>
           <button
             type="button"
@@ -65,7 +70,7 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
         </div>
         <nav className="flex-1 py-3" aria-label="Navigation principale">
           {liens.map(({ href, label, icon: Icon, badge }) => {
-            const actif = pathname === href || pathname.startsWith(href + "/");
+            const actif = href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
                 key={href}

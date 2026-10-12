@@ -5,6 +5,7 @@ import { DisponibiliteAbaques } from "@/components/modules/machines/Disponibilit
 import { ListeMachines } from "@/components/modules/machines/ListeMachines";
 import { Button } from "@/components/ui/button";
 import { machinesSansAbaque, versItem } from "@/lib/machines/filtre";
+import { bucketPdf } from "@/lib/machines/pdf";
 import { listerMachines, type MachineResume } from "@/lib/machines/queries";
 import { exigerUtilisateur } from "@/lib/supabase/session";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,19 @@ export default async function PageMachines({ searchParams }: { searchParams: Pro
     machines = await listerMachines(ctx.supabase, mes ? "mine" : "public", ctx.user.id);
   } catch (e) {
     erreur = e instanceof Error ? e.message : "Erreur inconnue";
+  }
+
+  // Lien d'ouverture du PDF source de chaque machine (une seule requête de signature).
+  const items = machines.map(versItem);
+  if (!abaques) {
+    const parBucket = [false, true].map(async (perso) => {
+      const chemins = [...new Set(items.filter((x) => x.perso === perso && x.pdfPath).map((x) => x.pdfPath as string))];
+      if (chemins.length === 0) return;
+      const { data } = await ctx.supabase.storage.from(bucketPdf(perso)).createSignedUrls(chemins, 3600);
+      const urls = new Map((data ?? []).filter((d) => d.path && d.signedUrl && !d.error).map((d) => [d.path as string, d.signedUrl]));
+      for (const x of items) if (x.perso === perso && x.pdfPath) x.pdfUrl = urls.get(x.pdfPath) ?? null;
+    });
+    await Promise.all(parBucket);
   }
 
   return (
@@ -81,7 +95,7 @@ export default async function PageMachines({ searchParams }: { searchParams: Pro
           </p>
           {!erreur && (
             <ListeMachines
-              items={machines.map(versItem)}
+              items={items}
               vide={mes ? "Aucune machine personnelle pour le moment. Utilisez « Ajouter ma machine »." : "Catalogue vide — aucun abaque n'est encore chargé."}
             />
           )}

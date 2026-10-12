@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { filtrer, grouperParType, machinesSansAbaque, valeursDistinctes, type ItemListe } from "./filtre";
 
 const it1 = (p: Partial<ItemListe>): ItemListe => ({
-  id: "1", typeCode: "grue_tour", typeLabel: "Grue à tour", manufacturerName: "Liebherr", model: "110 EC-B", nbConfigs: 1, statut: "verifie", perso: false, ...p,
+  id: "1", typeCode: "grue_tour", typeLabel: "Grue à tour", manufacturerName: "Liebherr", model: "110 EC-B", nbConfigs: 1, statut: "verifie", perso: false, pdfPath: null, pdfUrl: null, ...p,
 });
 const items = [it1({ id: "a" }), it1({ id: "b", manufacturerName: "Manitou", model: "MRT 2550", typeLabel: "Chariot télescopique rotatif" }), it1({ id: "c", model: "Éco 3" })];
 

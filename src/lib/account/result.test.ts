@@ -22,10 +22,10 @@ describe("cheminInterne (paramètre `suivant`, anti open redirect)", () => {
       null,
       42,
     ]) {
-      expect(cheminInterne(v)).toBe("/projets");
+      expect(cheminInterne(v)).toBe("/");
     }
   });
   it("valeur par défaut paramétrable", () => {
-    expect(cheminInterne("//x", "/")).toBe("/");
+    expect(cheminInterne("//x", "/projets")).toBe("/projets");
   });
 });
