@@ -28,6 +28,7 @@ export const operationSchema = z.object({
 export const chargeSchema = z.object({
   designation: texte("Désignez la charge"),
   masseKg: nombre({ gt: 0 }),
+  coefMarge: nombre({ min: 1, max: 3 }),
   longueurM: optionnel,
   largeurM: optionnel,
   hauteurM: optionnel,
@@ -40,8 +41,7 @@ export const accessoiresSchema = z.object({
       z.object({
         label: texte("Désignation requise"),
         masseKg: nombre({ min: 0 }),
-        cmuDirectKg: nombre({ gt: 0 }),
-        facteurMode: nombre({ gt: 0 }),
+        cmuKg: nombre({ gt: 0 }),
       }),
     )
     .min(1, "Ajoutez au moins un accessoire"),

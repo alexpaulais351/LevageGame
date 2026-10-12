@@ -33,7 +33,7 @@ describe("mapping store ↔ version", () => {
     const d = donneesDepuisVersion(ancien);
     expect(d.operation.projet).toBe("X");
     expect(d.operation.lieu).toBe("");
-    expect(d.seuils).toEqual({ vertPct: 80, orangePct: 100 });
+    expect(d.seuils).toEqual({ vertPct: 90, orangePct: 100 });
     expect(donneesDepuisVersion(null).accessoires.liste).toEqual([]);
     expect(donneesDepuisVersion([1, 2]).geometrie.positions).toHaveLength(3);
   });

@@ -1,12 +1,15 @@
 /**
  * Charge totale (CLAUDE.md règle 4) :
- * Q_tot = Q_charge + Σ Q_accessoires + Q_moufle/crochet (+ Q_fléchette repliée) (+ Q_autres)
+ * Q_tot = Q_charge × k + Σ Q_accessoires + Q_moufle/crochet (+ Q_fléchette repliée) (+ Q_autres)
+ * k : coefficient de marge sur la masse de la charge, défini par l'utilisateur (k ≥ 1 ; 1 = sans marge).
  */
 import type { Calc, CalcInput } from "./types";
 import { G, isFiniteNumber } from "./util";
 
 export interface TotalLoadInput {
   chargeKg: number;
+  /** Coefficient de marge appliqué à la masse de la charge (≥ 1). Absent ⇒ 1 (sans marge). */
+  coefMarge?: number;
   accessoiresKg: number[];
   moufleCrochetKg: number;
   /** Fléchette repliée (si l'abaque l'impose). */
@@ -48,7 +51,20 @@ export function totalLoad(input: TotalLoadInput): Calc<number | null> {
     total += v;
   };
 
-  add("charge", "Masse de la charge", input.chargeKg, true);
+  const coef = input.coefMarge ?? 1;
+  const coefOk = isFiniteNumber(coef) && coef >= 1;
+  if (!coefOk) {
+    warnings.push(`Valeur invalide pour le coefficient de marge (${String(coef)}) : nombre ≥ 1 attendu.`);
+    invalide = true;
+  }
+  inputs.coef_marge = { value: coefOk ? coef : String(coef), unit: "", label: "Coefficient de marge sur la charge" };
+  const charge = input.chargeKg;
+  if (isFiniteNumber(charge) && charge >= 0 && coefOk) {
+    inputs.charge_brute = { value: charge, unit: "kg", label: "Masse de la charge (saisie)" };
+    add("charge", "Masse de la charge majorée", charge * coef, true);
+  } else {
+    add("charge", "Masse de la charge", charge, true);
+  }
   if (!Array.isArray(input.accessoiresKg)) {
     warnings.push("Donnée manquante : liste des accessoires (vide si aucun).");
     invalide = true;
@@ -60,7 +76,7 @@ export function totalLoad(input: TotalLoadInput): Calc<number | null> {
   add("autres", "Autres masses", input.autresKg, false);
 
   const formula =
-    "Charge totale = masse de la charge + Σ accessoires + moufle/crochet" +
+    "Charge totale = masse de la charge × coef. de marge + Σ accessoires + moufle/crochet" +
     (input.flechetteReplieeKg !== undefined ? " + fléchette repliée" : "") +
     (input.autresKg !== undefined ? " + autres masses" : "");
 

@@ -7,8 +7,8 @@
  * Comparaison à la portance admissible SAISIE (aucune valeur par défaut) :
  *   taux sol = p / q_adm ; marge = q_adm − p ; p > q_adm ⇒ bloquant.
  */
-import type { CalcInput, Check, Issue } from "./types";
-import { gt, isFiniteNumber } from "./util";
+import type { Calc, CalcInput, Check, Issue } from "./types";
+import { G, gt, isFiniteNumber } from "./util";
 
 export type SurfaceAppui =
   | { type: "plaque"; longueurM: number; largeurM: number }
@@ -117,4 +117,36 @@ export function checkCrawlerPressure(input: CrawlerInput): Check<GroundResult> {
   );
   res.warnings.push("Pression moyenne uniforme : ne tient pas compte de l'excentrement de charge (pression de pointe supérieure).");
   return res;
+}
+
+export interface MinBearingInput {
+  /** Effort sous l'appui (kN) : un stabilisateur, ou les 2 chenilles. */
+  effortKN: number;
+  /** Surface de répartition (m²). */
+  surfaceM2: number;
+}
+
+/**
+ * Portance minimale du sol requise sous un appui : q_min = F / S (kPa), sans coefficient de sécurité.
+ * Conversions affichées : 1 bar = 100 kPa ; t/m² = kPa / g.
+ * Indicateur d'aide à la saisie, indépendant de la portance admissible saisie.
+ */
+export function minBearingCapacity(input: MinBearingInput): Calc<number | null> {
+  const F = input.effortKN;
+  const S = input.surfaceM2;
+  const fOk = isFiniteNumber(F) && F >= 0;
+  const sOk = isFiniteNumber(S) && S > 0;
+  const warnings: string[] = [];
+  if (!fOk) warnings.push("Donnée manquante : effort sous appui (kN).");
+  if (!sOk) warnings.push("Donnée manquante : surface d'appui (m²).");
+  const q = fOk && sOk ? F / S : null;
+  const inputs: Record<string, CalcInput> = {
+    F: { value: fOk ? F : String(F), unit: "kN", label: "Effort sous appui" },
+    S: { value: sOk ? S : String(S), unit: "m²", label: "Surface d'appui" },
+  };
+  if (q !== null) {
+    inputs.q_bar = { value: q / 100, unit: "bar", label: "Soit (1 bar = 100 kPa)" };
+    inputs.q_tm2 = { value: q / G, unit: "t/m²", label: "Soit (t/m² = kPa / 9,81)" };
+  }
+  return { value: q, formula: "Portance minimale requise q_min = F / S", inputs, source: "Effort et surface saisis", warnings };
 }

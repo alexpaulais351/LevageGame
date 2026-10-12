@@ -37,7 +37,7 @@ export default async function PageProfil() {
         email={user.email ?? ""}
       />
       <EntrepriseForm nom={org?.name ?? ""} adresse={org?.address ?? ""} logo={logo} />
-      <SeuilsForm vert={Number(reglages?.threshold_green ?? 80)} orange={Number(reglages?.threshold_orange ?? 100)} />
+      <SeuilsForm vert={Number(reglages?.threshold_green ?? 90)} orange={Number(reglages?.threshold_orange ?? 100)} />
     </div>
   );
 }

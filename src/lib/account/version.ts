@@ -67,8 +67,8 @@ export function jsonStable(valeur: unknown): string {
   return JSON.stringify(tri(valeur));
 }
 
-/** Seuils par défaut du moteur (80 / 100 %). */
-export const SEUILS_DEFAUT = { vertPct: 80, orangePct: 100 } as const;
+/** Seuils par défaut du moteur (90 / 100 %). */
+export const SEUILS_DEFAUT = { vertPct: 90, orangePct: 100 } as const;
 
 /** Applique les seuils utilisateur si l'étude a encore les seuils par défaut. */
 export function appliquerSeuilsUtilisateur(data: StudyData, seuils: { vert: number; orange: number }): StudyData {

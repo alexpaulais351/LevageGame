@@ -41,12 +41,12 @@ export function etudeFictive(statut: LoadChart["status"] = "a_verifier"): StudyD
     intervenants: "FICTIF — Chef de chantier : M. Dupont ; coordinateur SPS : Mme Martin ; entreprise de levage : Levage Exemple SARL.",
     redacteur: "A. Rédacteur (fictif)",
   };
-  d.charge = { designation: "Poutre treillis PT-12 (FICTIF)", masseKg: 4200, longueurM: 6, largeurM: 0.8, hauteurM: 1.2, centreGravite: "Au milieu de la poutre (fictif)", surfaceVentM2: 7.5 };
+  d.charge = { designation: "Poutre treillis PT-12 (FICTIF)", masseKg: 4200, coefMarge: 1, longueurM: 6, largeurM: 0.8, hauteurM: 1.2, centreGravite: "Au milieu de la poutre (fictif)", surfaceVentM2: 7.5 };
   d.accessoires = {
     liste: [
-      { id: "a1", type: "elingue", label: "Élingue câble 2 brins Ø16", masseKg: 35, cmuDirectKg: 5000, facteurMode: 1.4, sollicitation: "brin" },
-      { id: "a2", type: "manille", label: "Manille lyre 6,5 t", masseKg: 2, cmuDirectKg: 6500, facteurMode: 1, sollicitation: "ensemble" },
-      { id: "a3", type: "palonnier", label: "Palonnier 6 m", masseKg: 180, cmuDirectKg: 3000, facteurMode: 1, sollicitation: "ensemble" },
+      { id: "a1", type: "elingue", label: "Élingue câble 2 brins Ø16", masseKg: 35, cmuKg: 7000, sollicitation: "brin" },
+      { id: "a2", type: "manille", label: "Manille lyre 6,5 t", masseKg: 2, cmuKg: 6500, sollicitation: "ensemble" },
+      { id: "a3", type: "palonnier", label: "Palonnier 6 m", masseKg: 180, cmuKg: 3000, sollicitation: "ensemble" },
     ],
     nbBrins: 2,
     angleBetaDeg: 30,

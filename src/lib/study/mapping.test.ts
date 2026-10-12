@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { abaqueTestFictifFleche } from "@/engine/__tests__/fixtures";
+import { totalLoad } from "@/engine";
 
 import { computeStudy } from "./compute";
 import { createInitialData, fusionnerAvecDefauts } from "./defaults";
@@ -8,6 +9,7 @@ import {
   champsObligatoires,
   liftPositions,
   masseSousCrochetKg,
+  minBearingInput,
   powerLineInput,
   reservesDocumentaires,
   riggingInput,
@@ -26,7 +28,7 @@ function etudeComplete(): StudyData {
   d.charge = { ...d.charge, designation: "Poutre", masseKg: 2000 };
   d.accessoires = {
     liste: [
-      { id: "a1", type: "elingue", label: "Élingue", masseKg: 20, cmuDirectKg: 3000, facteurMode: 1.4, sollicitation: "brin" },
+      { id: "a1", type: "elingue", label: "Élingue", masseKg: 20, cmuKg: 4200, sollicitation: "brin" },
     ],
     nbBrins: 2,
     angleBetaDeg: 30,
@@ -91,7 +93,7 @@ describe("mapping étude → entrées du moteur", () => {
     d.environnement.ventPrevu = 36;
     d.environnement.ventLimiteMachine = 72;
     expect(windInput(d)).toMatchObject({ ventPrevuMs: 10, limiteMachineMs: 20, limiteChargeMs: undefined });
-    expect(thresholds(d)).toEqual({ greenMax: 0.8, orangeMax: 1 });
+    expect(thresholds(d)).toEqual({ greenMax: 0.9, orangeMax: 1 });
   });
 
   it("construit les entrées sol et lignes", () => {
@@ -185,7 +187,37 @@ describe("fusion avec les valeurs par défaut", () => {
     const d = fusionnerAvecDefauts({ charge: { designation: "X" } } as Partial<StudyData>);
     expect(d.charge.designation).toBe("X");
     expect(d.charge.masseKg).toBeNull();
-    expect(d.seuils).toEqual({ vertPct: 80, orangePct: 100 });
+    expect(d.seuils).toEqual({ vertPct: 90, orangePct: 100 });
     expect(fusionnerAvecDefauts(undefined)).toEqual(createInitialData());
+  });
+  it("convertit un accessoire antérieur au retrait du facteur de mode (CMU = CMU direct × facteur)", () => {
+    const ancien = { id: "a", type: "elingue", label: "E", masseKg: 10, cmuDirectKg: 3150, facteurMode: 2.1, sollicitation: "ensemble" };
+    const sansFacteur = { ...ancien, id: "b", facteurMode: null };
+    const d = fusionnerAvecDefauts({ accessoires: { liste: [ancien, sansFacteur], nbBrins: 4, angleBetaDeg: 30, equilibrageDeclare: false } } as unknown as Partial<StudyData>);
+    expect(d.accessoires.liste[0]).toEqual({ id: "a", type: "elingue", label: "E", masseKg: 10, cmuKg: 3150 * 2.1, sollicitation: "ensemble" });
+    expect(d.accessoires.liste[1].cmuKg).toBe(3150);
+    expect(d.charge.coefMarge).toBe(1);
+  });
+  it("le coefficient de marge majore la charge totale et la masse sous crochet", () => {
+    const d = fusionnerAvecDefauts({ charge: { designation: "X", masseKg: 1000, coefMarge: 1.1 } } as Partial<StudyData>);
+    d.accessoires.liste = [{ id: "a", type: "elingue", label: "E", masseKg: 20, cmuKg: 2000, sollicitation: "brin" }];
+    d.machine.moufleCrochetKg = 100;
+    expect(totalLoad(totalLoadInput(d)).value).toBeCloseTo(1100 + 20 + 100, 9);
+    expect(masseSousCrochetKg(d)).toBeCloseTo(1120, 9);
+  });
+});
+
+describe("minBearingInput", () => {
+  it("surface selon le mode d'appui", () => {
+    const d = createInitialData();
+    expect(minBearingInput(d)).toBeNull();
+    d.sol = { ...d.sol, mode: "stabilisateurs", effortMaxKN: 200, typeSurface: "plaque", plaqueLongueurM: 1, plaqueLargeurM: 1.2 };
+    expect(minBearingInput(d)).toEqual({ effortKN: 200, surfaceM2: 1.2 });
+    d.sol = { ...d.sol, typeSurface: "patin", patinSurfaceM2: 0.5 };
+    expect(minBearingInput(d)).toEqual({ effortKN: 200, surfaceM2: 0.5 });
+    d.sol = { ...d.sol, mode: "chenilles", chenilleLongueurM: 4, chenilleTuileM: 0.6 };
+    expect(minBearingInput(d)?.surfaceM2).toBeCloseTo(4.8, 12);
+    d.sol = { ...d.sol, chenilleTuileM: null };
+    expect(minBearingInput(d)?.surfaceM2).toBeNaN();
   });
 });

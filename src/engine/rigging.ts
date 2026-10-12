@@ -13,12 +13,12 @@
  *
  * Angle : β ≤ 45° conforme ; 45° < β ≤ 60° réserve ; β > 60° bloquant.
  *
- * CMU : aucune table normative de facteurs de mode n'est codée. Chaque accessoire porte
- * sa CMU en levage direct ET le facteur de mode saisi par l'utilisateur (lu sur l'étiquette
- * / la notice). CMU utile = CMU direct × facteur de mode.
+ * CMU : chaque accessoire porte la CMU saisie par l'utilisateur, lue sur l'étiquette / la notice
+ * POUR LE MODE D'ÉLINGAGE UTILISÉ (direct, étranglé, panier, multibrins…). Aucun facteur de mode
+ * n'est appliqué par le moteur (D32).
  *  - sollicitation 'brin'     : comparée à l'effort par brin T (élingue simple, manille sur un brin…)
  *  - sollicitation 'ensemble' : comparée à la masse totale W (palonnier, crochet, manille de tête,
- *                               élingue multibrins dont la CMU par mode inclut déjà l'angle).
+ *                               élingue multibrins dont la CMU marquée inclut déjà l'angle).
  */
 import type { CalcInput, Check, Issue } from "./types";
 import { degToRad, gt, isFiniteNumber, lt } from "./util";
@@ -32,10 +32,8 @@ export interface Accessoire {
   id: string;
   label: string;
   type: AccessoireType;
-  /** CMU en levage direct (kg). */
-  cmuDirectKg: number;
-  /** Facteur de mode saisi (ex. étiquette de l'élingue). Pas de valeur par défaut. */
-  facteurMode: number;
+  /** CMU (kg) marquée pour le mode d'élingage utilisé. */
+  cmuKg: number;
   sollicitation: "brin" | "ensemble";
 }
 
@@ -122,11 +120,9 @@ export function checkRigging(input: RiggingInput): Check<RiggingResult> {
     manque("accessoires de levage et leur CMU");
   } else {
     for (const a of input.accessoires) {
-      const cmuOk = isFiniteNumber(a.cmuDirectKg) && a.cmuDirectKg > 0;
-      const fmOk = isFiniteNumber(a.facteurMode) && a.facteurMode > 0;
-      if (!cmuOk) manque(`CMU en levage direct de « ${a.label} »`);
-      if (!fmOk) manque(`facteur de mode de « ${a.label} »`);
-      const cmuUtile = cmuOk && fmOk ? a.cmuDirectKg * a.facteurMode : null;
+      const cmuOk = isFiniteNumber(a.cmuKg) && a.cmuKg > 0;
+      if (!cmuOk) manque(`CMU de « ${a.label} »`);
+      const cmuUtile = cmuOk ? a.cmuKg : null;
       const effort = a.sollicitation === "brin" ? T : wOk ? W : null;
       const taux = cmuUtile !== null && effort !== null ? effort / cmuUtile : null;
       const conforme = cmuUtile !== null && effort !== null && !lt(cmuUtile, effort);
@@ -134,13 +130,13 @@ export function checkRigging(input: RiggingInput): Check<RiggingResult> {
         issues.push({
           code: "CMU_INSUFFISANTE",
           severity: "bloquant",
-          message: `CMU insuffisante pour « ${a.label} » : CMU utile ${cmuUtile} kg < effort ${effort} kg.`,
+          message: `CMU insuffisante pour « ${a.label} » : CMU ${cmuUtile} kg < effort ${effort} kg.`,
         });
       }
       inputs[`cmu_${a.id}`] = {
         value: cmuUtile ?? "invalide",
         unit: "kg",
-        label: `CMU utile ${a.label} (${a.cmuDirectKg} kg × ${a.facteurMode}) — sollicitation ${a.sollicitation}`,
+        label: `CMU ${a.label} — sollicitation ${a.sollicitation}`,
       };
       accessoires.push({ id: a.id, label: a.label, cmuUtileKg: cmuUtile, effortKg: effort, taux, conforme });
     }
@@ -149,10 +145,10 @@ export function checkRigging(input: RiggingInput): Check<RiggingResult> {
   return {
     value: { nbBrinsPorteurs: np, effortParBrinKg: T, accessoires },
     formula:
-      "Effort par brin T = W / (n_p × cos β) ; CMU utile = CMU direct × facteur de mode ; " +
-      "contrôle : CMU utile ≥ T (sollicitation brin) ou ≥ W (sollicitation ensemble)",
+      "Effort par brin T = W / (n_p × cos β) ; " +
+      "contrôle : CMU ≥ T (sollicitation brin) ou ≥ W (sollicitation ensemble)",
     inputs,
-    source: "Règle de l'art EN 13414 / INRS ED 6178 — CMU et facteurs de mode saisis par l'utilisateur",
+    source: "Règle de l'art EN 13414 / INRS ED 6178 — CMU (mode d'élingage utilisé) saisies par l'utilisateur",
     warnings,
     issues,
   };

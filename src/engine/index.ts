@@ -17,7 +17,9 @@ export {
 export {
   checkCrawlerPressure,
   checkOutriggerPressure,
+  minBearingCapacity,
   type CrawlerInput,
+  type MinBearingInput,
   type GroundResult,
   type OutriggerInput,
   type SurfaceAppui,

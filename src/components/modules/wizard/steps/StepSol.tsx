@@ -1,5 +1,8 @@
 "use client";
 
+import { minBearingCapacity } from "@/engine";
+import { minBearingInput } from "@/lib/study/mapping";
+import { formatNombreFR } from "@/lib/utils";
 import { useStudy } from "@/stores/study";
 
 import { ChoixSegmente, NumberField, TextAreaField, UNITES_EFFORT, UnitNumberField } from "../fields";
@@ -11,6 +14,9 @@ export function StepSol() {
   const patch = useStudy((st) => st.patch);
   const err = useErreurs("sol");
   const set = (p: Partial<typeof s>) => patch("sol", p);
+  const data = useStudy((st) => st.data);
+  const entree = minBearingInput(data);
+  const qMin = entree ? minBearingCapacity(entree) : null;
 
   return (
     <StepShell
@@ -83,6 +89,36 @@ export function StepSol() {
                 <NumberField label="Largeur de tuile" unite="m" value={s.chenilleTuileM} onChange={(v) => set({ chenilleTuileM: v })} error={err.chenilleTuileM} />
               </Grille>
             </>
+          )}
+          {qMin && (
+            <section
+              aria-label="Portance minimale du sol requise"
+              data-testid="portance-minimale"
+              className="rounded-lg border border-primary bg-vinci-bleu-xlight p-4 text-sm"
+            >
+              <h4 className="font-bold text-primary">Portance minimale du sol requise</h4>
+              {qMin.value === null ? (
+                <p className="mt-1 text-foreground/80">
+                  Saisissez l&apos;effort sous appui et la surface de répartition pour obtenir la portance minimale.
+                </p>
+              ) : (
+                <>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
+                    {formatNombreFR(qMin.value, 0)} kPa
+                    <span className="ml-2 text-base font-semibold text-foreground/80">
+                      soit {formatNombreFR(Number(qMin.inputs.q_bar.value), 2)} bar · {formatNombreFR(Number(qMin.inputs.q_tm2.value), 1)} t/m²
+                    </span>
+                  </p>
+                  <p className="mt-1">
+                    q<sub>min</sub> = F / S = {formatNombreFR(entree!.effortKN, 1)} kN / {formatNombreFR(entree!.surfaceM2, 3)} m²
+                    {s.mode === "chenilles" ? " (S = 2 × L × b)" : ""}
+                  </p>
+                  <p className="mt-1 text-foreground/70">
+                    Le sol doit supporter au moins cette pression (sans coefficient de sécurité). À comparer à la portance de l&apos;étude de sol.
+                  </p>
+                </>
+              )}
+            </section>
           )}
         </>
       )}
