@@ -127,6 +127,13 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        {!(piece && ev) && <span className="text-sm text-foreground/70">Renseignez la pièce pour exporter la synthèse.</span>}
+        <Button type="button" variant="outline" disabled={!(piece && ev) || exportPdf.enCours} onClick={() => void exporterSynthese()} data-testid="exporter-synthese-transport-haut">
+          <FileText />
+          {exportPdf.enCours ? "Préparation du PDF…" : "Synthèse PDF"}
+        </Button>
+      </div>
       <section aria-labelledby="t-piece" className="rounded-lg border border-border p-4">
         <h2 id="t-piece" className="mb-3 text-lg font-bold text-primary">
           1. Pièce à transporter{initial.designation ? ` — ${initial.designation}` : ""}
