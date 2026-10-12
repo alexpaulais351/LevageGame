@@ -10,10 +10,10 @@ export const sourceSchema = z
     edition: z.string().nullable(),
     url: z.string().nullable(),
     publisher: z.string().nullable(),
-    /** PDF source dans le bucket privé `chart-sources` (déposé hors dépôt : docs/ABAQUES.md). */
+    /** PDF source à la racine du bucket privé `chart-sources` (déposé hors dépôt, tableau de bord Supabase). */
     file_path: z
       .string()
-      .regex(/^catalogue\/[a-z0-9-]+\.pdf$/, "chemin attendu : catalogue/<slug>.pdf")
+      .regex(/^[^/\\]+\.pdf$/, "nom de fichier .pdf à la racine du bucket")
       .nullable()
       .optional(),
     page_refs: z.string().nullable(),
