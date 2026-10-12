@@ -61,7 +61,7 @@ insert into load_chart_points (chart_id, x, capacity_kg) values
 select is((select count(*)::int from profiles where id in ('aaaaaaaa-0000-0000-0000-000000000001','bbbbbbbb-0000-0000-0000-000000000002')),
   2, 'profils créés par le trigger d''inscription');
 select is((select threshold_green from user_settings where user_id = 'aaaaaaaa-0000-0000-0000-000000000001'),
-  80.00::numeric, 'réglages par défaut créés (80 %)');
+  90.00::numeric, 'réglages par défaut créés (90 %)');
 select is((select index from study_versions where id = '33333333-0000-0000-0000-00000000000a'),
   1, 'index de version attribué automatiquement');
 select is((select count(*)::int from machine_types), 10, 'seed : 10 types de machines');
