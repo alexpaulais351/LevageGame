@@ -53,7 +53,7 @@ export interface AccessoireCheck {
   label: string;
   cmuUtileKg: number | null;
   effortKg: number | null;
-  /** effort / CMU utile */
+  /** effort / CMU */
   taux: number | null;
   conforme: boolean;
 }

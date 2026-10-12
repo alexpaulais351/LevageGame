@@ -30,7 +30,7 @@ export function StepAccessoires() {
     <StepShell
       numero={3}
       titre="Accessoires de levage"
-      description="Élingues, manilles, palonnier… CMU utile = CMU en levage direct × facteur de mode (lu sur l'étiquette ou la notice)."
+      description="Élingues, manilles, palonnier… CMU à saisir telle qu'indiquée sur l'étiquette pour le mode d'élingage utilisé."
     >
       <SousTitre>Configuration d&apos;élingage</SousTitre>
       <Grille cols={3}>
