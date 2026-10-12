@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, FileDown, Info, Truck, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, FileDown, FileText, Info, Truck, XCircle } from "lucide-react";
 
 import { CheckboxField, NumberField, SelectField, TextField, UNITES_MASSE, UnitNumberField } from "@/components/modules/wizard/fields";
 import { Button } from "@/components/ui/button";
+import { useExportSyntheseTransport } from "@/hooks/useExportPDF";
+import { buildTransportPdfModel, nomFichierSyntheseTransport } from "@/lib/pdf/transport-model";
 import { classerVehicules, erreursPiece, LIBELLE_CATEGORIE, type Categorie, type EvaluationVehicule, type PieceTransport } from "@/engine/transport";
 import { TYPES_PIECES, typePiece, VEHICULES } from "@/lib/transport/catalogue";
 import { demarches } from "@/lib/transport/demarches";
@@ -63,6 +65,31 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
   }, [piece, type]);
   const possibles = classement.filter((e) => e.possible);
   const ev = possibles.find((e) => e.vehicule.id === choix) ?? possibles[0] ?? null;
+
+  const exportPdf = useExportSyntheseTransport();
+  const exporterSynthese = () =>
+    exportPdf.exporter(async () => {
+      if (!piece || !ev) throw new Error("saisie incomplète");
+      const { svgEnPng, pngEnDataUri } = await import("@/lib/transport/svg-png");
+      const svgs = [...(schemasRef.current?.querySelectorAll<SVGSVGElement>("svg[data-schema]") ?? [])];
+      const images = (await Promise.all(svgs.map((x) => svgEnPng(x)))).filter((x) => x !== null);
+      const projet = contexte.projets.find((x) => x.id === projetId) ?? null;
+      const date = new Date();
+      const model = buildTransportPdfModel({
+        ev,
+        classement,
+        piece,
+        typePiece: type.nom,
+        designation: initial.designation ?? null,
+        indivisible,
+        conseils: type.conseils,
+        demandeur: contexte.demandeur,
+        projet,
+        schemas: images.map((i) => ({ dataUri: pngEnDataUri(i), ratio: i.hauteur / i.largeur })),
+        date,
+      });
+      return { model, nom: nomFichierSyntheseTransport({ projet: projet?.nom, piece: initial.designation || type.nom, date }) };
+    });
 
   const telecharger = async () => {
     if (!piece || !ev) return;
@@ -127,6 +154,14 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
           <NumberField label="Hauteur" unite="m" value={p.hauteurM} onChange={champ("hauteurM")} hint="Hauteur de la pièce posée, sans le camion." />
           <UnitNumberField label="Masse" unites={UNITES_MASSE} uniteInitiale={1} value={p.masseKg} onChange={champ("masseKg")} />
         </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <SelectField
+                label="Projet (chantier de destination)"
+                value={projetId}
+                onChange={setProjetId}
+                options={[{ value: "", label: "Aucun projet" }, ...contexte.projets.map((x) => ({ value: x.id, label: x.nom }))]}
+              />
+        </div>
         <CheckboxField
           className="mt-2"
           label="Charge indivisible (ne peut pas être démontée ou fractionnée pour le transport)"
@@ -168,6 +203,17 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
                   {b.texte}
                 </span>
               ))}
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button type="button" size="lg" disabled={exportPdf.enCours} onClick={() => void exporterSynthese()} data-testid="exporter-synthese-transport">
+                <FileText />
+                {exportPdf.enCours ? "Préparation du PDF…" : "Exporter la synthèse PDF"}
+              </Button>
+              {exportPdf.erreur && (
+                <span role="alert" className="text-sm font-medium text-vinci-rouge-dark">
+                  {exportPdf.erreur}
+                </span>
+              )}
             </div>
           </section>
 
@@ -279,16 +325,11 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
               5. Demande administrative (Word)
             </h2>
             <p className="mb-3 text-sm text-foreground/80">
-              Projet de demande pré-rempli avec le projet, la pièce, le convoi et les schémas, à reporter sur le formulaire officiel (Cerfa) ou la
+              Projet de demande pré-rempli avec le projet (choisi à l&apos;étape 1), la pièce, le convoi et les schémas, à reporter sur le formulaire officiel (Cerfa) ou la
               téléprocédure de la DDT du département de départ.
             </p>
             <div className="grid gap-4 md:grid-cols-2">
-              <SelectField
-                label="Projet (chantier de destination)"
-                value={projetId}
-                onChange={setProjetId}
-                options={[{ value: "", label: "Aucun projet" }, ...contexte.projets.map((x) => ({ value: x.id, label: x.nom }))]}
-              />
+
               <TextField label="Point de départ (usine, dépôt…)" value={trajet.depart} onChange={(v) => setTrajet((x) => ({ ...x, depart: v }))} placeholder="Ville ou adresse" />
               <TextField label="Dates / période souhaitées" value={trajet.dates} onChange={(v) => setTrajet((x) => ({ ...x, dates: v }))} placeholder="Ex. semaine 46, de nuit exclu" />
               <TextField label="Nombre de voyages" value={trajet.voyages} onChange={(v) => setTrajet((x) => ({ ...x, voyages: v }))} />

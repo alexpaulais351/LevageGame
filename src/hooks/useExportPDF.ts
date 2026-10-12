@@ -11,6 +11,7 @@ import { computeStudy } from "@/lib/study/compute";
 import type { StudyData } from "@/lib/study/types";
 import { buildPdfModel, type PdfMeta } from "@/lib/pdf/model";
 import { nomFichierPdf } from "@/lib/pdf/filename";
+import type { TransportPdfModel } from "@/lib/pdf/transport-model";
 import { createClient } from "@/lib/supabase/client";
 import { useStudy } from "@/stores/study";
 
@@ -86,5 +87,31 @@ export function useExportPDF(options: Partial<Pick<PdfMeta, "reference" | "indic
     }
   }, [reference, indice, redacteur, entreprise, logoUrl]);
 
+  return { exporter, enCours: etatEnCours, erreur: etatErreur };
+}
+
+/**
+ * Export de la synthèse transport (outil /transport) : même garde anti-double export que la fiche.
+ * Le modèle est construit par l'appelant (`buildTransportPdfModel`) au moment du clic.
+ */
+export function useExportSyntheseTransport(): { exporter: (fabriquer: () => Promise<{ model: TransportPdfModel; nom: string }>) => Promise<void>; enCours: boolean; erreur: string | null } {
+  const etatEnCours = useSyncExternalStore(abonner, () => enCours, () => false);
+  const etatErreur = useSyncExternalStore(abonner, () => erreur, () => null);
+  const exporter = useCallback(async (fabriquer: () => Promise<{ model: TransportPdfModel; nom: string }>) => {
+    if (enCours) return;
+    enCours = true;
+    erreur = null;
+    notifier();
+    try {
+      const { model, nom } = await fabriquer();
+      const { genererSyntheseTransportPdf } = await import("@/lib/pdf/generate");
+      telecharger(await genererSyntheseTransportPdf(model), nom);
+    } catch {
+      erreur = "L'export PDF a échoué. Réessayez ; si le problème persiste, rechargez la page.";
+    } finally {
+      enCours = false;
+      notifier();
+    }
+  }, []);
   return { exporter, enCours: etatEnCours, erreur: etatErreur };
 }
