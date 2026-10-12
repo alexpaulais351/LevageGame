@@ -37,12 +37,11 @@ describe("totalLoad", () => {
   });
 });
 
-const elingue = (cmu: number, fm = 1): Accessoire => ({
+const elingue = (cmu: number): Accessoire => ({
   id: "el",
   label: "Élingue chaîne",
   type: "elingue",
-  cmuDirectKg: cmu,
-  facteurMode: fm,
+  cmuKg: cmu,
   sollicitation: "brin",
 });
 
@@ -93,18 +92,18 @@ describe("checkRigging", () => {
     expect(r61.issues[0]).toMatchObject({ code: "ANGLE_ELINGAGE", severity: "bloquant" });
   });
 
-  it("CMU utile = CMU direct × facteur de mode, comparée à l'effort", () => {
+  it("CMU (mode d'élingage utilisé) comparée à l'effort, sans facteur de mode", () => {
     // T à 0° = 1000 kg par brin
-    const ok = checkRigging(base({ angleBetaDeg: 0, accessoires: [elingue(800, 1.25)] }));
+    const ok = checkRigging(base({ angleBetaDeg: 0, accessoires: [elingue(1000)] }));
     expect(ok.value.accessoires[0].cmuUtileKg).toBe(1000);
     expect(ok.value.accessoires[0].taux).toBeCloseTo(1, 12);
     expect(ok.issues).toEqual([]);
-    const ko = checkRigging(base({ angleBetaDeg: 0, accessoires: [elingue(800, 1.2)] }));
+    const ko = checkRigging(base({ angleBetaDeg: 0, accessoires: [elingue(999)] }));
     expect(ko.issues[0]).toMatchObject({ code: "CMU_INSUFFISANTE", severity: "bloquant" });
   });
 
   it("sollicitation 'ensemble' comparée à la masse totale (palonnier, crochet)", () => {
-    const pal: Accessoire = { id: "p", label: "Palonnier", type: "palonnier", cmuDirectKg: 1999, facteurMode: 1, sollicitation: "ensemble" };
+    const pal: Accessoire = { id: "p", label: "Palonnier", type: "palonnier", cmuKg: 1999, sollicitation: "ensemble" };
     const r = checkRigging(base({ accessoires: [elingue(5000), pal] }));
     expect(r.value.accessoires[1].effortKg).toBe(2000);
     expect(r.issues.map((i) => i.code)).toEqual(["CMU_INSUFFISANTE"]);
@@ -121,12 +120,30 @@ describe("checkRigging", () => {
     expect(r.value.nbBrinsPorteurs).toBeNull();
     expect(r.issues.filter((i) => i.code === "DONNEE_MANQUANTE")).toHaveLength(4);
 
-    const r2 = checkRigging(base({ accessoires: [elingue(0, Number.NaN)] }));
-    expect(r2.issues.filter((i) => i.code === "DONNEE_MANQUANTE")).toHaveLength(2);
+    const r2 = checkRigging(base({ accessoires: [elingue(0)] }));
+    expect(r2.issues.filter((i) => i.code === "DONNEE_MANQUANTE")).toHaveLength(1);
     expect(r2.value.accessoires[0].conforme).toBe(false);
     expect(r2.inputs.cmu_el.value).toBe("invalide");
 
     const r3 = checkRigging(base({ masseSousCrochetKg: -1, accessoires: [{ ...elingue(1000), sollicitation: "ensemble" }] }));
     expect(r3.value.accessoires[0].effortKg).toBeNull();
+  });
+});
+
+describe("totalLoad — coefficient de marge", () => {
+  const base = { chargeKg: 1000, accessoiresKg: [50], moufleCrochetKg: 100 };
+  it("absent ⇒ 1 (sans marge)", () => {
+    expect(totalLoad(base).value).toBe(1150);
+  });
+  it("majore la seule masse de la charge", () => {
+    const r = totalLoad({ ...base, coefMarge: 1.2 });
+    expect(r.value).toBeCloseTo(1350, 9);
+    expect(r.inputs.coef_marge.value).toBe(1.2);
+    expect(r.inputs.charge_brute.value).toBe(1000);
+    expect(r.formula).toContain("coef. de marge");
+  });
+  it("coefficient < 1 ou invalide ⇒ résultat invalide", () => {
+    expect(totalLoad({ ...base, coefMarge: 0.9 }).value).toBeNull();
+    expect(totalLoad({ ...base, coefMarge: Number.NaN }).value).toBeNull();
   });
 });

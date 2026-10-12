@@ -364,14 +364,14 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
                 cols={[
                   { label: "Accessoire", w: 2.4 },
                   { label: "Type", w: 1.1 },
-                  { label: "CMU utile", w: 1.1, align: "right" },
+                  { label: "CMU", w: 1.1, align: "right" },
                   { label: "Effort", w: 1.1, align: "right" },
                   { label: "Taux", w: 0.9, align: "right" },
                   { label: "Conforme", w: 1.5, align: "center" },
                 ]}
                 lignes={m.accessoires.lignes.map((l) => [l.label, l.type, l.cmuUtile, l.effort, l.taux, l.conforme ? "CONFORME" : "NON CONFORME"])}
               />
-              <Text style={s.muted}>CMU utile = CMU en levage direct × facteur de mode. Effort comparé à l&apos;effort par brin ou à la masse de l&apos;ensemble selon l&apos;accessoire.</Text>
+              <Text style={s.muted}>CMU lue sur l&apos;étiquette pour le mode d&apos;élingage utilisé. Effort comparé à l&apos;effort par brin ou à la masse de l&apos;ensemble selon l&apos;accessoire.</Text>
             </View>
           ) : (
             <Text style={s.muted}>Aucun accessoire saisi.</Text>

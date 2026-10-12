@@ -22,6 +22,13 @@ export function StepCharge() {
           onChange={(v) => set({ masseKg: v })}
           error={err.masseKg}
         />
+        <NumberField
+          label="Coefficient de marge sur la masse"
+          value={c.coefMarge}
+          onChange={(v) => set({ coefMarge: v })}
+          error={err.coefMarge}
+          hint="Ex. 1,1 = +10 % si la masse est estimée. 1 = sans marge."
+        />
       </Grille>
       <Grille cols={3}>
         <NumberField label="Longueur" unite="m" value={c.longueurM} onChange={(v) => set({ longueurM: v })} />

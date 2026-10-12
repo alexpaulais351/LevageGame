@@ -13,10 +13,10 @@ const at6 = (Q: number | null, over: Partial<VerdictInput> = {}) =>
   });
 
 describe("zoneOf — bornes", () => {
-  it("vert < 80 % ≤ orange ≤ 100 % < rouge", () => {
-    expect(zoneOf(0.79)).toBe("vert");
-    expect(zoneOf(0.8)).toBe("orange");
-    expect(zoneOf(0.8 - 1e-12)).toBe("orange");
+  it("vert < 90 % ≤ orange ≤ 100 % < rouge", () => {
+    expect(zoneOf(0.89)).toBe("vert");
+    expect(zoneOf(0.9)).toBe("orange");
+    expect(zoneOf(0.9 - 1e-12)).toBe("orange");
     expect(zoneOf(1)).toBe("orange");
     expect(zoneOf(1 + 1e-12)).toBe("orange");
     expect(zoneOf(1.001)).toBe("rouge");
@@ -35,7 +35,7 @@ describe("validateThresholds", () => {
   });
 });
 
-describe("computeVerdict — taux et bornes 80 / 100 %", () => {
+describe("computeVerdict — taux et bornes 90 / 100 %", () => {
   it("799 kg / 1000 kg ⇒ vert, ADEQUAT", () => {
     const r = at6(799);
     expect(r.value.verdict).toBe("ADEQUAT");
@@ -45,8 +45,8 @@ describe("computeVerdict — taux et bornes 80 / 100 %", () => {
     expect(r.value.reserves).toEqual([]);
     expect(r.source).toContain("ABAQUE_TEST_FICTIF_SIMPLE");
   });
-  it("taux exactement 80 % ⇒ orange, ADEQUAT_AVEC_RESERVES", () => {
-    const r = at6(800);
+  it("taux exactement 90 % ⇒ orange, ADEQUAT_AVEC_RESERVES", () => {
+    const r = at6(900);
     expect(r.value.zone).toBe("orange");
     expect(r.value.verdict).toBe("ADEQUAT_AVEC_RESERVES");
     expect(r.value.reserves[0].code).toBe("ZONE_ORANGE");
@@ -82,10 +82,10 @@ describe("computeVerdict — positions multiples", () => {
         { id: "pose", label: "Pose", rayonM: 8 },
         { id: "rot", label: "Rotation", rayonM: 3 },
       ],
-      chargeTotaleKg: 500,
+      chargeTotaleKg: 550,
     });
     expect(r.value.positionDefavorable?.id).toBe("pose");
-    expect(r.value.tauxMax).toBeCloseTo(500 / 600, 12);
+    expect(r.value.tauxMax).toBeCloseTo(550 / 600, 12);
     expect(r.value.verdict).toBe("ADEQUAT_AVEC_RESERVES");
     expect(r.inputs.capacite_pose.value).toBe(600);
   });
@@ -145,7 +145,7 @@ describe("computeVerdict — agrégation des contrôles", () => {
       masseSousCrochetKg: 1000,
       nbBrins: 2,
       angleBetaDeg: 50,
-      accessoires: [{ id: "e", label: "Élingue", type: "elingue", cmuDirectKg: 1000, facteurMode: 1, sollicitation: "brin" }],
+      accessoires: [{ id: "e", label: "Élingue", type: "elingue", cmuKg: 1000, sollicitation: "brin" }],
     });
     const wind = engine.checkWind({ ventPrevuMs: 5, limiteMachineMs: 10 });
     const r1 = at6(100, { controles: [rig, wind] });

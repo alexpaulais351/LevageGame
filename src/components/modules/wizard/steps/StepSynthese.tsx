@@ -131,7 +131,7 @@ export function StepSynthese({ result }: { result: StudyResult }) {
               <thead>
                 <tr className="bg-vinci-bleu text-white">
                   <th className="px-3 py-2 font-bold">Accessoire</th>
-                  <th className="px-3 py-2 text-right font-bold">CMU utile</th>
+                  <th className="px-3 py-2 text-right font-bold">CMU</th>
                   <th className="px-3 py-2 text-right font-bold">Effort</th>
                   <th className="px-3 py-2 text-right font-bold">Taux</th>
                   <th className="px-3 py-2 font-bold">Conforme</th>

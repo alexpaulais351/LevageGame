@@ -93,19 +93,13 @@ export function StepAccessoires() {
                 onChange={(v) => maj(a.id, { sollicitation: v })}
               />
               <UnitNumberField
-                label="CMU en levage direct"
+                label="CMU"
                 unites={UNITES_MASSE}
-                uniteInitiale={a.cmuDirectKg !== null && a.cmuDirectKg >= 1000 ? 1 : 0}
-                value={a.cmuDirectKg}
-                onChange={(v) => maj(a.id, { cmuDirectKg: v })}
-                error={err[`liste.${i}.cmuDirectKg`]}
-              />
-              <NumberField
-                label="Facteur de mode"
-                value={a.facteurMode}
-                onChange={(v) => maj(a.id, { facteurMode: v })}
-                error={err[`liste.${i}.facteurMode`]}
-                hint="Saisi d'après l'étiquette ; aucune valeur par défaut."
+                uniteInitiale={a.cmuKg !== null && a.cmuKg >= 1000 ? 1 : 0}
+                value={a.cmuKg}
+                onChange={(v) => maj(a.id, { cmuKg: v })}
+                error={err[`liste.${i}.cmuKg`]}
+                hint="Lue sur l'étiquette pour le mode d'élingage utilisé (direct, étranglé, panier, 2 ou 4 brins…)."
               />
               <UnitNumberField
                 label="Masse propre"

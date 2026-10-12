@@ -412,6 +412,7 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
       champs: champs(
         ["Désignation", txt(data.charge.designation)],
         ["Masse", masse(data.charge.masseKg)],
+        ["Coef. de marge sur la masse", data.charge.coefMarge === null ? TIRET : pdfTexte(formatNombreFR(data.charge.coefMarge))],
         [
           "Dimensions (L × l × h)",
           [data.charge.longueurM, data.charge.largeurM, data.charge.hauteurM].every((x) => x === null)

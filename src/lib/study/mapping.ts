@@ -8,6 +8,7 @@ import type {
   CrawlerInput,
   Issue,
   LiftPosition,
+  MinBearingInput,
   OutriggerInput,
   PowerLineInput,
   RiggingInput,
@@ -32,6 +33,7 @@ function opt(v: number | null): number | undefined {
 export function totalLoadInput(d: StudyData): TotalLoadInput {
   return {
     chargeKg: m(d.charge.masseKg),
+    coefMarge: m(d.charge.coefMarge),
     accessoiresKg: d.accessoires.liste.map((a) => m(a.masseKg)),
     moufleCrochetKg: m(d.machine.moufleCrochetKg),
     flechetteReplieeKg: opt(d.machine.flechetteReplieeKg),
@@ -39,10 +41,10 @@ export function totalLoadInput(d: StudyData): TotalLoadInput {
   };
 }
 
-/** Masse suspendue sous crochet = charge + accessoires (hors moufle / crochet de la machine). */
+/** Masse suspendue sous crochet = charge × coef. de marge + accessoires (hors moufle / crochet de la machine). */
 export function masseSousCrochetKg(d: StudyData): number | null {
-  if (d.charge.masseKg === null) return null;
-  let total = d.charge.masseKg;
+  if (d.charge.masseKg === null || d.charge.coefMarge === null || !(d.charge.coefMarge >= 1)) return null;
+  let total = d.charge.masseKg * d.charge.coefMarge;
   for (const a of d.accessoires.liste) {
     if (a.masseKg === null) return null;
     total += a.masseKg;
@@ -55,8 +57,7 @@ export function riggingInput(d: StudyData): RiggingInput {
     id: a.id,
     label: a.label.trim() || `Accessoire ${i + 1}`,
     type: a.type,
-    cmuDirectKg: m(a.cmuDirectKg),
-    facteurMode: m(a.facteurMode),
+    cmuKg: m(a.cmuKg),
     sollicitation: a.sollicitation,
   }));
   return {
@@ -109,6 +110,25 @@ export function outriggerInput(d: StudyData): OutriggerInput {
         : { type: "patin", surfaceM2: m(s.patinSurfaceM2) },
     portanceAdmissibleKPa: m(s.portanceKPa),
   };
+}
+
+/**
+ * Portance minimale requise (aide à la saisie, étape Sol) : effort et surface d'appui saisis.
+ * Stabilisateurs : S = plaque L × l ou patin ; chenilles : S = 2 × L × b. `null` si le mode d'appui n'est pas choisi.
+ */
+export function minBearingInput(d: StudyData): MinBearingInput | null {
+  const s = d.sol;
+  const prod = (...v: (number | null)[]) => (v.every((x) => x !== null) ? v.reduce<number>((a, x) => a * (x as number), 1) : Number.NaN);
+  const surfaceM2 =
+    s.mode === "stabilisateurs"
+      ? s.typeSurface === "plaque"
+        ? prod(s.plaqueLongueurM, s.plaqueLargeurM)
+        : prod(s.patinSurfaceM2)
+      : s.mode === "chenilles"
+        ? prod(2, s.chenilleLongueurM, s.chenilleTuileM)
+        : null;
+  if (surfaceM2 === null) return null;
+  return { effortKN: s.effortMaxKN ?? Number.NaN, surfaceM2 };
 }
 
 export function crawlerInput(d: StudyData): CrawlerInput {

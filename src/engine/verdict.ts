@@ -6,7 +6,7 @@
  *
  * Convention de bornes (tolérance EPS = 1e-9) :
  *   vert   : taux < greenMax
- *   orange : greenMax ≤ taux ≤ orangeMax   (taux = 80 % ⇒ orange ; taux = 100 % ⇒ orange)
+ *   orange : greenMax ≤ taux ≤ orangeMax   (taux = 90 % ⇒ orange ; taux = 100 % ⇒ orange)
  *   rouge  : taux > orangeMax
  * Indépendamment des seuils, taux > 100 % ⇒ bloquant. Contrainte : 0 < greenMax ≤ orangeMax ≤ 1.
  *
@@ -22,7 +22,7 @@ export interface Thresholds {
   orangeMax: number;
 }
 
-export const DEFAULT_THRESHOLDS: Thresholds = { greenMax: 0.8, orangeMax: 1.0 };
+export const DEFAULT_THRESHOLDS: Thresholds = { greenMax: 0.9, orangeMax: 1.0 };
 
 export type Zone = "vert" | "orange" | "rouge";
 export type VerdictGlobal = "ADEQUAT" | "ADEQUAT_AVEC_RESERVES" | "NON_ADEQUAT";

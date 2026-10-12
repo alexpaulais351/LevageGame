@@ -12,9 +12,8 @@ export interface AccessoireSaisie {
   label: string;
   /** Masse propre de l'accessoire (kg), comptée dans la charge totale. */
   masseKg: number | null;
-  /** CMU en levage direct (kg). */
-  cmuDirectKg: number | null;
-  facteurMode: number | null;
+  /** CMU (kg) marquée pour le mode d'élingage utilisé (direct, étranglé, panier, multibrins…). */
+  cmuKg: number | null;
   /** Rôle : comparé à l'effort par brin ou à la masse de l'ensemble. */
   sollicitation: Sollicitation;
 }
@@ -78,6 +77,8 @@ export interface StudyData {
   charge: {
     designation: string;
     masseKg: number | null;
+    /** Coefficient de marge appliqué à la masse de la charge (≥ 1 ; 1 = sans marge). */
+    coefMarge: number | null;
     longueurM: number | null;
     largeurM: number | null;
     hauteurM: number | null;

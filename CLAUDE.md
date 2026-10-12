@@ -29,8 +29,8 @@ Polices : VINCI Sans / Sans Condensed / Serif — `public/fonts/` + `src/styles/
 1. **Aucune valeur d'abaque inventée ni extrapolée.** Toute donnée vient d'une doc constructeur, avec source, norme, date, statut `a_verifier`/`verifie`.
 2. Lecture d'abaque : hors tableau → NON ADÉQUAT. Entre deux nœuds → valeur la plus défavorable, sauf `interpolation_allowed` explicite.
 3. Statut d'abaque (`a_verifier`/`verifie`) affiché dans le catalogue ; il n'influe pas sur le verdict. Le PDF rappelle de vérifier l'abaque contre la doc de la machine présente.
-4. Charge totale = charge + accessoires + moufle/crochet (+ fléchette repliée).
-5. Taux = charge totale / capacité, position la plus défavorable. Seuils paramétrables (défaut 80 / 100 %).
+4. Charge totale = charge × coef. de marge (saisi, ≥ 1) + accessoires + moufle/crochet (+ fléchette repliée).
+5. Taux = charge totale / capacité, position la plus défavorable. Seuils paramétrables (défaut 90 / 100 %).
 6. Verdict : ADÉQUAT / ADÉQUAT AVEC RÉSERVES / NON ADÉQUAT + points bloquants.
 7. Tout calcul affiche formule, valeurs, source.
 8. Mention permanente (app + PDF) : outil d'aide à la rédaction ; validation par une personne compétente sur la doc de la machine réellement présente.

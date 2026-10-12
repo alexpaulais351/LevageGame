@@ -1,0 +1,68 @@
+{
+  "_description": "Machines demandées mais sans abaque exploitable dans le catalogue (source : docs/ABAQUES.md). Tenir à jour avec docs/ABAQUES.md.",
+  "machines": [
+    {
+      "manufacturer": "Manitou",
+      "model": "MRT 2550 (Privilège+)",
+      "type_code": "telescopique_rotatif",
+      "motif": "Abaques constructeur uniquement sous forme de diagramme (lecture graphique interdite).",
+      "besoin": "Abaque tabulé du constructeur (valeurs chiffrées)."
+    },
+    {
+      "manufacturer": "Manitou",
+      "model": "MT 1440",
+      "type_code": "telescopique_fixe",
+      "motif": "Abaques constructeur uniquement sous forme de diagramme (lecture graphique interdite).",
+      "besoin": "Abaque tabulé du constructeur (valeurs chiffrées)."
+    },
+    {
+      "manufacturer": "Merlo",
+      "model": "P40.17",
+      "type_code": "telescopique_fixe",
+      "motif": "Fiche technique officielle sans abaque (capacité et hauteur maximales seulement).",
+      "besoin": "Abaque de charge du constructeur."
+    },
+    {
+      "manufacturer": "Caterpillar",
+      "model": "M318 (Next Gen)",
+      "type_code": "pelle_pneus",
+      "motif": "Document avec tables de levage non accessible en ligne.",
+      "besoin": "PDF Caterpillar AEXQ3469 (tables de levage ISO 10567)."
+    },
+    {
+      "manufacturer": "Liebherr",
+      "model": "LTM 1090-4.2",
+      "type_code": "grue_mobile",
+      "motif": "Tableau 360° codé par couleur selon le rayon de contrepoids, sans légende exploitable.",
+      "besoin": "Livre de tables de charge complet du constructeur."
+    },
+    {
+      "manufacturer": "Liebherr",
+      "model": "LR 1200",
+      "type_code": "grue_mobile_chenilles",
+      "motif": "Tableaux de la fiche loueur incohérents (étiquettes de contrepoids probablement inversées) : exclu par sécurité.",
+      "besoin": "Tables de charge du constructeur."
+    },
+    {
+      "manufacturer": "Terex",
+      "model": "TCC 45",
+      "type_code": "grue_mobile_chenilles",
+      "motif": "Modes 1 / 2 non légendés sur la fiche loueur : exclu par sécurité.",
+      "besoin": "Tables de charge du constructeur avec la signification des modes."
+    },
+    {
+      "manufacturer": "Shuttlelift",
+      "model": "5550 RT",
+      "type_code": "grue_mobile",
+      "motif": "Valeurs converties d'une édition US, sans norme ni calage imprimés.",
+      "besoin": "Édition métrique européenne des tables de charge."
+    },
+    {
+      "manufacturer": "JMG",
+      "model": "MC 160",
+      "type_code": "grue_mobile",
+      "motif": "Abaques uniquement sous forme de courbes (lecture graphique interdite).",
+      "besoin": "Abaque tabulé du constructeur (valeurs chiffrées)."
+    }
+  ]
+}

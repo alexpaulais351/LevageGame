@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { checkPowerLine, checkWind, kmhToMs } from "../environment";
-import { checkCrawlerPressure, checkOutriggerPressure } from "../ground";
+import { checkCrawlerPressure, checkOutriggerPressure, minBearingCapacity } from "../ground";
 
 describe("checkOutriggerPressure", () => {
   it("plaque L × l : p = F / S ; égalité acceptée", () => {
@@ -107,5 +107,19 @@ describe("checkPowerLine", () => {
     const r = checkPowerLine({ distancePrevueM: -1, distanceSeuilM: undefined as unknown as number });
     expect(r.issues.map((i) => i.code)).toEqual(["DONNEE_MANQUANTE", "DONNEE_MANQUANTE"]);
     expect(r.value.margeM).toBeNull();
+  });
+});
+
+describe("minBearingCapacity — portance minimale requise", () => {
+  it("q_min = F / S, conversions bar et t/m²", () => {
+    const r = minBearingCapacity({ effortKN: 300, surfaceM2: 1.5 });
+    expect(r.value).toBeCloseTo(200, 12);
+    expect(r.inputs.q_bar.value).toBeCloseTo(2, 12);
+    expect(r.inputs.q_tm2.value).toBeCloseTo(200 / 9.81, 12);
+    expect(r.warnings).toEqual([]);
+  });
+  it("données manquantes ⇒ null", () => {
+    expect(minBearingCapacity({ effortKN: Number.NaN, surfaceM2: 1 }).value).toBeNull();
+    expect(minBearingCapacity({ effortKN: 100, surfaceM2: 0 }).value).toBeNull();
   });
 });

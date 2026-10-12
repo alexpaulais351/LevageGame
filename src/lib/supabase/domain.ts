@@ -93,6 +93,6 @@ export async function reglagesUtilisateur(supabase: SupabaseClient, userId: stri
   ]);
   return {
     nom: p?.full_name?.trim() ?? "",
-    seuils: { vert: Number(s?.threshold_green ?? 80), orange: Number(s?.threshold_orange ?? 100) },
+    seuils: { vert: Number(s?.threshold_green ?? 90), orange: Number(s?.threshold_orange ?? 100) },
   };
 }

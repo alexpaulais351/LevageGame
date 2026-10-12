@@ -10,8 +10,7 @@ export function accessoireVide(): AccessoireSaisie {
     type: "elingue",
     label: "",
     masseKg: null,
-    cmuDirectKg: null,
-    facteurMode: null,
+    cmuKg: null,
     sollicitation: "brin",
   };
 }
@@ -30,6 +29,7 @@ export function createInitialData(): StudyData {
     charge: {
       designation: "",
       masseKg: null,
+      coefMarge: 1,
       longueurM: null,
       largeurM: null,
       hauteurM: null,
@@ -81,7 +81,7 @@ export function createInitialData(): StudyData {
       vgpEngin: false,
       vgpAccessoires: false,
     },
-    seuils: { vertPct: 80, orangePct: 100 },
+    seuils: { vertPct: 90, orangePct: 100 },
     reserves: { liste: [] },
   };
 }
@@ -95,5 +95,20 @@ export function fusionnerAvecDefauts(sauvegarde: Partial<StudyData> | undefined)
     const s = sauvegarde[k];
     if (s && typeof s === "object") out[k] = { ...(base[k] as object), ...(s as object) };
   }
-  return out as unknown as StudyData;
+  const data = out as unknown as StudyData;
+  data.accessoires = { ...data.accessoires, liste: (data.accessoires.liste ?? []).map(accessoireDepuisSauvegarde) };
+  return data;
+}
+
+/**
+ * Accessoire d'une sauvegarde antérieure à D32 ({ cmuDirectKg, facteurMode }) → { cmuKg }.
+ * CMU du mode utilisé = CMU direct × facteur de mode (CMU direct seule si le facteur n'était pas saisi).
+ */
+export function accessoireDepuisSauvegarde(a: AccessoireSaisie): AccessoireSaisie {
+  const ancien = a as AccessoireSaisie & { cmuDirectKg?: number | null; facteurMode?: number | null };
+  if (ancien.cmuKg !== undefined || !("cmuDirectKg" in ancien)) return a;
+  const { cmuDirectKg, facteurMode, ...reste } = ancien;
+  const cmuKg =
+    typeof cmuDirectKg === "number" ? (typeof facteurMode === "number" && facteurMode > 0 ? cmuDirectKg * facteurMode : cmuDirectKg) : null;
+  return { ...reste, cmuKg };
 }

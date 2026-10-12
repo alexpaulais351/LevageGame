@@ -45,11 +45,11 @@ function acc(a: Omit<AccessoireSaisie, "id">): AccessoireSaisie {
   return { id: id(), ...a };
 }
 const chaine4 = (masseKg = 30) =>
-  acc({ type: "elingue", label: "Élingue chaîne 4 brins G80 Ø10 mm (mode 4 brins, 0-45°)", masseKg, cmuDirectKg: 3150, facteurMode: 2.1, sollicitation: "ensemble" });
+  acc({ type: "elingue", label: "Élingue chaîne 4 brins G80 Ø10 mm (mode 4 brins, 0-45°)", masseKg, cmuKg: 6700, sollicitation: "ensemble" });
 const palonnier = (label: string, masseKg: number, cmu: number) =>
-  acc({ type: "palonnier", label, masseKg, cmuDirectKg: cmu, facteurMode: 1, sollicitation: "ensemble" });
+  acc({ type: "palonnier", label, masseKg, cmuKg: cmu, sollicitation: "ensemble" });
 const manilles = (label: string, masseKg: number, cmu: number) =>
-  acc({ type: "manille", label, masseKg, cmuDirectKg: cmu, facteurMode: 1, sollicitation: "brin" });
+  acc({ type: "manille", label, masseKg, cmuKg: cmu, sollicitation: "brin" });
 
 function pos(nom: string, porteeM: number, yM: number, angleDeg: number) {
   return { id: id(), nom, porteeM, yM, angleDeg };
@@ -79,7 +79,7 @@ function build(s: Spec): StudyData {
   d.sol = { ...d.sol, ...s.sol };
   d.environnement = { ...d.environnement, ...s.env };
   d.personnel = s.personnel;
-  d.seuils = { vertPct: 80, orangePct: 100 };
+  d.seuils = { vertPct: 90, orangePct: 100 };
   d.reserves = { liste: (s.reserves ?? []).map((texte) => ({ id: id(), texte })) };
   return d;
 }
@@ -131,7 +131,7 @@ ETUDES.push({
     accessoires: {
       liste: [
         palonnier("Palonnier tubulaire 4 points 8 t", 220, 8000),
-        acc({ type: "elingue", label: "Élingue chaîne 4 brins G80 Ø13 mm (mode 4 brins, 0-45°)", masseKg: 55, cmuDirectKg: 5300, facteurMode: 2.1, sollicitation: "ensemble" }),
+        acc({ type: "elingue", label: "Élingue chaîne 4 brins G80 Ø13 mm (mode 4 brins, 0-45°)", masseKg: 55, cmuKg: 11200, sollicitation: "ensemble" }),
         manilles("Manilles lyre droites 3,25 t (x4)", 10, 3250),
       ],
       nbBrins: 4, angleBetaDeg: 30, equilibrageDeclare: true,
@@ -159,7 +159,7 @@ ETUDES.push({
     charge: { designation: "Tuyau béton armé DN800, longueur 2,5 m, à emboîtement", masseKg: 2200, longueurM: 2.5, largeurM: 1.05, hauteurM: 1.05, centreGravite: "Au milieu du fût", surfaceVentM2: 2.6 },
     accessoires: {
       liste: [
-        acc({ type: "elingue", label: "Élingue chaîne 2 brins G80 Ø8 mm (mode 2 brins, 0-45°)", masseKg: 18, cmuDirectKg: 2000, facteurMode: 1.4, sollicitation: "ensemble" }),
+        acc({ type: "elingue", label: "Élingue chaîne 2 brins G80 Ø8 mm (mode 2 brins, 0-45°)", masseKg: 18, cmuKg: 2800, sollicitation: "ensemble" }),
         manilles("Manilles lyre droites 2 t (x2)", 3, 2000),
       ],
       nbBrins: 2, angleBetaDeg: 30, equilibrageDeclare: false,
