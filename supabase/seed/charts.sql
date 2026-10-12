@@ -14,8 +14,8 @@ begin
     and reference is not distinct from 'AEXQ3516-01' and edition is not distinct from '10-2023 (Build Number 07G)';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'Technical Specifications for 323 Hydraulic Excavator', 'AEXQ3516-01', '10-2023 (Build Number 07G)', 'https://s7d2.scene7.com/is/content/Caterpillar/CM20220922-a569b-2ce04', 'Caterpillar (CDN officiel scene7 Caterpillar)', 'catalogue/caterpillar-323.pdf') returning id into v_src;
-  else update public.chart_sources set url = 'https://s7d2.scene7.com/is/content/Caterpillar/CM20220922-a569b-2ce04', publisher = 'Caterpillar (CDN officiel scene7 Caterpillar)', file_path = 'catalogue/caterpillar-323.pdf', updated_at = now() where id = v_src;
+    values (null, 'Technical Specifications for 323 Hydraulic Excavator', 'AEXQ3516-01', '10-2023 (Build Number 07G)', 'https://s7d2.scene7.com/is/content/Caterpillar/CM20220922-a569b-2ce04', 'Caterpillar (CDN officiel scene7 Caterpillar)', null) returning id into v_src;
+  else update public.chart_sources set url = 'https://s7d2.scene7.com/is/content/Caterpillar/CM20220922-a569b-2ce04', publisher = 'Caterpillar (CDN officiel scene7 Caterpillar)', file_path = null, updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('323');
   if v_machine is null then
@@ -109,8 +109,8 @@ begin
     and reference is not distinct from 'AFXQ2372 (07-2018) (France, Allemagne) ; CATERPILLAR M323F Pelles-Rail-Route.pdf, sha256:0e6d8c5af3e5783a' and edition is not distinct from '07-2018 (France, Allemagne)';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'M323F — Pelle excavatrice à roues pour chemin de fer — Caractéristiques techniques', 'AFXQ2372 (07-2018) (France, Allemagne) ; CATERPILLAR M323F Pelles-Rail-Route.pdf, sha256:0e6d8c5af3e5783a', '07-2018 (France, Allemagne)', null, 'Document constructeur fourni par l''utilisateur', 'catalogue/caterpillar-m323f.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Document constructeur fourni par l''utilisateur', file_path = 'catalogue/caterpillar-m323f.pdf', updated_at = now() where id = v_src;
+    values (null, 'M323F — Pelle excavatrice à roues pour chemin de fer — Caractéristiques techniques', 'AFXQ2372 (07-2018) (France, Allemagne) ; CATERPILLAR M323F Pelles-Rail-Route.pdf, sha256:0e6d8c5af3e5783a', '07-2018 (France, Allemagne)', null, 'Document constructeur fourni par l''utilisateur', 'CATERPILLAR_M323F_Pelles-Rail-Route.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Document constructeur fourni par l''utilisateur', file_path = 'CATERPILLAR_M323F_Pelles-Rail-Route.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('M323F');
   if v_machine is null then
@@ -206,8 +206,8 @@ begin
     and reference is not distinct from '100T-TEREX DEMAG AC 100-4L.pdf (sha256 0864ab21506c0e96)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 100-4L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 100 tonnes)', '100T-TEREX DEMAG AC 100-4L.pdf (sha256 0864ab21506c0e96)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-100-4l.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-100-4l.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 100-4L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 100 tonnes)', '100T-TEREX DEMAG AC 100-4L.pdf (sha256 0864ab21506c0e96)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '100T-TEREX DEMAG AC 100-4L.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '100T-TEREX DEMAG AC 100-4L.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 100-4L');
   if v_machine is null then
@@ -472,8 +472,8 @@ begin
     and reference is not distinct from '120T-TEREX DEMAG AC 120-1.pdf sha256:525df53cabddc81f' and edition is not distinct from 'Fiche FOSELEV (impression 31/03/11)';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 120-1 - 120 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 120-1 »)', '120T-TEREX DEMAG AC 120-1.pdf sha256:525df53cabddc81f', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-120-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-120-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 120-1 - 120 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 120-1 »)', '120T-TEREX DEMAG AC 120-1.pdf sha256:525df53cabddc81f', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '120T-TEREX DEMAG AC 120-1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '120T-TEREX DEMAG AC 120-1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 120-1');
   if v_machine is null then
@@ -609,8 +609,8 @@ begin
     and reference is not distinct from '200T-TEREX DEMAG AC 200-1.pdf sha256:eef86f0b8ee779f1' and edition is not distinct from 'Fiche FOSELEV (impression 31/03/11)';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 200-1 - 200 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 200-1 »)', '200T-TEREX DEMAG AC 200-1.pdf sha256:eef86f0b8ee779f1', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-200-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-200-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 200-1 - 200 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : TEREX DEMAG AC 200-1 »)', '200T-TEREX DEMAG AC 200-1.pdf sha256:eef86f0b8ee779f1', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '200T-TEREX DEMAG AC 200-1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '200T-TEREX DEMAG AC 200-1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 200-1');
   if v_machine is null then
@@ -952,8 +952,8 @@ begin
     and reference is not distinct from '30T-TEREX DEMAG AC 30 CITY.pdf sha256:afa2763575bb8ccc' and edition is not distinct from 'mise en page « intérieur de page 31/03/11 »';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 30 City 30 TONNES – Capacité de levage (fiche loueur FOSELEV)', '30T-TEREX DEMAG AC 30 CITY.pdf sha256:afa2763575bb8ccc', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-30-city.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-30-city.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 30 City 30 TONNES – Capacité de levage (fiche loueur FOSELEV)', '30T-TEREX DEMAG AC 30 CITY.pdf sha256:afa2763575bb8ccc', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '30T-TEREX DEMAG AC 30 CITY.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '30T-TEREX DEMAG AC 30 CITY.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 30 City');
   if v_machine is null then
@@ -1049,8 +1049,8 @@ begin
     and reference is not distinct from '35T-TEREX DEMAG AC 40-2L.pdf (sha256 e6a330b75bc7132c)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 40-2L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 35 tonnes)', '35T-TEREX DEMAG AC 40-2L.pdf (sha256 e6a330b75bc7132c)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-40-2l.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-40-2l.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 40-2L – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 35 tonnes)', '35T-TEREX DEMAG AC 40-2L.pdf (sha256 e6a330b75bc7132c)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '35T-TEREX DEMAG AC 40-2L.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '35T-TEREX DEMAG AC 40-2L.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 40-2L');
   if v_machine is null then
@@ -1251,8 +1251,8 @@ begin
     and reference is not distinct from '50T-TEREX DEMAG AC 50-1.pdf sha256:35326c2a10e53a95' and edition is not distinct from 'mise en page « intérieur de page 31/03/11 »';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 50-1 50 TONNES – Capacité de levage (fiche loueur FOSELEV)', '50T-TEREX DEMAG AC 50-1.pdf sha256:35326c2a10e53a95', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-50-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-50-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 50-1 50 TONNES – Capacité de levage (fiche loueur FOSELEV)', '50T-TEREX DEMAG AC 50-1.pdf sha256:35326c2a10e53a95', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '50T-TEREX DEMAG AC 50-1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '50T-TEREX DEMAG AC 50-1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 50-1');
   if v_machine is null then
@@ -1385,8 +1385,8 @@ begin
     and reference is not distinct from '3-55T-TEREX DEMAG AC 55-3.pdf sha256:8d4c636c10404971' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 55-3 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 55 tonnes)', '3-55T-TEREX DEMAG AC 55-3.pdf sha256:8d4c636c10404971', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-55-3.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-55-3.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 55-3 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 55 tonnes)', '3-55T-TEREX DEMAG AC 55-3.pdf sha256:8d4c636c10404971', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '55T-TEREX DEMAG AC 55-3.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '55T-TEREX DEMAG AC 55-3.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 55-3');
   if v_machine is null then
@@ -1589,8 +1589,8 @@ begin
     and reference is not distinct from '80T-TEREX DEMAG AC 80-2.pdf sha256:4e673786f854c7f0' and edition is not distinct from 'mise en page « intérieur de page 31/03/11 »';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX DEMAG AC 80-2 80 TONNES – Capacité de levage (fiche loueur FOSELEV)', '80T-TEREX DEMAG AC 80-2.pdf sha256:4e673786f854c7f0', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/demag-ac-80-2.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/demag-ac-80-2.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX DEMAG AC 80-2 80 TONNES – Capacité de levage (fiche loueur FOSELEV)', '80T-TEREX DEMAG AC 80-2.pdf sha256:4e673786f854c7f0', 'mise en page « intérieur de page 31/03/11 »', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '80T-TEREX DEMAG AC 80-2.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '80T-TEREX DEMAG AC 80-2.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('AC 80-2');
   if v_machine is null then
@@ -1736,8 +1736,8 @@ begin
     and reference is not distinct from '12T-GALIZIA G 100 E.pdf (sha256 5f9a212d5d51dc62…)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GALIZIA G100E – 12 TONNES – Cotation / Hauteurs et capacités de levage (fiche FOSELEV)', '12T-GALIZIA G 100 E.pdf (sha256 5f9a212d5d51dc62…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/galizia-g-100-e.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/galizia-g-100-e.pdf', updated_at = now() where id = v_src;
+    values (null, 'GALIZIA G100E – 12 TONNES – Cotation / Hauteurs et capacités de levage (fiche FOSELEV)', '12T-GALIZIA G 100 E.pdf (sha256 5f9a212d5d51dc62…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '12T-GALIZIA G 100 E.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '12T-GALIZIA G 100 E.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('G100E');
   if v_machine is null then
@@ -1793,8 +1793,8 @@ begin
     and reference is not distinct from '50T-GROVE GMK 3050-1.pdf ; sha256:693c8704b9a7d79f' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GROVE GMK 3050-1 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 3 pages)', '50T-GROVE GMK 3050-1.pdf ; sha256:693c8704b9a7d79f', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/grove-gmk-3050-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/grove-gmk-3050-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'GROVE GMK 3050-1 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 3 pages)', '50T-GROVE GMK 3050-1.pdf ; sha256:693c8704b9a7d79f', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '50T-GROVE GMK 3050-1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '50T-GROVE GMK 3050-1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 3050-1');
   if v_machine is null then
@@ -1957,8 +1957,8 @@ begin
     and reference is not distinct from '130T-GROVE GMK 5130-2.pdf ; sha256:676eec7f29b2e3fb' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GROVE GMK 5130-2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)', '130T-GROVE GMK 5130-2.pdf ; sha256:676eec7f29b2e3fb', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/grove-gmk-5130-2.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/grove-gmk-5130-2.pdf', updated_at = now() where id = v_src;
+    values (null, 'GROVE GMK 5130-2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)', '130T-GROVE GMK 5130-2.pdf ; sha256:676eec7f29b2e3fb', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '130T-GROVE GMK 5130-2.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '130T-GROVE GMK 5130-2.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 5130-2');
   if v_machine is null then
@@ -2212,8 +2212,8 @@ begin
     and reference is not distinct from '200T-GROVE GMK 5200.pdf ; sha256:717f58372544fde1' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GROVE GMK 5200 — 200 tonnes : Cotation, Capacité de levage, Flèche principale, Extension treillis (fiche FOSELEV, 5 pages, pages catalogue 124-128)', '200T-GROVE GMK 5200.pdf ; sha256:717f58372544fde1', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/grove-gmk-5200.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/grove-gmk-5200.pdf', updated_at = now() where id = v_src;
+    values (null, 'GROVE GMK 5200 — 200 tonnes : Cotation, Capacité de levage, Flèche principale, Extension treillis (fiche FOSELEV, 5 pages, pages catalogue 124-128)', '200T-GROVE GMK 5200.pdf ; sha256:717f58372544fde1', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '200T-GROVE GMK 5200.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '200T-GROVE GMK 5200.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 5200');
   if v_machine is null then
@@ -2507,8 +2507,8 @@ begin
     and reference is not distinct from '3-400T-GROVE GMK 6400.pdf sha256:40da47a3374cbec2' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GROVE GMK 6400 - Hauteurs et capacités de levage (fiche FOSELEV, 400 tonnes)', '3-400T-GROVE GMK 6400.pdf sha256:40da47a3374cbec2', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/grove-gmk-6400.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/grove-gmk-6400.pdf', updated_at = now() where id = v_src;
+    values (null, 'GROVE GMK 6400 - Hauteurs et capacités de levage (fiche FOSELEV, 400 tonnes)', '3-400T-GROVE GMK 6400.pdf sha256:40da47a3374cbec2', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '400T-GROVE GMK 6400.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '400T-GROVE GMK 6400.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK 6400');
   if v_machine is null then
@@ -2878,8 +2878,8 @@ begin
     and reference is not distinct from 'sha256:621f544c5bdf793443b26c37056c813547f8f4ef0663f4f2bdddb2edfa82bfde' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GMK3060L Product Guide 60 t 48 m 8,7 - 15 m 65 m (édition métrique, EN 13000)', 'sha256:621f544c5bdf793443b26c37056c813547f8f4ef0663f4f2bdddb2edfa82bfde', null, 'https://www.manitowoc.com/media/14859/download', 'Manitowoc Cranes (constructeur Grove), fiche « GMK3060L Metric » sur manitowoc.com', 'catalogue/grove-gmk3060l.pdf') returning id into v_src;
-  else update public.chart_sources set url = 'https://www.manitowoc.com/media/14859/download', publisher = 'Manitowoc Cranes (constructeur Grove), fiche « GMK3060L Metric » sur manitowoc.com', file_path = 'catalogue/grove-gmk3060l.pdf', updated_at = now() where id = v_src;
+    values (null, 'GMK3060L Product Guide 60 t 48 m 8,7 - 15 m 65 m (édition métrique, EN 13000)', 'sha256:621f544c5bdf793443b26c37056c813547f8f4ef0663f4f2bdddb2edfa82bfde', null, 'https://www.manitowoc.com/media/14859/download', 'Manitowoc Cranes (constructeur Grove), fiche « GMK3060L Metric » sur manitowoc.com', null) returning id into v_src;
+  else update public.chart_sources set url = 'https://www.manitowoc.com/media/14859/download', publisher = 'Manitowoc Cranes (constructeur Grove), fiche « GMK3060L Metric » sur manitowoc.com', file_path = null, updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK3060L');
   if v_machine is null then
@@ -3376,8 +3376,8 @@ begin
     and reference is not distinct from '150T-GROVE GMK 5150L.pdf, sha256:3aaa7df56e904480' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GROVE GMK 5150L — 150 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '150T-GROVE GMK 5150L.pdf, sha256:3aaa7df56e904480', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/grove-gmk5150l.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/grove-gmk5150l.pdf', updated_at = now() where id = v_src;
+    values (null, 'GROVE GMK 5150L — 150 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '150T-GROVE GMK 5150L.pdf, sha256:3aaa7df56e904480', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '150T-GROVE GMK 5150L.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '150T-GROVE GMK 5150L.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('GMK5150L');
   if v_machine is null then
@@ -3680,8 +3680,8 @@ begin
     and reference is not distinct from '35T-GROVE RT 540 E.pdf sha256:1afb74d471e3dbab' and edition is not distinct from 'Fiche FOSELEV (impression 31/03/11)';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'GROVE RT 540 E - 35 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : GROVE RT 540 E »)', '35T-GROVE RT 540 E.pdf sha256:1afb74d471e3dbab', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/grove-rt-540-e.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/grove-rt-540-e.pdf', updated_at = now() where id = v_src;
+    values (null, 'GROVE RT 540 E - 35 tonnes - Capacité de levage (fiche FOSELEV, « Cotation : GROVE RT 540 E »)', '35T-GROVE RT 540 E.pdf sha256:1afb74d471e3dbab', 'Fiche FOSELEV (impression 31/03/11)', null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '35T-GROVE RT 540 E.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '35T-GROVE RT 540 E.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('RT 540 E');
   if v_machine is null then
@@ -3800,8 +3800,8 @@ begin
     and reference is not distinct from '100T-LIEBHERR LR 1100.pdf ; sha256:8081115995a117cf' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LR 1100 — 100 tonnes : Cotation, Capacité de levage, Flèche principale (fiche FOSELEV, 3 pages, pages catalogue 198-200)', '100T-LIEBHERR LR 1100.pdf ; sha256:8081115995a117cf', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-lr-1100.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-lr-1100.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LR 1100 — 100 tonnes : Cotation, Capacité de levage, Flèche principale (fiche FOSELEV, 3 pages, pages catalogue 198-200)', '100T-LIEBHERR LR 1100.pdf ; sha256:8081115995a117cf', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '100T-LIEBHERR LR 1100.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '100T-LIEBHERR LR 1100.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LR 1100');
   if v_machine is null then
@@ -4164,8 +4164,8 @@ begin
     and reference is not distinct from '35T-LIEBHERR LTM 1030-2.1.pdf — sha256:8593a747151637cf' and edition is not distinct from 'Catalogue FOSELEV, pages datées 31/03/11';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1030-2.1 – 35 tonnes – Capacité de levage (fiche FOSELEV)', '35T-LIEBHERR LTM 1030-2.1.pdf — sha256:8593a747151637cf', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', 'catalogue/liebherr-ltm-1030-2-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', file_path = 'catalogue/liebherr-ltm-1030-2-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1030-2.1 – 35 tonnes – Capacité de levage (fiche FOSELEV)', '35T-LIEBHERR LTM 1030-2.1.pdf — sha256:8593a747151637cf', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', '35T-LIEBHERR LTM 1030-2.1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', file_path = '35T-LIEBHERR LTM 1030-2.1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1030-2.1');
   if v_machine is null then
@@ -4289,8 +4289,8 @@ begin
     and reference is not distinct from '35T-LIEBHERR LTM 1040-2.1.pdf (sha256:6df1cb148de6aa83)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1040-2.1 – 35 TONNES – Flèche principale / Extension treillis (fiche FOSELEV, 4 p.)', '35T-LIEBHERR LTM 1040-2.1.pdf (sha256:6df1cb148de6aa83)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-ltm-1040-2-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-ltm-1040-2-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1040-2.1 – 35 TONNES – Flèche principale / Extension treillis (fiche FOSELEV, 4 p.)', '35T-LIEBHERR LTM 1040-2.1.pdf (sha256:6df1cb148de6aa83)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '35T-LIEBHERR LTM 1040-2.1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '35T-LIEBHERR LTM 1040-2.1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1040-2.1');
   if v_machine is null then
@@ -4549,8 +4549,8 @@ begin
     and reference is not distinct from '55T-LIEBHERR LTM 1055-3.1.pdf — sha256:0369c1445ef15df3' and edition is not distinct from 'Catalogue FOSELEV, pages datées 31/03/11';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1055-3.1 – 55 tonnes – Capacité de levage (fiche FOSELEV)', '55T-LIEBHERR LTM 1055-3.1.pdf — sha256:0369c1445ef15df3', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', 'catalogue/liebherr-ltm-1055-3-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', file_path = 'catalogue/liebherr-ltm-1055-3-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1055-3.1 – 55 tonnes – Capacité de levage (fiche FOSELEV)', '55T-LIEBHERR LTM 1055-3.1.pdf — sha256:0369c1445ef15df3', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', '55T-LIEBHERR LTM 1055-3.1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', file_path = '55T-LIEBHERR LTM 1055-3.1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1055-3.1');
   if v_machine is null then
@@ -4689,8 +4689,8 @@ begin
     and reference is not distinct from 'lwe-td-250-04-defisr12-2025' and edition is not distinct from '12-2025 (td-250-04)';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'Liebherr LTM 1060-3.1 – Technische Daten / Technical data / Caractéristiques techniques [m/t] (édition métrique, EN 13000)', 'lwe-td-250-04-defisr12-2025', '12-2025 (td-250-04)', 'https://assets-cdn.liebherr.com/versions/0a2bf980-365f-43a7-a1a0-1f361f9be062/original/', 'Liebherr-Werk Ehingen GmbH (CDN officiel assets-cdn.liebherr.com, lien « Technical Data - Mobile crane LTM 1060-3.1 [m/t] metric » de la page produit liebherr.com/en-int)', 'catalogue/liebherr-ltm-1060-3-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = 'https://assets-cdn.liebherr.com/versions/0a2bf980-365f-43a7-a1a0-1f361f9be062/original/', publisher = 'Liebherr-Werk Ehingen GmbH (CDN officiel assets-cdn.liebherr.com, lien « Technical Data - Mobile crane LTM 1060-3.1 [m/t] metric » de la page produit liebherr.com/en-int)', file_path = 'catalogue/liebherr-ltm-1060-3-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'Liebherr LTM 1060-3.1 – Technische Daten / Technical data / Caractéristiques techniques [m/t] (édition métrique, EN 13000)', 'lwe-td-250-04-defisr12-2025', '12-2025 (td-250-04)', 'https://assets-cdn.liebherr.com/versions/0a2bf980-365f-43a7-a1a0-1f361f9be062/original/', 'Liebherr-Werk Ehingen GmbH (CDN officiel assets-cdn.liebherr.com, lien « Technical Data - Mobile crane LTM 1060-3.1 [m/t] metric » de la page produit liebherr.com/en-int)', null) returning id into v_src;
+  else update public.chart_sources set url = 'https://assets-cdn.liebherr.com/versions/0a2bf980-365f-43a7-a1a0-1f361f9be062/original/', publisher = 'Liebherr-Werk Ehingen GmbH (CDN officiel assets-cdn.liebherr.com, lien « Technical Data - Mobile crane LTM 1060-3.1 [m/t] metric » de la page produit liebherr.com/en-int)', file_path = null, updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1060-3.1');
   if v_machine is null then
@@ -5288,8 +5288,8 @@ begin
     and reference is not distinct from '70T-LIEBHERR LTM 1070-4.1.pdf (sha256:b3d53dd6f8a0c17c)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1070-4.1 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)', '70T-LIEBHERR LTM 1070-4.1.pdf (sha256:b3d53dd6f8a0c17c)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-ltm-1070-4-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-ltm-1070-4-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1070-4.1 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)', '70T-LIEBHERR LTM 1070-4.1.pdf (sha256:b3d53dd6f8a0c17c)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '70T-LIEBHERR LTM 1070-4.1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '70T-LIEBHERR LTM 1070-4.1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1070-4.1');
   if v_machine is null then
@@ -5631,8 +5631,8 @@ begin
     and reference is not distinct from '70T-LIEBHERR LTM 1070-4.2.pdf (sha256:e343332cec6510aa)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1070-4.2 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)', '70T-LIEBHERR LTM 1070-4.2.pdf (sha256:e343332cec6510aa)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-ltm-1070-4-2.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-ltm-1070-4-2.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1070-4.2 – 70 TONNES – Hauteurs et capacités de levage : Flèche principale (+ Fléchette) (fiche FOSELEV, 5 p.)', '70T-LIEBHERR LTM 1070-4.2.pdf (sha256:e343332cec6510aa)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '70T-LIEBHERR LTM 1070-4.2.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '70T-LIEBHERR LTM 1070-4.2.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1070-4.2');
   if v_machine is null then
@@ -6096,8 +6096,8 @@ begin
     and reference is not distinct from '90T-LIEBHERR LTM 1090-4.1.pdf (sha256 c7e9472d0d5f1dae)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1090-4.1 – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)', '90T-LIEBHERR LTM 1090-4.1.pdf (sha256 c7e9472d0d5f1dae)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-ltm-1090-4-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-ltm-1090-4-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1090-4.1 – Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)', '90T-LIEBHERR LTM 1090-4.1.pdf (sha256 c7e9472d0d5f1dae)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '90T-LIEBHERR LTM 1090-4.1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '90T-LIEBHERR LTM 1090-4.1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1090-4.1');
   if v_machine is null then
@@ -6327,8 +6327,8 @@ begin
     and reference is not distinct from '100T-LIEBHERR LTM 1100-4.2.pdf ; sha256:bc8f2e6de2d6c9e0' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1100-4.2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)', '100T-LIEBHERR LTM 1100-4.2.pdf ; sha256:bc8f2e6de2d6c9e0', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-ltm-1100-4-2.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-ltm-1100-4-2.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1100-4.2 — Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 5 pages)', '100T-LIEBHERR LTM 1100-4.2.pdf ; sha256:bc8f2e6de2d6c9e0', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '100T-LIEBHERR LTM 1100-4.2.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '100T-LIEBHERR LTM 1100-4.2.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1100-4.2');
   if v_machine is null then
@@ -6671,8 +6671,8 @@ begin
     and reference is not distinct from '250T-LIEBHERR LTM 1250-1.pdf — sha256:7494d54bdbf938e0' and edition is not distinct from 'Catalogue FOSELEV, pages datées 31/03/11';
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR LTM 1250-1 – 250 tonnes – Capacité de levage (fiche FOSELEV)', '250T-LIEBHERR LTM 1250-1.pdf — sha256:7494d54bdbf938e0', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', 'catalogue/liebherr-ltm-1250-1.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', file_path = 'catalogue/liebherr-ltm-1250-1.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR LTM 1250-1 – 250 tonnes – Capacité de levage (fiche FOSELEV)', '250T-LIEBHERR LTM 1250-1.pdf — sha256:7494d54bdbf938e0', 'Catalogue FOSELEV, pages datées 31/03/11', null, 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', '250T-LIEBHERR LTM 1250-1.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur (Document constructeur fourni par l''utilisateur, mis en page par FOSELEV)', file_path = '250T-LIEBHERR LTM 1250-1.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('LTM 1250-1');
   if v_machine is null then
@@ -7001,8 +7001,8 @@ begin
     and reference is not distinct from '8T-LIEBHERR MK 110.pdf (sha256 0c32e528a198ed5e…)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR MK 110 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 110.pdf (sha256 0c32e528a198ed5e…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-mk-110.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-mk-110.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR MK 110 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 110.pdf (sha256 0c32e528a198ed5e…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '8T-LIEBHERR MK 110.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '8T-LIEBHERR MK 110.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('MK 110');
   if v_machine is null then
@@ -7116,8 +7116,8 @@ begin
     and reference is not distinct from '8T-LIEBHERR MK 140.pdf (sha256 9f3b74a35845402e…)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR MK 140 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 140.pdf (sha256 9f3b74a35845402e…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-mk-140.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-mk-140.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR MK 140 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 140.pdf (sha256 9f3b74a35845402e…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '8T-LIEBHERR MK 140.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '8T-LIEBHERR MK 140.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('MK 140');
   if v_machine is null then
@@ -7211,8 +7211,8 @@ begin
     and reference is not distinct from '8T-LIEBHERR MK 88.pdf (sha256 0653aa72146cebbf…)' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'LIEBHERR MK 88 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 88.pdf (sha256 0653aa72146cebbf…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/liebherr-mk-88.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/liebherr-mk-88.pdf', updated_at = now() where id = v_src;
+    values (null, 'LIEBHERR MK 88 – 8 TONNES – Hauteurs et capacités de levage (fiche FOSELEV)', '8T-LIEBHERR MK 88.pdf (sha256 0653aa72146cebbf…)', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '8T-LIEBHERR MK 88.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '8T-LIEBHERR MK 88.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('MK 88');
   if v_machine is null then
@@ -7304,8 +7304,8 @@ begin
     and reference is not distinct from '50T-TADANO FAUN ATF 50G-3.pdf, sha256:2b28b74f84b93dec' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TADANO FAUN ATF 50G-3 — 50 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '50T-TADANO FAUN ATF 50G-3.pdf, sha256:2b28b74f84b93dec', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/tadano-faun-atf-50g-3.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/tadano-faun-atf-50g-3.pdf', updated_at = now() where id = v_src;
+    values (null, 'TADANO FAUN ATF 50G-3 — 50 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '50T-TADANO FAUN ATF 50G-3.pdf, sha256:2b28b74f84b93dec', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '50T-TADANO FAUN ATF 50G-3.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '50T-TADANO FAUN ATF 50G-3.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('ATF 50G-3');
   if v_machine is null then
@@ -7473,8 +7473,8 @@ begin
     and reference is not distinct from '60T-TADANO FAUN ATF 60G-3.pdf, sha256:bc8d17a735012768' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TADANO FAUN ATF 60G-3 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '60T-TADANO FAUN ATF 60G-3.pdf, sha256:bc8d17a735012768', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/tadano-faun-atf-60g-3.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/tadano-faun-atf-60g-3.pdf', updated_at = now() where id = v_src;
+    values (null, 'TADANO FAUN ATF 60G-3 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale / Flèche principale + Fléchette (fiche loueur FOSELEV)', '60T-TADANO FAUN ATF 60G-3.pdf, sha256:bc8d17a735012768', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '60T-TADANO FAUN ATF 60G-3.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '60T-TADANO FAUN ATF 60G-3.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('ATF 60G-3');
   if v_machine is null then
@@ -7688,8 +7688,8 @@ begin
     and reference is not distinct from '3-90T-TADANO FAUN ATF 90G-4.pdf sha256:6edb7a8720327438' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TADANO FAUN ATF 90G-4 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)', '3-90T-TADANO FAUN ATF 90G-4.pdf sha256:6edb7a8720327438', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/tadano-faun-atf-90g-4.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/tadano-faun-atf-90g-4.pdf', updated_at = now() where id = v_src;
+    values (null, 'TADANO FAUN ATF 90G-4 - Hauteurs et capacités de levage : Flèche principale (fiche FOSELEV, 90 tonnes)', '3-90T-TADANO FAUN ATF 90G-4.pdf sha256:6edb7a8720327438', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '90T-TADANO FAUN ATF 90G-4.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '90T-TADANO FAUN ATF 90G-4.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('ATF 90G-4');
   if v_machine is null then
@@ -7919,8 +7919,8 @@ begin
     and reference is not distinct from '60T-TEREX A 600.pdf, sha256:5ef2a50a467bfeee' and edition is not distinct from null;
   if v_src is null then
     insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
-    values (null, 'TEREX A600 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale + fléchette (fiche loueur FOSELEV)', '60T-TEREX A 600.pdf, sha256:5ef2a50a467bfeee', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', 'catalogue/terex-a600.pdf') returning id into v_src;
-  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = 'catalogue/terex-a600.pdf', updated_at = now() where id = v_src;
+    values (null, 'TEREX A600 — 60 tonnes — Cotation ; Hauteurs et capacités de levage : Flèche principale + fléchette (fiche loueur FOSELEV)', '60T-TEREX A 600.pdf, sha256:5ef2a50a467bfeee', null, null, 'Fiche loueur FOSELEV fournie par l''utilisateur', '60T-TEREX A 600.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Fiche loueur FOSELEV fournie par l''utilisateur', file_path = '60T-TEREX A 600.pdf', updated_at = now() where id = v_src;
   end if;
   select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('A600');
   if v_machine is null then
