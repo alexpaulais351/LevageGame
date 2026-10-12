@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FolderOpen, Home, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
+import { Container, FolderOpen, Home, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
 
 import { deconnexion } from "@/actions/auth";
 import type { Utilisateur } from "@/lib/supabase/session";
@@ -20,6 +20,7 @@ const LIENS: Lien[] = [
   { href: "/outil", label: "Nouvelle adéquation", icon: PlusCircle },
   { href: "/projets", label: "Projets", icon: FolderOpen },
   { href: "/machines", label: "Machines", icon: Truck },
+  { href: "/transport", label: "Transport", icon: Container },
 ];
 
 interface SidebarProps {

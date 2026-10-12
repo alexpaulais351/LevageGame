@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Download, ExternalLink, FolderOpen, Gauge, PlusCircle, Truck, type LucideIcon } from "lucide-react";
+import { BookOpen, Container, Download, ExternalLink, FolderOpen, Gauge, PlusCircle, Truck, type LucideIcon } from "lucide-react";
 
 import { listerProjets } from "@/actions/projets";
 import { Card } from "@/components/ui/card";
@@ -16,6 +16,7 @@ const ACTIONS: { href: string; titre: string; texte: string; icon: LucideIcon }[
   { href: "/projets", titre: "Mes projets", texte: "Retrouver et reprendre vos études.", icon: FolderOpen },
   { href: "/machines", titre: "Catalogue machines", texte: "Consulter les machines et leurs abaques.", icon: Truck },
   { href: "/machines?vue=abaques", titre: "Disponibilité des abaques", texte: "Voir quelles machines ont un abaque.", icon: Gauge },
+  { href: "/transport", titre: "Transport des pièces", texte: "Convoi, voiture pilote, démarches et camions adaptés.", icon: Container },
 ];
 
 export default async function Accueil() {
