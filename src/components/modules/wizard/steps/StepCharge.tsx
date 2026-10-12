@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { Container } from "lucide-react";
+
 import { TextField, NumberField, UnitNumberField, UNITES_MASSE } from "../fields";
 import { Grille, StepShell } from "../StepShell";
 import { useErreurs } from "../use-erreurs";
@@ -35,6 +38,15 @@ export function StepCharge() {
         <NumberField label="Largeur" unite="m" value={c.largeurM} onChange={(v) => set({ largeurM: v })} />
         <NumberField label="Hauteur" unite="m" value={c.hauteurM} onChange={(v) => set({ hauteurM: v })} />
       </Grille>
+      <Link
+        href={lienTransport(c)}
+        target="_blank"
+        data-testid="lien-transport"
+        className="inline-flex min-h-11 items-center gap-2 self-start font-semibold text-primary-light underline"
+      >
+        <Container className="size-4" aria-hidden />
+        Préparer le transport de cette pièce (convoi, voiture pilote, camion)
+      </Link>
       <Grille>
         <TextField
           label="Centre de gravité"
@@ -52,4 +64,19 @@ export function StepCharge() {
       </Grille>
     </StepShell>
   );
+}
+
+/** Lien vers l'outil Transport, pré-rempli avec les dimensions et la masse saisies. */
+function lienTransport(c: { designation: string; masseKg: number | null; longueurM: number | null; largeurM: number | null; hauteurM: number | null }): string {
+  const q = new URLSearchParams();
+  const ajoute = (k: string, v: number | null) => {
+    if (v !== null && v > 0) q.set(k, String(v));
+  };
+  ajoute("L", c.longueurM);
+  ajoute("l", c.largeurM);
+  ajoute("h", c.hauteurM);
+  ajoute("m", c.masseKg);
+  if (c.designation.trim()) q.set("nom", c.designation.trim());
+  const s = q.toString();
+  return s ? `/transport?${s}` : "/transport";
 }
