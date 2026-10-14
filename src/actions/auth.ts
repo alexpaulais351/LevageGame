@@ -45,6 +45,11 @@ export async function connexion(_prev: EtatForm, formData: FormData): Promise<Et
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email: p.data.email, password: p.data.motDePasse });
   if (error) return { error: messageAuth(error.message) };
+  // Statistiques de l'administrateur (D41) : un échec du journal ne bloque jamais la connexion.
+  await supabase.rpc("noter_connexion").then(
+    () => undefined,
+    () => undefined,
+  );
   revalidatePath("/", "layout");
   // Le middleware renvoie vers /compte-en-attente si le compte n'est pas (encore) approuvé.
   redirect(cheminInterne(formData.get("suivant")));

@@ -39,14 +39,14 @@ Polices : VINCI Sans / Sans Condensed / Serif — `public/fonts/` + `src/styles/
 ## Comptes et accès (D25)
 - Pas de mode invité ni d'accès `anon` (aucune lecture, catalogue compris). Routes publiques : `/login`, `/auth/callback` ; connecté non approuvé → `/compte-en-attente`.
 - Toute policy RLS d'accès aux données est combinée à `private.est_approuve()` (policies RESTRICTIVES) ; toute Server Action passe par `contexteApprouve()` / `contexteAdmin()` (`src/lib/supabase/session.ts`).
-- `statut` / `est_admin` / `statut_modifie_*` jamais modifiables par l'utilisateur (trigger de garde). Admin : RPC `admin_lister_comptes`, `admin_definir_statut` ; pages `/admin/comptes[/<id>]`.
+- `statut` / `est_admin` / `statut_modifie_*` jamais modifiables par l'utilisateur (trigger de garde). Admin : RPC `admin_lister_comptes`, `admin_definir_statut` ; pages `/admin/comptes[/<id>]`, `/admin/statistiques` (RPC `admin_statistiques` ; journal `noter_visite` / `noter_connexion`, D41).
 - Désignation de l'admin hors application : `select private.designer_admin('<email>');` (postgres / service_role).
 - Notification e-mail de l'admin : Edge Function `notifier-inscription` (voir `docs/DEPLOIEMENT-EMAILS.md`).
 
 ## Structure
 ```
 src/engine/        moteur de calcul PUR (aucun import React/Supabase) + __tests__
-src/app/           login · auth/callback · compte-en-attente · outil · projets/… · machines/… · transport · admin/comptes
+src/app/           login · auth/callback · compte-en-attente · outil · projets/… · machines/… · transport · admin/{comptes,statistiques}
 src/components/    ui (shadcn CLI only) · layout · modules/{wizard,visuals,pdf}
 src/lib/           supabase/ · design-tokens.ts · utils.ts (formatNombreFR…) · pdf/
 src/actions/ src/stores/ src/types/

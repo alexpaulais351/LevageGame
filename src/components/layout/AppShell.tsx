@@ -6,6 +6,7 @@ import type { Utilisateur } from "@/lib/supabase/session";
 
 import { Disclaimer } from "./Disclaimer";
 import { Sidebar } from "./Sidebar";
+import { SuiviVisites } from "./SuiviVisites";
 import { Topbar } from "./Topbar";
 
 export function AppShell({ children, utilisateur }: { children: React.ReactNode; utilisateur: Utilisateur | null }) {
@@ -26,6 +27,7 @@ export function AppShell({ children, utilisateur }: { children: React.ReactNode;
 
   return (
     <div className="flex h-screen overflow-hidden">
+      <SuiviVisites />
       <Sidebar open={menuOuvert} onClose={() => setMenuOuvert(false)} utilisateur={utilisateur} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setMenuOuvert(true)} utilisateur={utilisateur} />
