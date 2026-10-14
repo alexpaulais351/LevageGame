@@ -6,6 +6,7 @@
  */
 import { revalidatePath } from "next/cache";
 
+import { mapStatistiques, periode, type Statistiques } from "@/lib/admin/statistiques";
 import { decisionSchema, DECISION_STATUT, mapCompte, type CompteAdmin } from "@/lib/admin/comptes";
 import { echec, ok, type ActionResult } from "@/lib/account/result";
 import { premiereErreur } from "@/lib/account/schemas";
@@ -19,6 +20,15 @@ export async function listerComptes(): Promise<ActionResult<CompteAdmin[]>> {
   const { data, error } = await ctx.supabase.rpc("admin_lister_comptes");
   if (error) return echec("Impossible de charger les comptes.");
   return ok(((data ?? []) as Record<string, unknown>[]).map(mapCompte));
+}
+
+/** Indicateurs de fréquentation (connexions, pages vues, activité par compte) sur 7, 30 ou 90 jours. */
+export async function lireStatistiques(jours: unknown): Promise<ActionResult<Statistiques>> {
+  const ctx = await contexteAdmin();
+  if (!ctx) return echec(REFUS);
+  const { data, error } = await ctx.supabase.rpc("admin_statistiques", { jours: periode(String(jours)) });
+  if (error || !data) return echec("Impossible de charger les statistiques.");
+  return ok(mapStatistiques(data as Record<string, unknown>));
 }
 
 /** Accepter / refuser / suspendre / réactiver un compte (jamais le sien : refusé en base). */

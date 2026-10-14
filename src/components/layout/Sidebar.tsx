@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Container, FolderOpen, Home, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BarChart3, Container, FolderOpen, Home, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
 
 import { deconnexion } from "@/actions/auth";
 import type { Utilisateur } from "@/lib/supabase/session";
@@ -32,7 +32,11 @@ interface SidebarProps {
 export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
   const pathname = usePathname();
   const liens: Lien[] = utilisateur?.estAdmin
-    ? [...LIENS, { href: "/admin/comptes", label: "Comptes", icon: UsersRound, badge: utilisateur.demandesEnAttente }]
+    ? [
+        ...LIENS,
+        { href: "/admin/comptes", label: "Comptes", icon: UsersRound, badge: utilisateur.demandesEnAttente },
+        { href: "/admin/statistiques", label: "Statistiques", icon: BarChart3 },
+      ]
     : LIENS;
 
   return (

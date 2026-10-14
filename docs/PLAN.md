@@ -24,4 +24,6 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 
 | 13 | Transport des pièces | ✅ `/transport` : catégorie TE, voiture pilote, démarches, véhicules adaptés, schémas (D38, docs/TRANSPORT.md), demande Word (D39), synthèse PDF (D40) ; art. 13 version 2024 à confirmer |
 
+| 14 | Statistiques administrateur | ✅ `/admin/statistiques` : utilisateurs actifs, connexions, pages vues, activité par compte, projets / études (D41) ; migration 20261014090000 |
+
 **Prochaine tâche** : contrôle humain des abaques et ajout des machines manquantes (docs/ABAQUES.md, data/machines-sans-abaque.json).
