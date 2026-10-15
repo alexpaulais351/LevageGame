@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { AlertTriangle, Check, CheckCircle2, FileDown, FileText, Info, Truck, XCircle } from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, FileDown, FileText, Info, XCircle } from "lucide-react";
 
 import { CheckboxField, NumberField, SelectField, TextField, UNITES_MASSE, UnitNumberField } from "@/components/modules/wizard/fields";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { demarches } from "@/lib/transport/demarches";
 import { donneesDemande, nomFichierDemande, type Demandeur, type ProjetTransport } from "@/lib/transport/demande";
 import { cn, formatMasse, formatNombreFR } from "@/lib/utils";
 
-import { CompositionConvoi, VueCote, VueDessus } from "./SchemaConvoi";
+import { CompositionConvoi, MiniVehicule, VueCote, VueDessus } from "./SchemaConvoi";
 
 const STYLE_CATEGORIE: Record<Categorie, string> = {
   standard: "border-verdict-vert bg-verdict-vert-bg",
@@ -314,7 +314,7 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
                             >
                               {actif && <Check className="size-3.5" strokeWidth={3} />}
                             </span>
-                            <Truck className={cn("mt-0.5 size-4 shrink-0", e.possible ? "text-primary" : "text-vinci-gris")} aria-hidden />
+                            <MiniVehicule v={v} className={cn("h-10 w-32 shrink-0 sm:h-12 sm:w-40", !e.possible && "opacity-50 grayscale")} />
                             <span>
                               <span className="font-bold text-primary">{v.nom}</span>
                               {actif && <span className="ml-1 rounded bg-vinci-bleu px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">Retenu</span>}
