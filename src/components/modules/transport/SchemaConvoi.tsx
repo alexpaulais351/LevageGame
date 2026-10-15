@@ -239,6 +239,23 @@ function Vehicule({ g, v, plateau, piece }: { g: Geo; v: EvaluationVehicule["veh
   );
 }
 
+/** Vignette du véhicule (tableau de choix) : même silhouette que la vue de côté, plateau de base, ajustée au cadre. */
+export function MiniVehicule({ v, className }: { v: EvaluationVehicule["vehicule"]; className?: string }) {
+  const W = 160;
+  const H = 52;
+  const longueur = v.longueurHorsPlateauM + v.plateauM;
+  const s = Math.min((W - 8) / longueur, (H - 8) / 4);
+  const sol = H - 4;
+  const g: Geo = { X: (x) => 4 + x * s, Y: (y) => sol - y * s, s };
+  const piece: PieceTransport = { longueurM: v.plateauM, largeurM: 2, hauteurM: 2, masseKg: 0 };
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={className} aria-hidden focusable="false">
+      <line x1={0} x2={W} y1={sol + 0.5} y2={sol + 0.5} stroke={GRIS} strokeWidth={1} />
+      <Vehicule g={g} v={v} plateau={v.plateauM} piece={piece} />
+    </svg>
+  );
+}
+
 /** Vue de dessus : largeur de la pièce face aux seuils 2,55 / 3 / 4 m. */
 export function VueDessus({ piece, ev }: { piece: PieceTransport; ev: EvaluationVehicule }) {
   const e = ev.encombrement!;
