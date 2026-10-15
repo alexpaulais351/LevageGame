@@ -104,6 +104,11 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
             );
           })}
         </nav>
+        <div className="flex items-center gap-2 px-4 pb-3 text-xs text-white/70" data-testid="signature-ebgc">
+          <span className="italic">by</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/ebgc-blanc.png" alt="EBGC" width={195} height={69} className="h-7 w-auto" />
+        </div>
         {utilisateur && (
           <div className="border-t border-white/20 px-4 py-3 text-sm" data-testid="pied-utilisateur">
             <Link href="/profil" onClick={onClose} className="block rounded hover:text-white">
