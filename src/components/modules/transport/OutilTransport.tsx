@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, FileDown, FileText, Info, Truck, XCircle } from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, FileDown, FileText, Info, Truck, XCircle } from "lucide-react";
 
 import { CheckboxField, NumberField, SelectField, TextField, UNITES_MASSE, UnitNumberField } from "@/components/modules/wizard/fields";
 import { Button } from "@/components/ui/button";
@@ -268,7 +268,7 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
             <h2 id="t-vehicules" className="text-lg font-bold text-primary">
               4. Véhicules possibles
             </h2>
-            <p className="mb-3 text-sm text-foreground/80">Cliquez sur un véhicule pour mettre à jour le verdict et les schémas. Caractéristiques indicatives.</p>
+            <p className="mb-3 text-sm text-foreground/80">Cliquez sur un véhicule pour le retenir : le verdict, les schémas, la synthèse PDF et la demande Word sont mis à jour. Le véhicule retenu est surligné en bleu. Caractéristiques indicatives.</p>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
@@ -287,15 +287,37 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
                     return (
                       <tr
                         key={v.id}
-                        className={cn(i % 2 === 1 ? "bg-vinci-gris-light" : "bg-background", actif && "outline outline-2 outline-primary", e.possible && "cursor-pointer hover:bg-vinci-bleu-xlight")}
+                        className={cn(
+                          actif ? "bg-vinci-bleu-xlight" : i % 2 === 1 ? "bg-vinci-gris-light" : "bg-background",
+                          e.possible && !actif && "cursor-pointer hover:bg-vinci-bleu-xlight/60",
+                          !e.possible && "opacity-70",
+                        )}
                         onClick={() => e.possible && setChoix(v.id)}
+                        aria-selected={actif}
                         data-testid="ligne-vehicule"
+                        data-actif={actif || undefined}
                       >
-                        <td className="px-3 py-2">
-                          <button type="button" disabled={!e.possible} onClick={() => setChoix(v.id)} className="flex min-h-11 items-start gap-2 text-left disabled:cursor-not-allowed">
+                        <td className={cn("border-l-[6px] px-3 py-2", actif ? "border-l-vinci-bleu" : "border-l-transparent")}>
+                          <button
+                            type="button"
+                            disabled={!e.possible}
+                            aria-pressed={actif}
+                            onClick={() => setChoix(v.id)}
+                            className="flex min-h-11 items-start gap-3 text-left disabled:cursor-not-allowed"
+                          >
+                            <span
+                              className={cn(
+                                "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2",
+                                actif ? "border-vinci-bleu bg-vinci-bleu text-white" : e.possible ? "border-vinci-bleu bg-background" : "border-vinci-gris bg-vinci-gris-light",
+                              )}
+                              aria-hidden
+                            >
+                              {actif && <Check className="size-3.5" strokeWidth={3} />}
+                            </span>
                             <Truck className={cn("mt-0.5 size-4 shrink-0", e.possible ? "text-primary" : "text-vinci-gris")} aria-hidden />
                             <span>
                               <span className="font-bold text-primary">{v.nom}</span>
+                              {actif && <span className="ml-1 rounded bg-vinci-bleu px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">Retenu</span>}
                               {type.vehicules.includes(v.id) && <span className="ml-1 rounded bg-vinci-bleu-xlight px-1 text-xs font-semibold text-primary">habituel</span>}
                               <span className="block text-xs text-foreground/70">{v.description}</span>
                             </span>
