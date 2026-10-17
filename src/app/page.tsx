@@ -7,7 +7,8 @@ import { exigerUtilisateur, utilisateurCourant } from "@/lib/supabase/session";
 
 export const metadata = { title: "Accueil — Adéquation levage" };
 
-const PDF = "/documents/presentation-adequation-levage.pdf";
+// Paramètre de version : force le rechargement de la présentation après chaque mise à jour (cache navigateur).
+const PDF = "/documents/presentation-adequation-levage.pdf?v=2026-10-17";
 
 const dateFR = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" });
 
