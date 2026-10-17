@@ -1,0 +1,207 @@
+/** Rendu @react-pdf/renderer de la synthèse d'adéquation rapide (A4 portrait, une page en général), à la charte de la fiche. */
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import type { ReactNode } from "react";
+
+import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
+import { formatMasse } from "@/lib/utils";
+
+import { pdfTexte, type CalcBloc } from "./model";
+import type { RapidePdfModel } from "./rapide-model";
+
+function creerStyles(ff: string) {
+  return StyleSheet.create({
+    page: { fontFamily: ff, fontSize: 8.5, color: VINCI_PDF.textMain, paddingTop: 84, paddingBottom: 54, paddingHorizontal: 34 },
+    entete: { position: "absolute", top: 0, left: 0, right: 0 },
+    bande: { backgroundColor: VINCI_PDF.headerBg, height: 56, paddingHorizontal: 34, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    entreprise: { color: VINCI_PDF.headerText, fontSize: 11, fontWeight: 700 },
+    enteteDroite: { alignItems: "flex-end", maxWidth: 380 },
+    enteteTitre: { color: VINCI_PDF.headerText, fontSize: 14, fontWeight: 700, letterSpacing: 0.6 },
+    enteteLigne: { color: VINCI_PDF.headerText, fontSize: 7.5, marginTop: 2, textAlign: "right" },
+    pied: { position: "absolute", bottom: 14, left: 34, right: 34, borderTopWidth: 0.75, borderTopColor: VINCI_PDF.border, paddingTop: 4, flexDirection: "row", justifyContent: "space-between" },
+    piedTexte: { fontSize: 6.5, color: VINCI_PDF.textMuted },
+    section: { marginBottom: 10 },
+    titreSection: { backgroundColor: VINCI.bleuXLight, borderLeftWidth: 4, borderLeftColor: VINCI.bleu, paddingVertical: 3, paddingHorizontal: 6, marginBottom: 5 },
+    titreSectionTexte: { fontSize: 10.5, fontWeight: 700, color: VINCI.bleu },
+    sousTitre: { fontSize: 9, fontWeight: 700, color: VINCI.bleu, marginTop: 4, marginBottom: 2 },
+    texte: { fontSize: 8.5, lineHeight: 1.35 },
+    muted: { fontSize: 7.5, color: "#555555", marginTop: 3, lineHeight: 1.3 },
+    verdict: { borderLeftWidth: 8, paddingVertical: 9, paddingHorizontal: 10, marginBottom: 8 },
+    champs: { flexDirection: "row", flexWrap: "wrap", borderWidth: 0.5, borderColor: VINCI_PDF.border },
+    champ: { width: "50%", flexDirection: "row", paddingVertical: 3, paddingHorizontal: 5, borderBottomWidth: 0.5, borderBottomColor: VINCI_PDF.border },
+    champLabel: { width: "46%", color: "#444444", fontSize: 8 },
+    champValeur: { width: "54%", fontWeight: 700, fontSize: 8.5 },
+    ligneEntete: { flexDirection: "row", backgroundColor: VINCI_PDF.headerBg },
+    celluleEntete: { color: VINCI_PDF.headerText, fontWeight: 700, fontSize: 8, paddingVertical: 3, paddingHorizontal: 4 },
+    ligne: { flexDirection: "row" },
+    cellule: { fontSize: 8, paddingVertical: 2.5, paddingHorizontal: 4 },
+    encadre: { borderWidth: 0.75, borderColor: VINCI.bleu, backgroundColor: VINCI.bleuXLight, padding: 6, marginTop: 4 },
+    signature: { width: "49%", borderWidth: 0.75, borderColor: VINCI_PDF.border, padding: 6 },
+  });
+}
+type Styles = ReturnType<typeof creerStyles>;
+
+function Section({ s, titre, children }: { s: Styles; titre: string; children: ReactNode }) {
+  return (
+    <View style={s.section}>
+      <View style={s.titreSection} minPresenceAhead={60}>
+        <Text style={s.titreSectionTexte}>{titre}</Text>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function Champs({ s, items }: { s: Styles; items: [string, string][] }) {
+  return (
+    <View style={s.champs}>
+      {items.map(([l, v], i) => (
+        <View key={i} style={s.champ} wrap={false}>
+          <Text style={s.champLabel}>{l}</Text>
+          <Text style={s.champValeur}>{v}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function Tableau({ s, cols, lignes }: { s: Styles; cols: { label: string; w: number; align?: "left" | "right" }[]; lignes: string[][] }) {
+  const total = cols.reduce((x, c) => x + c.w, 0);
+  const w = (x: number) => `${(x / total) * 100}%`;
+  return (
+    <View>
+      <View style={s.ligneEntete} wrap={false}>
+        {cols.map((c, i) => (
+          <Text key={i} style={[s.celluleEntete, { width: w(c.w), textAlign: c.align ?? "left" }]}>
+            {c.label}
+          </Text>
+        ))}
+      </View>
+      {lignes.map((l, k) => (
+        <View key={k} style={[s.ligne, { backgroundColor: k % 2 === 0 ? VINCI.blanc : VINCI_PDF.rowAlt }]} wrap={false}>
+          {cols.map((c, i) => (
+            <Text key={i} style={[s.cellule, { width: w(c.w), textAlign: c.align ?? "left", fontWeight: i === 0 ? 700 : 400 }]}>
+              {l[i] ?? ""}
+            </Text>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function Calcul({ s, c }: { s: Styles; c: CalcBloc }) {
+  return (
+    <View style={{ marginBottom: 6 }} wrap={false}>
+      <View style={[s.ligneEntete, { justifyContent: "space-between" }]}>
+        <Text style={s.celluleEntete}>{c.titre}</Text>
+        {c.resume && <Text style={s.celluleEntete}>{c.resume}</Text>}
+      </View>
+      <Text style={[s.texte, { marginTop: 2 }]}>
+        <Text style={{ fontWeight: 700, color: VINCI.bleu }}>Formule : </Text>
+        {c.formule}
+      </Text>
+      <Tableau s={s} cols={[{ label: "Entrée", w: 3 }, { label: "Valeur", w: 1.4, align: "right" }]} lignes={c.entrees.map((e) => [e.label, e.valeur])} />
+      {c.source && <Text style={s.muted}>Source : {c.source}</Text>}
+    </View>
+  );
+}
+
+export function SyntheseRapideDocument({ model: m, fontFamily }: { model: RapidePdfModel; fontFamily: string }) {
+  const s = creerStyles(fontFamily);
+  const e = m.extrait;
+  return (
+    <Document title="Adéquation rapide" author={m.entete.redacteur} subject="Vérification rapide d'une pose de charge" creator="Adéquation de levage">
+      <Page size="A4" style={s.page}>
+        <View style={s.entete} fixed>
+          <View style={s.bande}>
+            <Text style={s.entreprise}>{m.entete.entreprise}</Text>
+            <View style={s.enteteDroite}>
+              <Text style={s.enteteTitre}>{m.entete.titre}</Text>
+              <Text style={s.enteteLigne}>
+                Date : {m.entete.date}  ·  Rédacteur : {m.entete.redacteur}
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View style={s.pied} fixed>
+          <View style={{ width: "84%" }}>
+            <Text style={s.piedTexte}>{m.mention}</Text>
+            <Text style={s.piedTexte}>{m.cadre}</Text>
+          </View>
+          <Text style={s.piedTexte} render={({ pageNumber, totalPages }) => `Page ${pageNumber} / ${totalPages}`} />
+        </View>
+
+        <View style={[s.verdict, { backgroundColor: m.verdict.fond, borderLeftColor: m.verdict.couleur }]} wrap={false}>
+          <Text style={{ fontSize: 15, fontWeight: 700 }}>{m.verdict.libelle}</Text>
+          <Text style={{ fontSize: 8.5, marginTop: 3 }}>{m.verdict.sousTitre}</Text>
+        </View>
+        <Champs s={s} items={m.resultats} />
+        {m.bloquants.map((b, i) => (
+          <View key={i} style={{ borderLeftWidth: 3, borderLeftColor: VERDICT.rouge, backgroundColor: VERDICT.rougeBg, padding: 3, marginTop: 3 }} wrap={false}>
+            <Text style={s.texte}>{b}</Text>
+          </View>
+        ))}
+        {m.reserves.map((b, i) => (
+          <View key={`r${i}`} style={{ borderLeftWidth: 3, borderLeftColor: VERDICT.jaune, backgroundColor: VERDICT.jauneBg, padding: 3, marginTop: 3 }} wrap={false}>
+            <Text style={s.texte}>{b}</Text>
+          </View>
+        ))}
+        {m.porteeMax && (
+          <View style={s.encadre} wrap={false}>
+            <Text style={{ fontSize: 9, fontWeight: 700, color: VINCI.bleu }}>Portée maximale pour cette charge : {m.porteeMax.valeur}</Text>
+            <Text style={[s.texte, { marginTop: 2 }]}>{m.porteeMax.detail}</Text>
+          </View>
+        )}
+
+        <View style={{ height: 8 }} />
+        <Section s={s} titre="1. Machine">
+          <Champs s={s} items={m.machine} />
+          {m.source.length > 0 && (
+            <>
+              <Text style={s.sousTitre}>Abaque utilisé</Text>
+              <Champs s={s} items={m.source} />
+            </>
+          )}
+        </Section>
+
+        <Section s={s} titre="2. Charge et position de pose">
+          <Champs s={s} items={m.charge} />
+        </Section>
+
+        <Section s={s} titre="3. Calculs">
+          {m.calculs.map((c, i) => (
+            <Calcul key={i} s={s} c={c} />
+          ))}
+          {e && e.colonnes.length > 0 && e.lignes.length > 0 && (
+            <View wrap={false}>
+              <Text style={s.sousTitre}>Extrait de l&apos;abaque — colonnes : portée (m)</Text>
+              <Tableau
+                s={s}
+                cols={[{ label: m.axeYLibelle || "Capacité", w: 1.6 }, ...e.colonnes.map((x) => ({ label: pdfTexte(`${x} m`.replace(".", ",")), w: 1, align: "right" as const }))]}
+                lignes={e.lignes.map((l) => [
+                  l.y === null ? "Courbe unique" : pdfTexte(`${String(l.y).replace(".", ",")} m`),
+                  ...l.cellules.map((c) => (c === undefined ? "" : c === null ? "—" : pdfTexte(formatMasse(c)))),
+                ])}
+              />
+              <Text style={s.muted}>Cellule « — » : case vide du constructeur (hors abaque). Entre deux nœuds : valeur la plus défavorable, aucune extrapolation.</Text>
+            </View>
+          )}
+        </Section>
+
+        <View style={s.encadre} wrap={false}>
+          <Text style={{ fontSize: 8, lineHeight: 1.35, fontWeight: 700 }}>{m.limites}</Text>
+          <Text style={{ fontSize: 8, lineHeight: 1.35, marginTop: 3 }}>{m.mention} Vérifier l&apos;abaque contre la documentation de la machine réellement présente.</Text>
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 6 }} wrap={false}>
+          {["Établi par", "Visa"].map((r) => (
+            <View key={r} style={s.signature}>
+              <Text style={{ fontWeight: 700, color: VINCI.bleu, fontSize: 9 }}>{r}</Text>
+              <Text style={{ fontSize: 8, marginTop: 6 }}>Nom, date :</Text>
+              <View style={{ height: 28, borderWidth: 0.75, borderColor: "#999999", borderStyle: "dashed", marginTop: 4 }} />
+            </View>
+          ))}
+        </View>
+      </Page>
+    </Document>
+  );
+}

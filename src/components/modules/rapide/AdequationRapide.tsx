@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CircleAlert, Info, Ruler } from "lucide-react";
+import { ArrowRight, CircleAlert, FileText, Info, Ruler } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CalcDetail } from "@/components/modules/wizard/CalcDetail";
 import { Gauge } from "@/components/modules/wizard/Gauge";
@@ -11,6 +12,7 @@ import { VERDICT_LIBELLE, VERDICT_STYLE } from "@/components/modules/wizard/Resu
 import { NumberField, UnitNumberField, UNITES_MASSE } from "@/components/modules/wizard/fields";
 import { Grille, StepShell } from "@/components/modules/wizard/StepShell";
 import { StepMachine } from "@/components/modules/wizard/steps/StepMachine";
+import { useExportAdequationRapide } from "@/hooks/useExportPDF";
 import { accessoireVide } from "@/lib/study/defaults";
 import { formatTaux } from "@/lib/study/format";
 import { calculRapide, donneesRapides, ID_POSE_RAPIDE } from "@/lib/study/rapide";
@@ -23,7 +25,7 @@ const m = (v: number) => `${formatNombreFR(v, 2).replace(/,00$/, "")} m`;
  * Adéquation rapide (D43) : une pose, sans projet ni dossier. Rien n'est enregistré.
  * Réutilise le store de l'assistant (réinitialisé à l'ouverture) et l'étape Moyen de levage.
  */
-export function AdequationRapide() {
+export function AdequationRapide({ redacteur, entreprise }: { redacteur: string; entreprise: string | null }) {
   const [pret, setPret] = useState(false);
   useEffect(() => {
     useStudy.getState().charger(donneesRapides());
@@ -34,6 +36,16 @@ export function AdequationRapide() {
   const patch = useStudy((s) => s.patch);
   const majPosition = useStudy((s) => s.majPosition);
   const r = useMemo(() => calculRapide(data), [data]);
+  const exportPdf = useExportAdequationRapide();
+  const exporterPdf = () =>
+    exportPdf.exporter(async () => {
+      const { buildRapidePdfModel, nomFichierRapide } = await import("@/lib/pdf/rapide-model");
+      const date = new Date();
+      return {
+        model: buildRapidePdfModel({ data, resultat: r, redacteur, entreprise, date }),
+        nom: nomFichierRapide({ modele: data.machine.selection?.model, date }),
+      };
+    });
 
   if (!pret) return null;
   const c = data.charge;
@@ -123,6 +135,17 @@ export function AdequationRapide() {
           </Card>
         ) : (
           <>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" size="lg" disabled={exportPdf.enCours} onClick={() => void exporterPdf()} data-testid="exporter-rapide">
+                <FileText />
+                {exportPdf.enCours ? "Préparation du PDF…" : "Exporter la synthèse PDF"}
+              </Button>
+              {exportPdf.erreur && (
+                <span role="alert" className="text-sm font-medium text-vinci-rouge-dark">
+                  {exportPdf.erreur}
+                </span>
+              )}
+            </div>
             <div className="grid gap-4 lg:grid-cols-2">
               <Card className="flex flex-col gap-4 p-4">
                 <div className={cn("flex items-center gap-3 rounded-md border-l-8 px-4 py-3", style.fond, style.bord)}>

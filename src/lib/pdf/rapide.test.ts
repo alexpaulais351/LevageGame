@@ -1,0 +1,44 @@
+import { describe, expect, it } from "vitest";
+
+import { abaqueTestFictifFleche } from "@/engine/__tests__/fixtures";
+import { calculRapide, donneesRapides } from "@/lib/study/rapide";
+
+import { buildRapidePdfModel, nomFichierRapide } from "./rapide-model";
+
+function donnees() {
+  const d = donneesRapides();
+  d.machine.selection = {
+    typeId: "t",
+    typeLabel: "Grue mobile",
+    manufacturerId: "f",
+    manufacturerName: "TEST",
+    machineId: "m",
+    model: "FICTIF 1",
+    configurationId: "c",
+    configurationLabel: "test",
+    chart: abaqueTestFictifFleche(),
+  };
+  d.machine.moufleCrochetKg = 200;
+  d.charge.masseKg = 2500;
+  d.charge.coefMarge = 1.1;
+  d.geometrie.positions[0].porteeM = 8;
+  d.geometrie.positions[0].yM = 20;
+  return d;
+}
+
+describe("synthèse PDF de l'adéquation rapide", () => {
+  it("verdict, résultats, portée maximale et extrait d'abaque", () => {
+    const d = donnees();
+    const m = buildRapidePdfModel({ data: d, resultat: calculRapide(d), redacteur: "Camille Martin", entreprise: "EBGC", date: new Date("2026-10-17T10:00:00Z") });
+    expect(m.verdict.libelle).toBe("ADÉQUAT");
+    expect(m.resultats[0][1]).toContain("2,95");
+    expect(m.porteeMax?.valeur).toBe("12 m");
+    expect(m.extrait?.colonnes).toContain(8);
+    expect(m.limites).toContain("ne sont pas contrôlés");
+    expect(m.calculs.map((c) => c.titre)).toContain("Charge totale");
+  });
+
+  it("nom de fichier ASCII", () => {
+    expect(nomFichierRapide({ modele: "GMK 3050-1", date: new Date("2026-10-17T10:00:00Z") })).toBe("adequation-rapide_GMK-3050-1_2026-10-17.pdf");
+  });
+});

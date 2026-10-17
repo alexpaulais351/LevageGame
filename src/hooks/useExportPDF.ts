@@ -12,6 +12,7 @@ import type { StudyData } from "@/lib/study/types";
 import { buildPdfModel, type PdfMeta } from "@/lib/pdf/model";
 import { nomFichierPdf } from "@/lib/pdf/filename";
 import type { TransportPdfModel } from "@/lib/pdf/transport-model";
+import type { RapidePdfModel } from "@/lib/pdf/rapide-model";
 import { createClient } from "@/lib/supabase/client";
 import { useStudy } from "@/stores/study";
 
@@ -106,6 +107,29 @@ export function useExportSyntheseTransport(): { exporter: (fabriquer: () => Prom
       const { model, nom } = await fabriquer();
       const { genererSyntheseTransportPdf } = await import("@/lib/pdf/generate");
       telecharger(await genererSyntheseTransportPdf(model), nom);
+    } catch {
+      erreur = "L'export PDF a échoué. Réessayez ; si le problème persiste, rechargez la page.";
+    } finally {
+      enCours = false;
+      notifier();
+    }
+  }, []);
+  return { exporter, enCours: etatEnCours, erreur: etatErreur };
+}
+
+/** Export de la synthèse d'adéquation rapide (/outil/rapide) : même garde anti-double export. */
+export function useExportAdequationRapide(): { exporter: (fabriquer: () => Promise<{ model: RapidePdfModel; nom: string }>) => Promise<void>; enCours: boolean; erreur: string | null } {
+  const etatEnCours = useSyncExternalStore(abonner, () => enCours, () => false);
+  const etatErreur = useSyncExternalStore(abonner, () => erreur, () => null);
+  const exporter = useCallback(async (fabriquer: () => Promise<{ model: RapidePdfModel; nom: string }>) => {
+    if (enCours) return;
+    enCours = true;
+    erreur = null;
+    notifier();
+    try {
+      const { model, nom } = await fabriquer();
+      const { genererSyntheseRapidePdf } = await import("@/lib/pdf/generate");
+      telecharger(await genererSyntheseRapidePdf(model), nom);
     } catch {
       erreur = "L'export PDF a échoué. Réessayez ; si le problème persiste, rechargez la page.";
     } finally {

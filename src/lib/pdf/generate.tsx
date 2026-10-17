@@ -7,6 +7,8 @@ import { pdf } from "@react-pdf/renderer";
 import { FicheDocument } from "./document";
 import { enregistrerPolices } from "./fonts";
 import type { PdfModel } from "./model";
+import { SyntheseRapideDocument } from "./rapide-document";
+import type { RapidePdfModel } from "./rapide-model";
 import { SyntheseTransportDocument } from "./transport-document";
 import type { TransportPdfModel } from "./transport-model";
 
@@ -25,4 +27,10 @@ export async function genererFichePdf(model: PdfModel, opts: OptionsGeneration =
 export async function genererSyntheseTransportPdf(model: TransportPdfModel, opts: OptionsGeneration = {}): Promise<Blob> {
   const famille = enregistrerPolices(opts.fontBase ?? "/fonts");
   return pdf(<SyntheseTransportDocument model={model} fontFamily={famille} />).toBlob();
+}
+
+/** Rend la synthèse d'adéquation rapide en Blob PDF. */
+export async function genererSyntheseRapidePdf(model: RapidePdfModel, opts: OptionsGeneration = {}): Promise<Blob> {
+  const famille = enregistrerPolices(opts.fontBase ?? "/fonts");
+  return pdf(<SyntheseRapideDocument model={model} fontFamily={famille} />).toBlob();
 }
