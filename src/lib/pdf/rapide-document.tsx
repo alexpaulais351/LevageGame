@@ -1,10 +1,12 @@
 /** Rendu @react-pdf/renderer de la synthèse d'adéquation rapide (A4 portrait, une page en général), à la charte de la fiche. */
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Page, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
 
 import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
 
-import type { CalcBloc } from "./model";
+import { Primitive } from "./document";
+import { pdfTexte, type CalcBloc } from "./model";
+import type { Schema } from "./schemas";
 import type { RapidePdfModel } from "./rapide-model";
 
 function creerStyles(ff: string) {
@@ -42,7 +44,7 @@ type Styles = ReturnType<typeof creerStyles>;
 function Section({ s, titre, children }: { s: Styles; titre: string; children: ReactNode }) {
   return (
     <View style={s.section}>
-      <View style={s.titreSection} minPresenceAhead={60}>
+      <View style={s.titreSection} minPresenceAhead={110}>
         <Text style={s.titreSectionTexte}>{titre}</Text>
       </View>
       {children}
@@ -105,6 +107,34 @@ function Calcul({ s, c }: { s: Styles; c: CalcBloc }) {
   );
 }
 
+function SchemaPose({ s, sc, ff }: { s: Styles; sc: Schema; ff: string }) {
+  const largeur = 527;
+  return (
+    <View style={s.section} wrap={false}>
+      <View style={s.titreSection}>
+        <Text style={s.titreSectionTexte}>{sc.titre}</Text>
+      </View>
+      {sc.disponible ? (
+        <>
+          <Svg viewBox={`0 0 ${sc.w} ${sc.h}`} width={largeur} height={(largeur * sc.h) / sc.w}>
+            <Rect x={0} y={0} width={sc.w} height={sc.h} fill={VINCI.blanc} stroke={VINCI_PDF.border} strokeWidth={1} />
+            {sc.prims.map((p, i) => (
+              <Primitive key={i} p={p} ff={ff} />
+            ))}
+          </Svg>
+          {sc.notes.map((n, i) => (
+            <Text key={i} style={s.muted}>
+              {pdfTexte(n)}
+            </Text>
+          ))}
+        </>
+      ) : (
+        <Text style={s.muted}>{sc.message}</Text>
+      )}
+    </View>
+  );
+}
+
 export function SyntheseRapideDocument({ model: m, fontFamily }: { model: RapidePdfModel; fontFamily: string }) {
   const s = creerStyles(fontFamily);
   return (
@@ -152,6 +182,7 @@ export function SyntheseRapideDocument({ model: m, fontFamily }: { model: Rapide
         )}
 
         <View style={{ height: 8 }} />
+        <SchemaPose s={s} sc={m.schema} ff={fontFamily} />
         <Section s={s} titre="1. Machine">
           <Champs s={s} items={m.machine} />
           {m.source.length > 0 && (

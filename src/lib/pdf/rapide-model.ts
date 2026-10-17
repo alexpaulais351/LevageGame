@@ -5,11 +5,12 @@
 import type { VerdictGlobal } from "@/engine";
 import { VERDICT } from "@/lib/design-tokens";
 import { formatTaux } from "@/lib/study/format";
-import type { ResultatRapide } from "@/lib/study/rapide";
+import { resultatVisuelRapide, type ResultatRapide } from "@/lib/study/rapide";
 import type { StudyData } from "@/lib/study/types";
 import { formatDateFR, formatMasse, formatNombreFR } from "@/lib/utils";
 
 import { dateIso, slugFichier } from "./filename";
+import { schemaElevation, type Schema } from "./schemas";
 import { CADRE_COURT, MENTION_PERMANENTE, VERDICT_LIBELLE, calcBloc, pdfTexte, type CalcBloc } from "./model";
 
 export const LIMITES_RAPIDE =
@@ -22,6 +23,8 @@ export interface RapidePdfModel {
   machine: [string, string][];
   charge: [string, string][];
   porteeMax: { valeur: string; detail: string } | null;
+  /** Schéma en élévation de la pose (portée saisie), mêmes primitives que la fiche complète. */
+  schema: Schema;
   calculs: CalcBloc[];
   bloquants: string[];
   reserves: string[];
@@ -100,6 +103,7 @@ export function buildRapidePdfModel(args: { data: StudyData; resultat: ResultatR
                 `Plus grand nœud de portée de l'abaque où la capacité couvre ${t(r.chargeTotale.value)} : ${t(Number(r.porteeMax.inputs.cap.value))}. Limite : ${String(r.porteeMax.inputs.limite?.value ?? "")}. Aucune extrapolation.`,
               ),
             },
+    schema: { ...schemaElevation(d, resultatVisuelRapide(d, r)), titre: "Schéma de la pose (élévation, indicatif)" },
     calculs: [
       calcBloc("Charge totale", r.chargeTotale, t(r.chargeTotale.value)),
       calcBloc("Taux d'utilisation et verdict", r.verdict, VERDICT_LIBELLE[v.verdict]),

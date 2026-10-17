@@ -5,6 +5,7 @@
  */
 import { computeVerdict, maxRadius, totalLoad, type Calc, type VerdictResult } from "@/engine";
 
+import { computeStudy, type StudyResult } from "./compute";
 import { createInitialData } from "./defaults";
 import { liftPositions, thresholds, totalLoadInput } from "./mapping";
 import type { StudyData } from "./types";
@@ -29,4 +30,12 @@ export function calculRapide(d: StudyData): ResultatRapide {
   const y = d.geometrie.positions[0]?.yM ?? null;
   const porteeMax = chart && chargeTotale.value !== null ? maxRadius(chart, chargeTotale.value, chart.axisY === "none" ? null : y) : null;
   return { chargeTotale, verdict, porteeMax };
+}
+
+/**
+ * Résultat au format de l'étude complète, pour réutiliser les schémas (écran et PDF) : charge totale et verdict
+ * sont ceux de l'adéquation rapide (capacité seule), le reste n'est pas affiché.
+ */
+export function resultatVisuelRapide(d: StudyData, r: ResultatRapide = calculRapide(d)): StudyResult {
+  return { ...computeStudy(d), chargeTotale: r.chargeTotale, verdict: r.verdict };
 }

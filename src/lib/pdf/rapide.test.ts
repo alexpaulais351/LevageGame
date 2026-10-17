@@ -38,6 +38,15 @@ describe("synthèse PDF de l'adéquation rapide", () => {
     expect(m.calculs.map((c) => c.titre)).toContain("Charge totale");
   });
 
+  it("schéma en élévation de la pose, coloré selon le verdict rapide (vent, sol, élingage ignorés)", () => {
+    const d = donnees();
+    const m = buildRapidePdfModel({ data: d, resultat: calculRapide(d), redacteur: "Camille Martin", entreprise: null });
+    expect(m.schema.disponible).toBe(true);
+    expect(m.schema.titre).toBe("Schéma de la pose (élévation, indicatif)");
+    expect(m.schema.prims.some((p) => p.k === "text" && p.t === "portée 8 m")).toBe(true);
+    expect(m.schema.notes[0]).toContain("portée 8 m");
+  });
+
   it("nom de fichier ASCII", () => {
     expect(nomFichierRapide({ modele: "GMK 3050-1", date: new Date("2026-10-17T10:00:00Z") })).toBe("adequation-rapide_GMK-3050-1_2026-10-17.pdf");
   });
