@@ -27,13 +27,13 @@ function donnees() {
 }
 
 describe("synthèse PDF de l'adéquation rapide", () => {
-  it("verdict, résultats, portée maximale et extrait d'abaque", () => {
+  it("verdict, résultats, portée maximale, sans détail de lecture d'abaque", () => {
     const d = donnees();
     const m = buildRapidePdfModel({ data: d, resultat: calculRapide(d), redacteur: "Camille Martin", entreprise: "EBGC", date: new Date("2026-10-17T10:00:00Z") });
     expect(m.verdict.libelle).toBe("ADÉQUAT");
     expect(m.resultats[0][1]).toContain("2,95");
     expect(m.porteeMax?.valeur).toBe("12 m");
-    expect(m.extrait?.colonnes).toContain(8);
+    expect(m.calculs.map((c) => c.titre).some((x) => x.startsWith("Capacité à l'abaque"))).toBe(false);
     expect(m.limites).toContain("ne sont pas contrôlés");
     expect(m.calculs.map((c) => c.titre)).toContain("Charge totale");
   });

@@ -3,9 +3,8 @@ import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
 
 import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
-import { formatMasse } from "@/lib/utils";
 
-import { pdfTexte, type CalcBloc } from "./model";
+import type { CalcBloc } from "./model";
 import type { RapidePdfModel } from "./rapide-model";
 
 function creerStyles(ff: string) {
@@ -108,7 +107,6 @@ function Calcul({ s, c }: { s: Styles; c: CalcBloc }) {
 
 export function SyntheseRapideDocument({ model: m, fontFamily }: { model: RapidePdfModel; fontFamily: string }) {
   const s = creerStyles(fontFamily);
-  const e = m.extrait;
   return (
     <Document title="Adéquation rapide" author={m.entete.redacteur} subject="Vérification rapide d'une pose de charge" creator="Adéquation de levage">
       <Page size="A4" style={s.page}>
@@ -172,20 +170,6 @@ export function SyntheseRapideDocument({ model: m, fontFamily }: { model: Rapide
           {m.calculs.map((c, i) => (
             <Calcul key={i} s={s} c={c} />
           ))}
-          {e && e.colonnes.length > 0 && e.lignes.length > 0 && (
-            <View wrap={false}>
-              <Text style={s.sousTitre}>Extrait de l&apos;abaque — colonnes : portée (m)</Text>
-              <Tableau
-                s={s}
-                cols={[{ label: m.axeYLibelle || "Capacité", w: 1.6 }, ...e.colonnes.map((x) => ({ label: pdfTexte(`${x} m`.replace(".", ",")), w: 1, align: "right" as const }))]}
-                lignes={e.lignes.map((l) => [
-                  l.y === null ? "Courbe unique" : pdfTexte(`${String(l.y).replace(".", ",")} m`),
-                  ...l.cellules.map((c) => (c === undefined ? "" : c === null ? "—" : pdfTexte(formatMasse(c)))),
-                ])}
-              />
-              <Text style={s.muted}>Cellule « — » : case vide du constructeur (hors abaque). Entre deux nœuds : valeur la plus défavorable, aucune extrapolation.</Text>
-            </View>
-          )}
         </Section>
 
         <View style={s.encadre} wrap={false}>

@@ -207,7 +207,6 @@ export function AdequationRapide({ redacteur, entreprise }: { redacteur: string;
               </Card>
             </div>
             <CalcDetail titre="Charge totale" calc={r.chargeTotale} resume={formatMasse(r.chargeTotale.value as number)} />
-            {p0 && <CalcDetail titre={`Capacité à l'abaque — portée ${m(pos!.porteeM as number)}`} calc={p0.capacite} />}
           </>
         )}
       </section>
