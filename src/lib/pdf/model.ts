@@ -196,7 +196,7 @@ function champs(...paires: [string, string][]): Champ[] {
   return paires.map(([label, valeur]) => ({ label, valeur }));
 }
 
-function calcBloc(titre: string, calc: Calc<unknown>, resume?: string): CalcBloc {
+export function calcBloc(titre: string, calc: Calc<unknown>, resume?: string): CalcBloc {
   return {
     titre,
     resume,
