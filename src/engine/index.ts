@@ -1,7 +1,7 @@
 /** Moteur de calcul d'adéquation de levage — API publique (module pur TypeScript). */
 export * from "./types";
 export { EPS, G } from "./util";
-export { HORS_ABAQUE, chartSourceLabel, readCapacity, validateChart } from "./chart";
+export { HORS_ABAQUE, chartSourceLabel, maxRadius, readCapacity, validateChart } from "./chart";
 export { kgToKN, kNToKg, totalLoad, type TotalLoadInput } from "./load";
 export { hookHeight, type HookHeightInput } from "./hauteur";
 export {

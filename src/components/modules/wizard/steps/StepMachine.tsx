@@ -17,7 +17,7 @@ import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
 import { ChoixSourceMachines, type SourceMachines } from "../ChoixSourceMachines";
 
-export function StepMachine() {
+export function StepMachine({ numero = 4 }: { numero?: number } = {}) {
   const m = useStudy((s) => s.data.machine);
   const patch = useStudy((s) => s.patch);
   const err = useErreurs("machine");
@@ -108,7 +108,7 @@ export function StepMachine() {
 
   return (
     <StepShell
-      numero={4}
+      numero={numero}
       titre="Moyen de levage"
       description="Type, constructeur, modèle puis configuration : l'abaque de la configuration est lu tel que publié, sans extrapolation."
     >

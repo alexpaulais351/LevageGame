@@ -101,7 +101,7 @@ export function Wizard({ etude }: WizardProps) {
   const seuils = useMemo(() => {
     const t = thresholds(data);
     return {
-      vert: Number.isFinite(t.greenMax) ? t.greenMax : 0.8,
+      vert: Number.isFinite(t.greenMax) ? t.greenMax : 0.9,
       orange: Number.isFinite(t.orangeMax) ? t.orangeMax : 1,
     };
   }, [data]);

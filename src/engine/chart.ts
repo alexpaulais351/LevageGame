@@ -222,3 +222,44 @@ export function validateChart(chart: LoadChart): ChartValidation {
 
   return { valid: errors.length === 0, errors, warnings };
 }
+
+/**
+ * Portée maximale à laquelle la charge totale reste sous la capacité de l'abaque, lue AUX NŒUDS publiés
+ * (aucune extrapolation ; entre deux nœuds la règle « valeur la plus défavorable » rend le nœud suivant limitant).
+ * Renvoie `null` si aucun nœud ne convient.
+ */
+export function maxRadius(chart: LoadChart, chargeTotaleKg: number, y?: number | null): Calc<number | null> {
+  const yLabel = Y_LABEL[chart.axisY];
+  const inputs: Record<string, CalcInput> = {
+    Q: { value: isFiniteNumber(chargeTotaleKg) ? chargeTotaleKg : String(chargeTotaleKg), unit: "kg", label: "Charge totale" },
+  };
+  if (chart.axisY !== "none") inputs.y = { value: isFiniteNumber(y) ? y : "non renseigné", unit: "m", label: yLabel };
+  const formula = "Portée max = plus grand nœud de portée de l'abaque où la capacité lue ≥ charge totale";
+  const source = chartSourceLabel(chart);
+  if (!isFiniteNumber(chargeTotaleKg) || chargeTotaleKg <= 0) return { value: null, formula, inputs, source, warnings: ["Charge totale non calculable."] };
+  if (chart.axisY !== "none" && !isFiniteNumber(y)) return { value: null, formula, inputs, source, warnings: [`${yLabel} non renseignée.`] };
+  const xs = [...new Set(chart.points.map((p) => p.x).filter(isFiniteNumber))].sort((a, b) => a - b);
+  let best: { x: number; cap: number } | null = null;
+  for (const x of xs) {
+    const c = readCapacity(chart, x, y).value;
+    if (c !== null && !gt(chargeTotaleKg, c) && (best === null || x > best.x)) best = { x, cap: c };
+  }
+  if (best === null) return { value: null, formula, inputs, source, warnings: ["Aucune portée de l'abaque ne convient pour cette charge."] };
+  const suivant = xs.find((x) => x > best!.x);
+  const capSuivant = suivant === undefined ? null : readCapacity(chart, suivant, y).value;
+  const limite =
+    suivant === undefined || capSuivant === null
+      ? "fin de l'abaque (dernière portée publiée)"
+      : `capacité insuffisante au nœud suivant (${suivant} m)`;
+  return {
+    value: best.x,
+    formula,
+    inputs: {
+      ...inputs,
+      cap: { value: best.cap, unit: "kg", label: `Capacité au nœud ${best.x} m` },
+      limite: { value: limite, unit: "", label: "Limite" },
+    },
+    source,
+    warnings: [],
+  };
+}
