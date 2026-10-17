@@ -65,7 +65,7 @@ export function AdequationRapide() {
         </span>
       </p>
 
-      <StepMachine numero={1} />
+      <StepMachine numero={1} simplifie />
 
       <StepShell numero={2} titre="Charge et portée" description="Masse de la charge, marge, accessoires et distance de pose.">
         <Grille>
