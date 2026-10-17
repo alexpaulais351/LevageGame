@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CircleAlert, FileText, Info, Ruler } from "lucide-react";
+import { ArrowRight, CircleAlert, FileText, Info, MoveHorizontal, Ruler } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,10 +12,13 @@ import { VERDICT_LIBELLE, VERDICT_STYLE } from "@/components/modules/wizard/Resu
 import { NumberField, UnitNumberField, UNITES_MASSE } from "@/components/modules/wizard/fields";
 import { Grille, StepShell } from "@/components/modules/wizard/StepShell";
 import { StepMachine } from "@/components/modules/wizard/steps/StepMachine";
+import { ElevationView } from "@/components/modules/visuals/ElevationView";
+import { aimanter, domaineDeplacement, lignesAbaque } from "@/components/modules/visuals/geometry";
+import { couleurZone } from "@/components/modules/visuals/model";
 import { useExportAdequationRapide } from "@/hooks/useExportPDF";
 import { accessoireVide } from "@/lib/study/defaults";
 import { formatTaux } from "@/lib/study/format";
-import { calculRapide, donneesRapides, ID_POSE_RAPIDE } from "@/lib/study/rapide";
+import { calculRapide, donneesRapides, ID_POSE_RAPIDE, resultatVisuelRapide } from "@/lib/study/rapide";
 import { cn, formatMasse, formatNombreFR } from "@/lib/utils";
 import { useStudy } from "@/stores/study";
 
@@ -36,6 +39,13 @@ export function AdequationRapide({ redacteur, entreprise }: { redacteur: string;
   const patch = useStudy((s) => s.patch);
   const majPosition = useStudy((s) => s.majPosition);
   const r = useMemo(() => calculRapide(data), [data]);
+  const etude = useMemo(() => resultatVisuelRapide(data, r), [data, r]);
+  const chartSel = data.machine.selection?.chart ?? null;
+  const yPose = data.geometrie.positions[0]?.yM ?? null;
+  const domaine = useMemo(
+    () => (chartSel ? domaineDeplacement(lignesAbaque(chartSel), chartSel.axisY === "none" ? null : yPose) : null),
+    [chartSel, yPose],
+  );
   const exportPdf = useExportAdequationRapide();
   const exporterPdf = () =>
     exportPdf.exporter(async () => {
@@ -210,6 +220,62 @@ export function AdequationRapide({ redacteur, entreprise }: { redacteur: string;
           </>
         )}
       </section>
+
+      {chart !== null && pos && (
+        <section aria-label="Schéma interactif de la pose" data-testid="schema-rapide" className="flex flex-col gap-3">
+          <h2 className="text-xl font-bold text-primary">4. Schéma de la pose</h2>
+          <Card className="flex flex-col gap-4 p-4">
+            {domaine && (
+              <div className="flex flex-col gap-2">
+                <label htmlFor="curseur-portee" className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold">
+                  <span className="flex items-center gap-2">
+                    <MoveHorizontal className="size-4 text-primary" aria-hidden />
+                    Déplacer la charge (portée)
+                  </span>
+                  <span className="flex items-center gap-2 tabular-nums">
+                    <span className="text-lg text-primary">{pos.porteeM === null ? "—" : m(pos.porteeM)}</span>
+                    {pret2 && (
+                      <span className="rounded px-2 py-0.5 text-xs font-bold text-white" style={{ background: couleurZone(v.zone) }}>
+                        {v.tauxMax === null ? "Hors abaque" : formatTaux(v.tauxMax)}
+                      </span>
+                    )}
+                  </span>
+                </label>
+                <input
+                  id="curseur-portee"
+                  type="range"
+                  data-testid="curseur-portee"
+                  className="h-11 w-full cursor-pointer accent-primary"
+                  min={domaine.min}
+                  max={domaine.max}
+                  step={0.1}
+                  value={pos.porteeM ?? domaine.min}
+                  onChange={(e) => majPosition(pos.id, { porteeM: aimanter(Number(e.target.value), 0.1, domaine) })}
+                  aria-valuetext={pos.porteeM === null ? "portée non saisie" : m(pos.porteeM)}
+                />
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-foreground/70">
+                  <span>
+                    Plage de l&apos;abaque : {m(domaine.min)} → {m(domaine.max)}
+                  </span>
+                  {r.porteeMax?.value != null && (
+                    <Button type="button" variant="outline" size="sm" onClick={() => majPosition(pos.id, { porteeM: r.porteeMax!.value as number })}>
+                      Placer à la portée max ({m(r.porteeMax.value)})
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            <ElevationView
+              data={data}
+              result={etude}
+              seuils={seuils}
+              selectionId={pos.id}
+              onSelect={() => undefined}
+              onPortee={(id, porteeM) => majPosition(id, { porteeM })}
+            />
+          </Card>
+        </section>
+      )}
     </div>
   );
 }
