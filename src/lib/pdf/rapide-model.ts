@@ -9,7 +9,6 @@ import type { ResultatRapide } from "@/lib/study/rapide";
 import type { StudyData } from "@/lib/study/types";
 import { formatDateFR, formatMasse, formatNombreFR } from "@/lib/utils";
 
-import { extraireAbaque, type ExtraitAbaque } from "./abaque-extrait";
 import { dateIso, slugFichier } from "./filename";
 import { CADRE_COURT, MENTION_PERMANENTE, VERDICT_LIBELLE, calcBloc, pdfTexte, type CalcBloc } from "./model";
 
@@ -26,8 +25,6 @@ export interface RapidePdfModel {
   calculs: CalcBloc[];
   bloquants: string[];
   reserves: string[];
-  extrait: ExtraitAbaque | null;
-  axeYLibelle: string;
   source: [string, string][];
   limites: string;
   mention: string;
@@ -105,13 +102,10 @@ export function buildRapidePdfModel(args: { data: StudyData; resultat: ResultatR
             },
     calculs: [
       calcBloc("Charge totale", r.chargeTotale, t(r.chargeTotale.value)),
-      ...(p0 ? [calcBloc(`Capacité à l'abaque — portée ${m(pos?.porteeM)}`, p0.capacite, cap === null ? "hors abaque" : t(cap))] : []),
       calcBloc("Taux d'utilisation et verdict", r.verdict, VERDICT_LIBELLE[v.verdict]),
     ],
     bloquants: v.bloquants.map((i) => pdfTexte(i.message)),
     reserves: v.reserves.map((i) => pdfTexte(i.message)),
-    extrait: chart && pos ? extraireAbaque(chart, [{ nom: "Pose", porteeM: pos.porteeM, yM: pos.yM }]) : null,
-    axeYLibelle: axeY === "none" ? "" : axeY === "height_m" ? "Hauteur (m)" : "Flèche (m)",
     source: chart
       ? [
           ["Document", txt(chart.source.title)],
