@@ -17,7 +17,8 @@ import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
 import { ChoixSourceMachines, type SourceMachines } from "../ChoixSourceMachines";
 
-export function StepMachine({ numero = 4 }: { numero?: number } = {}) {
+/** `simplifie` (adéquation rapide) : sans le champ « Fléchette repliée ». */
+export function StepMachine({ numero = 4, simplifie = false }: { numero?: number; simplifie?: boolean } = {}) {
   const m = useStudy((s) => s.data.machine);
   const patch = useStudy((s) => s.patch);
   const err = useErreurs("machine");
@@ -226,7 +227,7 @@ export function StepMachine({ numero = 4 }: { numero?: number } = {}) {
       )}
 
       <SousTitre>Masses sous la flèche</SousTitre>
-      <Grille cols={3}>
+      <Grille cols={simplifie ? 2 : 3}>
         <UnitNumberField
           label="Moufle / crochet"
           unites={UNITES_MASSE}
@@ -237,13 +238,15 @@ export function StepMachine({ numero = 4 }: { numero?: number } = {}) {
             sel && m.moufleCrochetKg !== null ? `Valeur retenue : ${formatMasse(m.moufleCrochetKg)}` : "À saisir si non fournie par la configuration."
           }
         />
-        <UnitNumberField
-          label="Fléchette repliée"
-          unites={UNITES_MASSE}
-          value={m.flechetteReplieeKg}
-          onChange={(v) => patch("machine", { flechetteReplieeKg: v })}
-          hint="Facultatif, si l'abaque l'impose."
-        />
+        {!simplifie && (
+          <UnitNumberField
+            label="Fléchette repliée"
+            unites={UNITES_MASSE}
+            value={m.flechetteReplieeKg}
+            onChange={(v) => patch("machine", { flechetteReplieeKg: v })}
+            hint="Facultatif, si l'abaque l'impose."
+          />
+        )}
         <UnitNumberField
           label="Autres masses"
           unites={UNITES_MASSE}
