@@ -100,7 +100,9 @@ export function mapStatistiques(r: Record<string, unknown>): Statistiques {
 /** Libellé lisible d'un chemin normalisé (« /projets/:id » → « Projet (fiche) »). */
 const LIBELLES: Record<string, string> = {
   "/": "Accueil",
-  "/outil": "Nouvelle adéquation",
+  "/outil": "Nouvelle adéquation (choix)",
+  "/outil/rapide": "Adéquation rapide",
+  "/outil/projet": "Adéquation projet",
   "/projets": "Projets (liste)",
   "/projets/:id": "Projet (fiche)",
   "/projets/:id/etudes/:id": "Étude de levage",
