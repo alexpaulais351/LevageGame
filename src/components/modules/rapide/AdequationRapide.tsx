@@ -70,7 +70,7 @@ export function AdequationRapide({ redacteur, entreprise }: { redacteur: string;
         <span>
           Vérification rapide d&apos;<strong>une pose</strong> à l&apos;abaque : capacité et taux d&apos;utilisation uniquement. Le sol, le vent, l&apos;élingage, les
           lignes électriques et le personnel ne sont pas contrôlés, et rien n&apos;est enregistré. Pour un dossier complet, utilisez l&apos;
-          <Link href="/outil" className="font-semibold text-primary underline">
+          <Link href="/outil/projet" className="font-semibold text-primary underline">
             adéquation projet
           </Link>
           .
@@ -200,7 +200,7 @@ export function AdequationRapide({ redacteur, entreprise }: { redacteur: string;
                 ) : (
                   <p className="text-sm text-vinci-rouge-dark">{r.porteeMax?.warnings.join(" ") || "Portée maximale non calculable."}</p>
                 )}
-                <Link href="/outil" className="mt-auto inline-flex items-center gap-1 self-start text-sm font-semibold text-primary underline">
+                <Link href="/outil/projet" className="mt-auto inline-flex items-center gap-1 self-start text-sm font-semibold text-primary underline">
                   Faire l&apos;adéquation complète (projet)
                   <ArrowRight className="size-4" aria-hidden />
                 </Link>
