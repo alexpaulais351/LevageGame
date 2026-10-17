@@ -46,7 +46,7 @@ Polices : VINCI Sans / Sans Condensed / Serif — `public/fonts/` + `src/styles/
 ## Structure
 ```
 src/engine/        moteur de calcul PUR (aucun import React/Supabase) + __tests__
-src/app/           login · auth/callback · compte-en-attente · outil · projets/… · machines/… · transport · admin/{comptes,statistiques}
+src/app/           login · auth/callback · compte-en-attente · outil (+ outil/rapide, D43) · projets/… · machines/… · transport · admin/{comptes,statistiques}
 src/components/    ui (shadcn CLI only) · layout · modules/{wizard,visuals,pdf}
 src/lib/           supabase/ · design-tokens.ts · utils.ts (formatNombreFR…) · pdf/
 src/actions/ src/stores/ src/types/
