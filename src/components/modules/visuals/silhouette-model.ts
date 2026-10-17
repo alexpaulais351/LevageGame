@@ -13,6 +13,7 @@ import {
   type SortiePlan,
   type TypeMachine,
 } from "@/lib/visuals/silhouettes";
+import { hauteurSousCrochet } from "@/lib/study/mapping";
 import type { MachineSelection, StudyData } from "@/lib/study/types";
 
 import { angleFlecheDeg, hauteurTeteM } from "./geometry";
@@ -75,7 +76,7 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
   const selection = data.machine.selection;
   const { type, reconnu } = typeDeLaSelection(selection);
   const axeY = selection?.chart?.axisY ?? "none";
-  const g = data.geometrie;
+  const hsc = hauteurSousCrochet(data).valeurM;
   const c = data.charge;
   const r = pos.porteeM ?? domaineMin ?? 0;
   const droite = TYPES_FLECHE_DROITE.includes(type);
@@ -95,9 +96,9 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
   else if (axeY === "height_m" && pos.yM !== null) teteY = pos.yM;
   else {
     teteIndicative = true;
-    if (type === "chariot_elevateur") teteY = Math.max(0.1, (g.hauteurSousCrochetM ?? chargeH + 0.5) - chargeH);
-    else if (type.startsWith("pelle")) teteY = (g.hauteurSousCrochetM ?? 3) + 1;
-    else teteY = (g.hauteurSousCrochetM ?? 6) + 2;
+    if (type === "chariot_elevateur") teteY = Math.max(0.1, (hsc ?? chargeH + 0.5) - chargeH);
+    else if (type.startsWith("pelle")) teteY = (hsc ?? 3) + 1;
+    else teteY = (hsc ?? 6) + 2;
   }
   teteY = Math.max(teteY, profil.hauteurTeteMinM);
 
@@ -107,7 +108,7 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
   let crochetY: number;
   if (sil.sansCable) crochetY = teteReelle + chargeH;
   else {
-    crochetY = g.hauteurSousCrochetM ?? chargeH + elingue;
+    crochetY = hsc ?? chargeH + elingue;
     crochetY = Math.min(Math.max(crochetY, chargeH + elingue), teteReelle - HAUTEUR_MOUFLE_M - 0.15);
     crochetY = Math.max(crochetY, elingue);
   }
@@ -126,7 +127,7 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
     chargeIndicative,
     elingue,
     crochetY,
-    crochetIndicatif: g.hauteurSousCrochetM === null,
+    crochetIndicatif: hsc === null,
   };
 }
 

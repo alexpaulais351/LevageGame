@@ -68,7 +68,9 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
   const obstacles = (g.obstaclesSaisis ?? []).filter((o) => o.distanceM !== null && o.hauteurM !== null);
   const xMin = Math.min(-4.5, sil.bornes.minX - 0.5);
   const xMax = Math.max(domaine?.max ?? 0, r, sil.bornes.maxX + 0.5, ...obstacles.map((o) => (o.distanceM ?? 0) + OBSTACLE_LARGEUR_M)) + 2.5;
-  const yMax = Math.max(teteY, sil.bornes.maxY, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
+  const appuiH = sel.hauteurAppuiM !== null && sel.hauteurAppuiM > 0 ? sel.hauteurAppuiM : null;
+  const appuiL = Math.max(chargeL + 1, 2);
+  const yMax = Math.max(teteY, sil.bornes.maxY, appuiH ?? 0, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
   const s = Math.min((W - PAD.g - PAD.d) / (xMax - xMin), (H - PAD.h - PAD.b) / yMax);
   const sx = (m: number) => PAD.g + (m - xMin) * s;
   const sy = (m: number) => H - PAD.b - m * s;
@@ -147,6 +149,17 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
             <line x1={sx(domaine.max)} x2={sx(domaine.max)} y1={sy(0) + 66} y2={sy(0) + 78} stroke={VINCI.bleu} strokeWidth="3" />
             <text x={sx(domaine.min) - 6} y={sy(0) + 77} textAnchor="end" fontSize="12" fill={VINCI.bleu}>
               plage de l&apos;abaque
+            </text>
+          </g>
+        )}
+
+        {/* Support de prise / pose (dalle, plancher, camion…) à la hauteur saisie */}
+        {appuiH !== null && (
+          <g data-testid="appui-pose">
+            <rect x={sx(r - appuiL / 2)} y={sy(appuiH)} width={appuiL * s} height={appuiH * s} fill={VINCI.grisLight} stroke={VINCI.gris} strokeWidth="2" />
+            <line x1={sx(r - appuiL / 2)} x2={sx(r + appuiL / 2)} y1={sy(appuiH)} y2={sy(appuiH)} stroke={VINCI.bleuDark} strokeWidth="3" />
+            <text x={sx(r + appuiL / 2) + 6} y={sy(appuiH) + 4} fontSize="12" fill={VINCI.bleuDark} fontWeight="700" paintOrder="stroke" stroke={VINCI.blanc} strokeWidth="3">
+              {`${sel.nom} : appui à ${formatNombreAuto(appuiH)} m`}
             </text>
           </g>
         )}
