@@ -26,6 +26,8 @@ export interface PositionSaisie {
   yM: number | null;
   /** Direction de la position dans le plan (degrés, 0 = haut du plan, sens horaire) ; `null` = non saisi. */
   angleDeg?: number | null;
+  /** Hauteur du support où la charge est prise / posée (m, par rapport au sol de la machine ; 0 = au sol). */
+  hauteurAppuiM?: number | null;
 }
 
 /** Obstacle saisi pour le schéma en élévation (distance depuis l'axe de rotation, hauteur au sol). */
@@ -99,7 +101,12 @@ export interface StudyData {
   };
   geometrie: {
     positions: PositionSaisie[];
+    /** Valeur forcée par l'utilisateur ; sinon calculée depuis les hauteurs d'appui (`hauteurSousCrochet`). */
     hauteurSousCrochetM: number | null;
+    /** Crochet → dessus de la charge (élingues, palonnier, manilles). */
+    hauteurElingageM?: number | null;
+    /** Garde de franchissement au-dessus de l'appui le plus haut. */
+    gardeM?: number | null;
     obstacles: string;
     /** Obstacles chiffrés (nom, distance, hauteur) affichés sur le schéma. */
     obstaclesSaisis: ObstacleSaisie[];

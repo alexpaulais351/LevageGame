@@ -13,6 +13,8 @@ export interface PositionVisuelle {
   porteeM: number | null;
   yM: number | null;
   angleDeg: number | null;
+  /** Hauteur du support de prise / pose (m) ; `null` = non saisie. */
+  hauteurAppuiM: number | null;
   capaciteKg: number | null;
   /** `true` quand le moteur a lu l'abaque et conclu « hors abaque ». */
   horsAbaque: boolean;
@@ -30,6 +32,7 @@ export function positionsVisuelles(data: StudyData, result: StudyResult): Positi
       porteeM: p.porteeM,
       yM: p.yM,
       angleDeg: p.angleDeg ?? null,
+      hauteurAppuiM: p.hauteurAppuiM ?? null,
       capaciteKg: r?.capacite.value ?? null,
       horsAbaque: r !== undefined && r.capacite.value === null,
       taux: r?.taux ?? null,

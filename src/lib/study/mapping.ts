@@ -3,8 +3,10 @@
  * Convention : une saisie vide (`null`) est transmise au moteur comme `undefined`,
  * ce qu'il traite comme « donnée manquante » (point bloquant), jamais comme 0.
  */
+import { hookHeight } from "@/engine";
 import type {
   Accessoire,
+  Calc,
   CrawlerInput,
   Issue,
   LiftPosition,
@@ -116,6 +118,22 @@ export function outriggerInput(d: StudyData): OutriggerInput {
  * Portance minimale requise (aide à la saisie, étape Sol) : effort et surface d'appui saisis.
  * Stabilisateurs : S = plaque L × l ou patin ; chenilles : S = 2 × L × b. `null` si le mode d'appui n'est pas choisi.
  */
+/**
+ * Hauteur sous crochet retenue : valeur forcée si saisie, sinon calculée depuis les hauteurs d'appui
+ * (point le plus haut + hauteur de charge + élingage + garde).
+ */
+export function hauteurSousCrochet(d: StudyData): { valeurM: number | null; mode: "saisie" | "calculee" | null; calc: Calc<number | null> } {
+  const g = d.geometrie;
+  const calc = hookHeight({
+    appuis: g.positions.map((p, i) => ({ nom: p.nom.trim() || `Position ${i + 1}`, hauteurM: p.hauteurAppuiM ?? null })),
+    hauteurChargeM: d.charge.hauteurM,
+    hauteurElingageM: g.hauteurElingageM ?? null,
+    gardeM: g.gardeM ?? null,
+  });
+  if (g.hauteurSousCrochetM !== null) return { valeurM: g.hauteurSousCrochetM, mode: "saisie", calc };
+  return { valeurM: calc.value, mode: calc.value === null ? null : "calculee", calc };
+}
+
 export function minBearingInput(d: StudyData): MinBearingInput | null {
   const s = d.sol;
   const prod = (...v: (number | null)[]) => (v.every((x) => x !== null) ? v.reduce<number>((a, x) => a * (x as number), 1) : Number.NaN);

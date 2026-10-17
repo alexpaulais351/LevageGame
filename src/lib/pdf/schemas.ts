@@ -186,7 +186,9 @@ export function schemaElevation(data: StudyData, result: StudyResult): Schema {
   const LARG_OBST = 0.8;
   const xMin = Math.min(-4.5, sil.bornes.minX - 0.5);
   const xMax = Math.max(domaine?.max ?? 0, r, sil.bornes.maxX + 0.5, ...obstacles.map((o) => (o.distanceM ?? 0) + LARG_OBST)) + 2.5;
-  const yMax = Math.max(teteY, sil.bornes.maxY, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
+  const appuiH = sel.hauteurAppuiM !== null && sel.hauteurAppuiM > 0 ? sel.hauteurAppuiM : null;
+  const appuiL = Math.max(chargeL + 1, 2);
+  const yMax = Math.max(teteY, sil.bornes.maxY, appuiH ?? 0, ...obstacles.map((o) => o.hauteurM ?? 0)) + 1.5;
   const s = Math.min((W - PAD.g - PAD.d) / (xMax - xMin), (H - PAD.h - PAD.b) / yMax);
   const sx = (m: number) => PAD.g + (m - xMin) * s;
   const sy = (m: number) => H - PAD.b - m * s;
@@ -204,6 +206,11 @@ export function schemaElevation(data: StudyData, result: StudyResult): Schema {
   if (domaine) {
     prims.push({ k: "line", x1: sx(domaine.min), x2: sx(domaine.max), y1: sy(0) + 72, y2: sy(0) + 72, stroke: VINCI.bleu, w: 4 });
     prims.push({ k: "text", x: sx(domaine.min) - 6, y: sy(0) + 77, t: "plage de l'abaque", size: 13, fill: VINCI.bleu, anchor: "end" });
+  }
+  if (appuiH !== null) {
+    prims.push({ k: "rect", x: sx(r - appuiL / 2), y: sy(appuiH), w: appuiL * s, h: appuiH * s, fill: VINCI.grisLight, stroke: VINCI.gris, sw: 2 });
+    prims.push({ k: "line", x1: sx(r - appuiL / 2), x2: sx(r + appuiL / 2), y1: sy(appuiH), y2: sy(appuiH), stroke: VINCI.bleuDark, w: 3 });
+    prims.push({ k: "text", x: sx(r + appuiL / 2) + 8, y: sy(appuiH) + 5, t: `${sel.nom} : appui à ${formatNombreAuto(appuiH)} m`, size: 13, fill: VINCI.bleuDark, bold: true });
   }
   for (const o of obstacles) {
     const hx = o.hauteurM as number;
@@ -237,7 +244,7 @@ export function schemaElevation(data: StudyData, result: StudyResult): Schema {
 
   const notes = [
     `Position « ${sel.nom} » : portée ${sel.porteeM === null ? "non saisie" : `${formatNombreAuto(sel.porteeM)} m`}, ${sel.horsAbaque ? "hors abaque" : sel.capaciteKg === null ? "capacité non lue" : `capacité ${formatMasse(sel.capaciteKg)}`}.`,
-    `${noteIndicatif(geo)}${chargeIndicative ? ", dimensions de charge par défaut en pointillé" : ""}${teteIndicative ? ", hauteur de tête de flèche non déductible des données saisies" : ""}${g.hauteurSousCrochetM === null ? ", hauteur du crochet par défaut" : ""}.`,
+    `${noteIndicatif(geo)}${chargeIndicative ? ", dimensions de charge par défaut en pointillé" : ""}${teteIndicative ? ", hauteur de tête de flèche non déductible des données saisies" : ""}${geo.crochetIndicatif ? ", hauteur du crochet par défaut" : ""}.`,
   ];
   return { id: "elevation", titre, w: W, h: H, prims, notes, disponible: true };
 }

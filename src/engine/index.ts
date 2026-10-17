@@ -3,6 +3,7 @@ export * from "./types";
 export { EPS, G } from "./util";
 export { HORS_ABAQUE, chartSourceLabel, readCapacity, validateChart } from "./chart";
 export { kgToKN, kNToKg, totalLoad, type TotalLoadInput } from "./load";
+export { hookHeight, type HookHeightInput } from "./hauteur";
 export {
   ANGLE_MAX_DEG,
   ANGLE_RESERVE_DEG,

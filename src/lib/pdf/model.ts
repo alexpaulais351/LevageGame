@@ -6,7 +6,7 @@ import type { Calc, Issue, VerdictGlobal, Zone } from "@/engine";
 import { VERDICT } from "@/lib/design-tokens";
 import type { StudyResult } from "@/lib/study/compute";
 import { formatCalcValue, formatNombreAuto, formatTaux } from "@/lib/study/format";
-import { thresholds } from "@/lib/study/mapping";
+import { hauteurSousCrochet, thresholds } from "@/lib/study/mapping";
 import type { AccessoireSaisie, StudyData } from "@/lib/study/types";
 import { formatMasse, formatNombreFR } from "@/lib/utils";
 
@@ -181,6 +181,12 @@ const txt = (s: string | null | undefined): string => (s && s.trim() !== "" ? pd
 const ouiNon = (b: boolean): string => (b ? "Oui" : "Non");
 
 /** "2026-03-14" → "14/03/2026" ; sinon texte tel quel. */
+function hscTexte(data: StudyData): string {
+  const h = hauteurSousCrochet(data);
+  if (h.valeurM === null) return TIRET;
+  return h.mode === "calculee" ? `${metres(h.valeurM)} (calculée : appui le plus haut + charge + élingage + garde)` : `${metres(h.valeurM)} (saisie)`;
+}
+
 export function dateFR(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso.trim();
@@ -291,6 +297,10 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
       ),
     ),
     calcBloc("Taux d'utilisation et verdict", result.verdict, VERDICT_LIBELLE[v.verdict]),
+    ...(() => {
+      const h = hauteurSousCrochet(data);
+      return h.mode === "calculee" ? [calcBloc("Hauteur sous crochet nécessaire", h.calc, metres(h.valeurM))] : [];
+    })(),
     calcBloc("Élingage et CMU", result.elingage, r.effortParBrinKg === null ? undefined : `T = ${masse(r.effortParBrinKg)} par brin`),
     ...(result.sol
       ? [calcBloc("Appuis et sol", result.sol, result.sol.value.pressionKPa === null ? undefined : `p = ${nombre(result.sol.value.pressionKPa, "kPa")}`)]
@@ -440,7 +450,7 @@ export function buildPdfModel(data: StudyData, result: StudyResult, meta: PdfMet
         ["Constructeur", txt(sel?.manufacturerName)],
         ["Modèle", txt(sel?.model)],
         ["Configuration", txt(sel?.configurationLabel)],
-        ["Hauteur sous crochet nécessaire", metres(data.geometrie.hauteurSousCrochetM)],
+        ["Hauteur sous crochet nécessaire", hscTexte(data)],
       ),
       chargeTotale: champs(
         ["Charge", masse(data.charge.masseKg)],
