@@ -28,7 +28,7 @@ const m = (v: number) => `${formatNombreFR(v, 2).replace(/,00$/, "")} m`;
  * Adéquation rapide (D43) : une pose, sans projet ni dossier. Rien n'est enregistré.
  * Réutilise le store de l'assistant (réinitialisé à l'ouverture) et l'étape Moyen de levage.
  */
-export function AdequationRapide({ redacteur, entreprise }: { redacteur: string; entreprise: string | null }) {
+export function AdequationRapide({ redacteur, entreprise, logoUrl = null }: { redacteur: string; entreprise: string | null; logoUrl?: string | null }) {
   const [pret, setPret] = useState(false);
   useEffect(() => {
     useStudy.getState().charger(donneesRapides());
@@ -52,7 +52,7 @@ export function AdequationRapide({ redacteur, entreprise }: { redacteur: string;
       const { buildRapidePdfModel, nomFichierRapide } = await import("@/lib/pdf/rapide-model");
       const date = new Date();
       return {
-        model: buildRapidePdfModel({ data, resultat: r, redacteur, entreprise, date }),
+        model: buildRapidePdfModel({ data, resultat: r, redacteur, entreprise, logoUrl, date }),
         nom: nomFichierRapide({ modele: data.machine.selection?.model, date }),
       };
     });

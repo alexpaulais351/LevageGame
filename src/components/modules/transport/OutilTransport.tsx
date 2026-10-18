@@ -37,6 +37,8 @@ export interface SaisieInitiale {
 export interface ContexteTransport {
   demandeur: Demandeur;
   projets: ProjetTransport[];
+  /** Logo de l'entreprise de l'utilisateur (data-URI) pour le bandeau du PDF, s'il l'a renseigné. */
+  logoUrl?: string | null;
 }
 
 export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale; contexte: ContexteTransport }) {
@@ -85,6 +87,7 @@ export function OutilTransport({ initial, contexte }: { initial: SaisieInitiale;
         conseils: type.conseils,
         demandeur: contexte.demandeur,
         projet,
+        logoUrl: contexte.logoUrl ?? null,
         schemas: images.map((i) => ({ dataUri: pngEnDataUri(i), ratio: i.hauteur / i.largeur })),
         date,
       });

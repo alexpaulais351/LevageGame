@@ -1,9 +1,10 @@
-/** Rendu @react-pdf/renderer de la synthèse d'adéquation rapide (A4 portrait, une page en général), à la charte de la fiche. */
+/** Rendu @react-pdf/renderer de l'adéquation de levage rapide (A4 portrait, une page en général), à la charte de la fiche. */
 import { Document, Page, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
 
 import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
 
+import { EnteteBande, HAUTEUR_BANDE, JaugeTaux } from "./communs";
 import { PrimsSvg } from "./document";
 import { pdfTexte, type CalcBloc } from "./model";
 import type { Schema } from "./schemas";
@@ -11,13 +12,8 @@ import type { RapidePdfModel } from "./rapide-model";
 
 function creerStyles(ff: string) {
   return StyleSheet.create({
-    page: { fontFamily: ff, fontSize: 8.5, color: VINCI_PDF.textMain, paddingTop: 84, paddingBottom: 54, paddingHorizontal: 34 },
+    page: { fontFamily: ff, fontSize: 8.5, color: VINCI_PDF.textMain, paddingTop: HAUTEUR_BANDE + 26, paddingBottom: 54, paddingHorizontal: 34 },
     entete: { position: "absolute", top: 0, left: 0, right: 0 },
-    bande: { backgroundColor: VINCI_PDF.headerBg, height: 56, paddingHorizontal: 34, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-    entreprise: { color: VINCI_PDF.headerText, fontSize: 11, fontWeight: 700 },
-    enteteDroite: { alignItems: "flex-end", maxWidth: 380 },
-    enteteTitre: { color: VINCI_PDF.headerText, fontSize: 14, fontWeight: 700, letterSpacing: 0.6 },
-    enteteLigne: { color: VINCI_PDF.headerText, fontSize: 7.5, marginTop: 2, textAlign: "right" },
     pied: { position: "absolute", bottom: 14, left: 34, right: 34, borderTopWidth: 0.75, borderTopColor: VINCI_PDF.border, paddingTop: 4, flexDirection: "row", justifyContent: "space-between" },
     piedTexte: { fontSize: 6.5, color: VINCI_PDF.textMuted },
     section: { marginBottom: 10 },
@@ -136,18 +132,10 @@ function SchemaPose({ s, sc, ff }: { s: Styles; sc: Schema; ff: string }) {
 export function SyntheseRapideDocument({ model: m, fontFamily }: { model: RapidePdfModel; fontFamily: string }) {
   const s = creerStyles(fontFamily);
   return (
-    <Document title="Adéquation rapide" author={m.entete.redacteur} subject="Vérification rapide d'une pose de charge" creator="Adéquation de levage">
+    <Document title="Adéquation de levage" author={m.entete.redacteur} subject="Adéquation de levage — vérification d'une pose de charge à l'abaque" creator="Adéquation de levage">
       <Page size="A4" style={s.page}>
         <View style={s.entete} fixed>
-          <View style={s.bande}>
-            <Text style={s.entreprise}>{m.entete.entreprise}</Text>
-            <View style={s.enteteDroite}>
-              <Text style={s.enteteTitre}>{m.entete.titre}</Text>
-              <Text style={s.enteteLigne}>
-                Date : {m.entete.date}  ·  Rédacteur : {m.entete.redacteur}
-              </Text>
-            </View>
-          </View>
+          <EnteteBande logoUrl={m.entete.logoUrl} entreprise={m.entete.entreprise} titre={m.entete.titre} lignes={[`Date : ${m.entete.date}  ·  Rédacteur : ${m.entete.redacteur}`]} />
         </View>
         <View style={s.pied} fixed>
           <View style={{ width: "84%" }}>
@@ -161,7 +149,14 @@ export function SyntheseRapideDocument({ model: m, fontFamily }: { model: Rapide
           <Text style={{ fontSize: 15, fontWeight: 700 }}>{m.verdict.libelle}</Text>
           <Text style={{ fontSize: 8.5, marginTop: 3 }}>{m.verdict.sousTitre}</Text>
         </View>
-        <Champs s={s} items={m.resultats} />
+        <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+          <View style={{ width: "46%", marginRight: "2%" }}>
+            <JaugeTaux taux={m.jauge.taux} zone={m.jauge.zone} seuilVert={m.jauge.seuilVert} seuilOrange={m.jauge.seuilOrange} />
+          </View>
+          <View style={{ width: "52%" }}>
+            <Champs s={s} items={m.resultats} />
+          </View>
+        </View>
         {m.bloquants.map((b, i) => (
           <View key={i} style={{ borderLeftWidth: 3, borderLeftColor: VERDICT.rouge, backgroundColor: VERDICT.rougeBg, padding: 3, marginTop: 3 }} wrap={false}>
             <Text style={s.texte}>{b}</Text>

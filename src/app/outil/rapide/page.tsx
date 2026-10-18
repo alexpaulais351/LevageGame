@@ -1,4 +1,5 @@
 import { AdequationRapide } from "@/components/modules/rapide/AdequationRapide";
+import { logoEnDataUri } from "@/lib/supabase/logo";
 import { exigerUtilisateur } from "@/lib/supabase/session";
 
 export const metadata = { title: "Adéquation rapide — Adéquation levage" };
@@ -7,14 +8,15 @@ export const metadata = { title: "Adéquation rapide — Adéquation levage" };
 export default async function PageAdequationRapide() {
   const { supabase, user } = await exigerUtilisateur("/outil/rapide");
   const { data: profil } = await supabase.from("profiles").select("full_name,entreprise_declaree,organization_id").eq("id", user.id).maybeSingle();
-  const { data: org } = profil?.organization_id ? await supabase.from("organizations").select("name").eq("id", profil.organization_id).maybeSingle() : { data: null };
+  const { data: org } = profil?.organization_id ? await supabase.from("organizations").select("name,logo_path").eq("id", profil.organization_id).maybeSingle() : { data: null };
+  const logoUrl = await logoEnDataUri(supabase, org?.logo_path);
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Adéquation rapide</h1>
         <p className="text-sm text-foreground/70">Une charge peut-elle être posée à une distance donnée avec cette machine ?</p>
       </div>
-      <AdequationRapide redacteur={profil?.full_name ?? user.email ?? ""} entreprise={org?.name ?? profil?.entreprise_declaree ?? null} />
+      <AdequationRapide redacteur={profil?.full_name ?? user.email ?? ""} entreprise={org?.name ?? profil?.entreprise_declaree ?? null} logoUrl={logoUrl} />
     </div>
   );
 }

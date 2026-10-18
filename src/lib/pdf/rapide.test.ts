@@ -26,7 +26,7 @@ function donnees() {
   return d;
 }
 
-describe("synthèse PDF de l'adéquation rapide", () => {
+describe("PDF « Adéquation de levage » (vérification rapide)", () => {
   it("verdict, résultats, portée maximale, sans détail de lecture d'abaque", () => {
     const d = donnees();
     const m = buildRapidePdfModel({ data: d, resultat: calculRapide(d), redacteur: "Camille Martin", entreprise: "EBGC", date: new Date("2026-10-17T10:00:00Z") });
@@ -36,6 +36,15 @@ describe("synthèse PDF de l'adéquation rapide", () => {
     expect(m.calculs.map((c) => c.titre).some((x) => x.startsWith("Capacité à l'abaque"))).toBe(false);
     expect(m.limites).toContain("ne sont pas contrôlés");
     expect(m.calculs.map((c) => c.titre)).toContain("Charge totale");
+    expect(m.entete.titre).toBe("ADÉQUATION DE LEVAGE");
+    expect(m.jauge).toMatchObject({ zone: "vert", seuilVert: 0.9, seuilOrange: 1 });
+    expect(m.jauge.taux).not.toBeNull();
+  });
+
+  it("logo de l'entreprise : seulement s'il est fourni", () => {
+    const d = donnees();
+    expect(buildRapidePdfModel({ data: d, resultat: calculRapide(d), redacteur: "C. M.", entreprise: null }).entete.logoUrl).toBeNull();
+    expect(buildRapidePdfModel({ data: d, resultat: calculRapide(d), redacteur: "C. M.", entreprise: "EBGC", logoUrl: "data:image/png;base64,AAAA" }).entete.logoUrl).toBe("data:image/png;base64,AAAA");
   });
 
   it("schéma en élévation de la pose, coloré selon le verdict rapide (vent, sol, élingage ignorés)", () => {
@@ -48,6 +57,6 @@ describe("synthèse PDF de l'adéquation rapide", () => {
   });
 
   it("nom de fichier ASCII", () => {
-    expect(nomFichierRapide({ modele: "GMK 3050-1", date: new Date("2026-10-17T10:00:00Z") })).toBe("adequation-rapide_GMK-3050-1_2026-10-17.pdf");
+    expect(nomFichierRapide({ modele: "GMK 3050-1", date: new Date("2026-10-17T10:00:00Z") })).toBe("adequation-levage_GMK-3050-1_2026-10-17.pdf");
   });
 });

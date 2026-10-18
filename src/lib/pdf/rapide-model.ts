@@ -1,8 +1,8 @@
 /**
- * Modèle de la synthèse PDF de l'adéquation rapide (D44). Fonction pure : aucune dépendance React ni réseau.
+ * Modèle du PDF « Adéquation de levage » (vérification rapide d'une pose, D44). Fonction pure : aucune dépendance React ni réseau.
  * Toutes les valeurs sont formatées pour l'affichage (police WinAnsi : `pdfTexte`).
  */
-import type { VerdictGlobal } from "@/engine";
+import type { VerdictGlobal, Zone } from "@/engine";
 import { VERDICT } from "@/lib/design-tokens";
 import { formatTaux } from "@/lib/study/format";
 import { resultatVisuelRapide, type ResultatRapide } from "@/lib/study/rapide";
@@ -17,8 +17,10 @@ export const LIMITES_RAPIDE =
   "Vérification rapide d'une seule pose à l'abaque : capacité et taux d'utilisation uniquement. Élingage, appuis et sol, vent, lignes électriques, personnel et organisation du levage ne sont pas contrôlés : ils relèvent de l'adéquation complète.";
 
 export interface RapidePdfModel {
-  entete: { titre: string; date: string; redacteur: string; entreprise: string };
+  entete: { titre: string; date: string; redacteur: string; entreprise: string; logoUrl: string | null };
   verdict: { libelle: string; couleur: string; fond: string; sousTitre: string };
+  /** Jauge visuelle du taux (0–120 %), même lecture qu'à l'écran. */
+  jauge: { taux: number | null; zone: Zone | null; seuilVert: number; seuilOrange: number };
   resultats: [string, string][];
   machine: [string, string][];
   charge: [string, string][];
@@ -45,7 +47,15 @@ const m = (v: number | null | undefined) => (v === null || v === undefined ? TIR
 const t = (kg: number | null | undefined) => (kg === null || kg === undefined ? TIRET : pdfTexte(formatMasse(kg)));
 const txt = (s: string | null | undefined) => (s && s.trim() ? pdfTexte(s.trim()) : TIRET);
 
-export function buildRapidePdfModel(args: { data: StudyData; resultat: ResultatRapide; redacteur: string; entreprise: string | null; date?: Date }): RapidePdfModel {
+export function buildRapidePdfModel(args: {
+  data: StudyData;
+  resultat: ResultatRapide;
+  redacteur: string;
+  entreprise: string | null;
+  /** Logo de l'entreprise de l'utilisateur (data-URI), s'il l'a renseigné. */
+  logoUrl?: string | null;
+  date?: Date;
+}): RapidePdfModel {
   const { data: d, resultat: r } = args;
   const sel = d.machine.selection;
   const chart = sel?.chart ?? null;
@@ -59,10 +69,11 @@ export function buildRapidePdfModel(args: { data: StudyData; resultat: ResultatR
 
   return {
     entete: {
-      titre: "ADÉQUATION RAPIDE",
+      titre: "ADÉQUATION DE LEVAGE",
       date: formatDateFR(args.date ?? new Date()),
       redacteur: pdfTexte(args.redacteur || TIRET),
       entreprise: pdfTexte(args.entreprise ?? ""),
+      logoUrl: args.logoUrl ?? null,
     },
     verdict: {
       libelle: VERDICT_LIBELLE[v.verdict],
@@ -71,6 +82,7 @@ export function buildRapidePdfModel(args: { data: StudyData; resultat: ResultatR
         `${sel ? `${sel.manufacturerName} ${sel.model}` : "Machine non choisie"} · ${t(r.chargeTotale.value)} à ${m(pos?.porteeM)}${yTexte} · taux ${v.tauxMax === null ? TIRET : formatTaux(v.tauxMax)}`,
       ),
     },
+    jauge: { taux: v.tauxMax, zone: v.zone, seuilVert: (d.seuils.vertPct ?? 90) / 100, seuilOrange: (d.seuils.orangePct ?? 100) / 100 },
     resultats: [
       ["Charge totale", t(r.chargeTotale.value)],
       ["Capacité à l'abaque", p0 ? (cap === null ? "Hors abaque" : t(cap)) : TIRET],
@@ -124,7 +136,7 @@ export function buildRapidePdfModel(args: { data: StudyData; resultat: ResultatR
   };
 }
 
-/** Nom de fichier : adequation-rapide_<modele>_<AAAA-MM-JJ>.pdf (ASCII). */
+/** Nom de fichier : adequation-levage_<modele>_<AAAA-MM-JJ>.pdf (ASCII). */
 export function nomFichierRapide(args: { modele?: string | null; date: Date }): string {
-  return `adequation-rapide_${slugFichier(args.modele ?? "") || "machine"}_${dateIso(args.date)}.pdf`;
+  return `adequation-levage_${slugFichier(args.modele ?? "") || "machine"}_${dateIso(args.date)}.pdf`;
 }

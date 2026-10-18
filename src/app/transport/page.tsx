@@ -1,6 +1,7 @@
 import { listerProjets } from "@/actions/projets";
 import { OutilTransport, type SaisieInitiale } from "@/components/modules/transport/OutilTransport";
 import type { Demandeur } from "@/lib/transport/demande";
+import { logoEnDataUri } from "@/lib/supabase/logo";
 import { exigerUtilisateur } from "@/lib/supabase/session";
 
 export const metadata = { title: "Transport des pièces — Adéquation levage" };
@@ -35,8 +36,9 @@ export default async function PageTransport({
     listerProjets(),
   ]);
   const { data: org } = profil?.organization_id
-    ? await supabase.from("organizations").select("name,address,siret").eq("id", profil.organization_id).maybeSingle()
+    ? await supabase.from("organizations").select("name,address,siret,logo_path").eq("id", profil.organization_id).maybeSingle()
     : { data: null };
+  const logoUrl = await logoEnDataUri(supabase, org?.logo_path);
   const demandeur: Demandeur = {
     nom: profil?.full_name ?? user.email ?? "",
     fonction: profil?.role ?? null,
@@ -58,7 +60,7 @@ export default async function PageTransport({
       </div>
       <OutilTransport
         initial={initial}
-        contexte={{ demandeur, projets: projets.ok ? projets.data.map((x) => ({ id: x.id, nom: x.nom, adresse: x.adresse, client: x.client })) : [] }}
+        contexte={{ demandeur, logoUrl, projets: projets.ok ? projets.data.map((x) => ({ id: x.id, nom: x.nom, adresse: x.adresse, client: x.client })) : [] }}
       />
     </div>
   );
