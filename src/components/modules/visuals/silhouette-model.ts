@@ -14,6 +14,7 @@ import {
   type TypeMachine,
 } from "@/lib/visuals/silhouettes";
 import { hauteurSousCrochet } from "@/lib/study/mapping";
+import { gabaritDe } from "@/lib/visuals/gabarits";
 import type { MachineSelection, StudyData } from "@/lib/study/types";
 
 import { angleFlecheDeg, hauteurTeteM } from "./geometry";
@@ -41,7 +42,7 @@ export function typeDeLaSelection(sel: MachineSelection | null | undefined): { t
 }
 
 export function dimsDeLaSelection(sel: MachineSelection | null | undefined, longueurFlecheM: number | null): DimsMachine {
-  return { calage: sel?.calage ?? null, longueurFlecheM };
+  return { calage: sel?.calage ?? null, longueurFlecheM, gabarit: gabaritDe(sel?.manufacturerName, sel?.model) };
 }
 
 /** Stabilisateurs sortis / rentrés d'après le mode d'appui saisi ou l'emprise connue ; `null` = défaut du type. */
@@ -88,8 +89,9 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
   const chargeH = c.hauteurM ?? CHARGE_HAUTEUR_DEFAUT_M;
   const chargeIndicative = c.longueurM === null || c.hauteurM === null;
 
-  const hTete = hauteurTeteM(r, longueur);
-  const angle = angleFlecheDeg(r, longueur);
+  // Portée comptée depuis l'axe de rotation ; la flèche part de son articulation (décalée de l'axe si le gabarit est connu).
+  const hTete = hauteurTeteM(r - profil.piedXM, longueur);
+  const angle = angleFlecheDeg(r - profil.piedXM, longueur);
   let teteY: number;
   let teteIndicative = false;
   if (hTete !== null) teteY = hPied + hTete;
@@ -140,7 +142,11 @@ export function hauteurAxeM(geo: GeoElevation): number {
 export function noteIndicatif(geo: GeoElevation): string {
   const liste = [...geo.sil.indicatif];
   if (!geo.typeReconnu) liste.push("type de machine non reconnu (silhouette de grue mobile)");
-  const dims = liste.length > 0 ? `silhouette « ${geo.type.replace(/_/g, " ")} » avec proportions par défaut (${liste.join(", ")})` : "silhouette de la famille de machine";
+  const dims = geo.sil.cotesModele
+    ? `dessin aux cotes du modèle (${geo.sil.cotesModele})${liste.length > 0 ? `, valeurs par défaut pour : ${liste.join(", ")}` : ""}`
+    : liste.length > 0
+      ? `silhouette « ${geo.type.replace(/_/g, " ")} » avec proportions par défaut (${liste.join(", ")})`
+      : "silhouette de la famille de machine";
   return `Schéma indicatif — ne remplace pas les plans constructeur : ${dims}`;
 }
 

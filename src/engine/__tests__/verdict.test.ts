@@ -211,3 +211,11 @@ describe("chaîne complète (exemple fictif)", () => {
     expect(engine.EPS).toBe(1e-9);
   });
 });
+
+describe("messages de taux", () => {
+  it("pourcentage au format français, une décimale", async () => {
+    const { pourcentFR } = await import("../util");
+    expect(pourcentFR(0.9559701492537313)).toBe("95,6 %");
+    expect(pourcentFR(1.2)).toBe("120,0 %");
+  });
+});

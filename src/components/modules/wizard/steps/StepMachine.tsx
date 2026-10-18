@@ -13,6 +13,7 @@ import { LIBELLE_TYPE, typeMachineDepuis } from "@/lib/visuals/silhouettes";
 import { Grille, SousTitre, StepShell } from "../StepShell";
 import { SelectField, UNITES_MASSE, UnitNumberField } from "../fields";
 import { MachineVignette } from "../../visuals/SilhouetteSvg";
+import { gabaritDe } from "@/lib/visuals/gabarits";
 import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
 import { ChoixSourceMachines, type SourceMachines } from "../ChoixSourceMachines";
@@ -106,6 +107,7 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
   const chart: LoadChart | null = sel?.chart ?? null;
   const typeCourant = types.items.find((t) => t.id === typeId);
   const typeVisuel = typeCourant ? typeMachineDepuis(typeCourant.code, typeCourant.label) : null;
+  const gabarit = gabaritDe(sel?.manufacturerName, sel?.model);
 
   return (
     <StepShell
@@ -140,10 +142,12 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
       )}
       {typeVisuel && (
         <div className="flex items-center gap-3" data-testid="apercu-type">
-          <MachineVignette type={typeVisuel} largeur={96} className="shrink-0 rounded-md border border-border" />
+          <MachineVignette type={typeVisuel} gabarit={gabarit} largeur={96} className="shrink-0 rounded-md border border-border" />
           <p className="text-sm">
-            <span className="font-semibold text-primary">{LIBELLE_TYPE[typeVisuel]}</span>
-            <span className="block text-xs text-muted-foreground">Silhouette indicative — ne remplace pas les plans constructeur.</span>
+            <span className="font-semibold text-primary">{gabarit ? `${LIBELLE_TYPE[typeVisuel]} — ${gabarit.modele}` : LIBELLE_TYPE[typeVisuel]}</span>
+            <span className="block text-xs text-muted-foreground">
+              {gabarit ? `Dessin aux cotes du modèle (${gabarit.source}) — indicatif, ne remplace pas les plans constructeur.` : "Silhouette indicative — ne remplace pas les plans constructeur."}
+            </span>
           </p>
         </div>
       )}

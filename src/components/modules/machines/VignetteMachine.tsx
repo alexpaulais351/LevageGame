@@ -1,4 +1,5 @@
 import { VINCI } from "@/lib/design-tokens";
+import { gabaritDe } from "@/lib/visuals/gabarits";
 import { LIBELLE_TYPE, typeMachineDepuis } from "@/lib/visuals/silhouettes";
 
 import { MachineVignette } from "../visuals/SilhouetteSvg";
@@ -10,9 +11,13 @@ export function VignetteMachine({
   photoUrl,
   largeur = 96,
   alt,
+  fabricant,
+  modele,
 }: {
   typeCode: string;
   typeLabel: string;
+  fabricant?: string | null;
+  modele?: string | null;
   photoUrl?: string | null;
   largeur?: number;
   alt: string;
@@ -33,5 +38,5 @@ export function VignetteMachine({
   }
   const type = typeMachineDepuis(typeCode, typeLabel);
   if (!type) return <div className="shrink-0 rounded-md border border-border bg-vinci-gris-light" style={{ width: largeur, height: Math.round(largeur * 0.78) }} role="img" aria-label={LIBELLE_TYPE.grue_mobile} />;
-  return <MachineVignette type={type} largeur={largeur} className="shrink-0 rounded-md border border-border" />;
+  return <MachineVignette type={type} gabarit={gabaritDe(fabricant, modele)} largeur={largeur} className="shrink-0 rounded-md border border-border" />;
 }

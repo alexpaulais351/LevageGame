@@ -1,9 +1,10 @@
 /** Planche SVG des engins (vue de profil) : `npm run engins:planche` → docs/engins/<type>.svg. */
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FormesSvg } from "@/components/modules/visuals/SilhouetteSvg";
 import { VEHICULES } from "@/lib/transport/catalogue";
 import { formesVehicule } from "@/lib/visuals/vehicules";
+import { gabaritsReleves, versDessin } from "@/lib/visuals/gabarits";
 import { projeter, silhouetteElevation, formesCrochet, TYPES_MACHINE, LIBELLE_TYPE, type TypeMachine } from "@/lib/visuals/silhouettes";
 
 const out = process.argv[2] ?? "docs/engins";
@@ -50,4 +51,30 @@ for (const v of VEHICULES) {
   );
   writeFileSync(`${out}/transport-${v.id}.svg`, svg);
 }
-console.log(`${cartes.length} engins et ${VEHICULES.length} véhicules → ${out}`);
+// Machines du catalogue dessinées à leurs cotes (gabarits relevés)
+mkdirSync(`${out}/modeles`, { recursive: true });
+const typeDe: Record<string, TypeMachine> = { grue_tout_terrain: "grue_mobile", grue_city: "grue_mobile", grue_rt: "grue_mobile", pick_and_carry: "grue_mobile", grue_automotrice_a_tour: "grue_tour", grue_chenilles_treillis: "grue_mobile_chenilles", pelle_rail_route: "pelle_rail_route", autre: "grue_mobile" };
+for (const brut of gabaritsReleves()) {
+  const gabarit = versDessin(brut);
+  if (!gabarit) continue;
+  const t = typeDe[brut.silhouette];
+  const W = 1000, H = 600;
+  const tete = t === "grue_tour" ? { x: (gabarit.fleche?.longueurM ?? 40) * 0.8, y: Math.min(gabarit.fleche?.piedH ?? 25, 30) } : t === "pelle_rail_route" ? { x: 6, y: 3 } : brut.silhouette === "pick_and_carry" ? { x: 4.5, y: 4.5 } : { x: 10, y: (gabarit.piedH ?? 3) + 14 };
+  const sil = silhouetteElevation({ type: t, tete, dims: { gabarit }, stabilisateurs: "sortis" });
+  const b = sil.bornes;
+  const s = Math.min((W - 60) / (b.maxX - b.minX), (H - 70) / (b.maxY + 0.5));
+  const ox = 30 - b.minX * s, oy = H - 30;
+  const formes = projeter(sil.formes, { ox, oy, s, flipY: true });
+  const nom = brut.machine.replace(/[^A-Za-z0-9]+/g, "-");
+  const svg = renderToStaticMarkup(
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${W} ${H}`} width={W} height={H}>
+      <rect width={W} height={H} fill="#fff" />
+      <line x1="0" x2={W} y1={oy} y2={oy} stroke="#000" strokeWidth="1.5" />
+      <FormesSvg formes={formes} prefixe={`m-${nom}`} />
+      <text x="12" y="22" fontSize="16" fontFamily="Arial" fill="#004489" fontWeight="bold">{brut.machine}</text>
+      <text x="12" y="40" fontSize="11" fontFamily="Arial" fill="#5A5A5A">{`Cotes : ${gabarit.source}`}</text>
+    </svg>,
+  );
+  writeFileSync(`${out}/modeles/${nom}.svg`, svg);
+}
+console.log(`${cartes.length} engins, ${VEHICULES.length} véhicules et ${gabaritsReleves().length} modèles → ${out}`);
