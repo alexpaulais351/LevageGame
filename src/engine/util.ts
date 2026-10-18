@@ -28,3 +28,8 @@ export function lt(a: number, b: number): boolean {
 export function degToRad(deg: number): number {
   return (deg * Math.PI) / 180;
 }
+
+/** Taux (ratio) en pourcentage français à une décimale, pour les messages : 0,95597 → « 95,6 % ». */
+export function pourcentFR(ratio: number): string {
+  return `${(Math.round(ratio * 1000) / 10).toFixed(1).replace(".", ",")} %`;
+}

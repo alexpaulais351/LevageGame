@@ -15,7 +15,7 @@
  */
 import { chartSourceLabel, readCapacity, validateChart } from "./chart";
 import type { Calc, CalcInput, Issue, LoadChart } from "./types";
-import { gt, isFiniteNumber, lt } from "./util";
+import { gt, isFiniteNumber, lt, pourcentFR } from "./util";
 
 export interface Thresholds {
   greenMax: number;
@@ -138,9 +138,9 @@ export function computeVerdict(input: VerdictInput): Calc<VerdictResult> {
           taux = Q / cap.value;
           zone = zoneOf(taux, tUse);
           if (gt(taux, 1)) {
-            bloque("TAUX_DEPASSE", `Position « ${p.label} » : taux d'utilisation ${taux * 100} % > 100 %.`);
+            bloque("TAUX_DEPASSE", `Position « ${p.label} » : taux d'utilisation ${pourcentFR(taux)} > 100 %.`);
           } else if (zone === "orange") {
-            reserve("ZONE_ORANGE", `Position « ${p.label} » : taux d'utilisation ${taux * 100} % en zone orange.`);
+            reserve("ZONE_ORANGE", `Position « ${p.label} » : taux d'utilisation ${pourcentFR(taux)} en zone orange.`);
           }
         }
       }
