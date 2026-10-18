@@ -2,6 +2,8 @@
 import { writeFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FormesSvg } from "@/components/modules/visuals/SilhouetteSvg";
+import { VEHICULES } from "@/lib/transport/catalogue";
+import { formesVehicule } from "@/lib/visuals/vehicules";
 import { projeter, silhouetteElevation, formesCrochet, TYPES_MACHINE, LIBELLE_TYPE, type TypeMachine } from "@/lib/visuals/silhouettes";
 
 const out = process.argv[2] ?? "docs/engins";
@@ -32,4 +34,20 @@ const cartes = TYPES_MACHINE.map((t) => {
   writeFileSync(`${out}/${t}.svg`, svg);
   return t;
 });
-console.log(`${cartes.length} engins → ${out}`);
+// Véhicules de transport (plateau de base, pièce indicative)
+for (const v of VEHICULES) {
+  const W = 900, H = 260;
+  const L = v.longueurHorsPlateauM + v.plateauM;
+  const s = Math.min((W - 40) / L, (H - 50) / 4.3);
+  const formes = projeter(formesVehicule(v, v.plateauM, 2), { ox: 20, oy: H - 20, s, flipY: true });
+  const svg = renderToStaticMarkup(
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${W} ${H}`} width={W} height={H}>
+      <rect width={W} height={H} fill="#fff" />
+      <line x1="0" x2={W} y1={H - 20} y2={H - 20} stroke="#000" strokeWidth="1.5" />
+      <FormesSvg formes={formes} prefixe={`v-${v.id}`} />
+      <text x="12" y="22" fontSize="16" fontFamily="Arial" fill="#004489" fontWeight="bold">{v.nom}</text>
+    </svg>,
+  );
+  writeFileSync(`${out}/transport-${v.id}.svg`, svg);
+}
+console.log(`${cartes.length} engins et ${VEHICULES.length} véhicules → ${out}`);
