@@ -16,7 +16,7 @@ export default async function PageModifierMachine({ params }: { params: Promise<
   const { data: owner } = await supabase.from("machines").select("owner_id").eq("id", id).eq("owner_id", user.id).maybeSingle();
   if (!owner) notFound();
   const [{ data: types }, { data: constructeurs }] = await Promise.all([
-    supabase.from("machine_types").select("id,label").order("label"),
+    supabase.from("machine_types").select("id,code,label").order("label"),
     supabase.from("manufacturers").select("id,name").order("name"),
   ]);
   return (
@@ -25,7 +25,7 @@ export default async function PageModifierMachine({ params }: { params: Promise<
         {m.manufacturerName} {m.model}
       </h1>
       <MachineForm
-        types={(types ?? []).map((t) => ({ id: t.id as string, label: t.label as string }))}
+        types={(types ?? []).map((t) => ({ id: t.id as string, code: t.code as string, label: t.label as string }))}
         constructeurs={(constructeurs ?? []).map((c) => ({ id: c.id as string, label: c.name as string }))}
         initial={{ id: m.id, typeId: m.typeId, manufacturerId: m.manufacturerId, model: m.model, specs: m.specs, photoUrl: m.photoUrl }}
       />

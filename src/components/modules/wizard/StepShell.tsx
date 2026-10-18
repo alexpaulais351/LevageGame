@@ -27,7 +27,7 @@ export function StepShell({
 
 export function Grille({ children, cols = 2 }: { children: React.ReactNode; cols?: 2 | 3 }) {
   return (
-    <div className={cols === 3 ? "grid gap-4 sm:grid-cols-2 2xl:grid-cols-3" : "grid gap-4 sm:grid-cols-2"}>
+    <div className={cols === 3 ? "grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3" : "grid grid-cols-1 gap-4 sm:grid-cols-2"}>
       {children}
     </div>
   );

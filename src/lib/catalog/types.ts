@@ -8,6 +8,8 @@ export interface CatalogType {
   id: string;
   code: string;
   label: string;
+  /** Nombre de modèles du type dans la portée listée. */
+  nbModeles?: number;
 }
 
 export interface CatalogManufacturer {

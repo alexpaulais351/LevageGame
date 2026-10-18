@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { axeYIncompatible, etudeAvecAlternative, evaluerAlternative, type Alternative } from "./comparateur";
 import { couleurZone, positionsVisuelles } from "./model";
 import { typeDeLaSelection } from "./silhouette-model";
+import { ChoixTypeMachine } from "../machines/ChoixTypeMachine";
 import { MachineVignette } from "./SilhouetteSvg";
 import { gabaritDe } from "@/lib/visuals/gabarits";
 
@@ -160,8 +161,10 @@ export function Comparateur({ data, result, onAdopter }: Props) {
         </div>
       )}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <SelectField label="Type" value={typeId} placeholder="Choisir…" options={opt(types.items, (t) => t.id, (t) => t.label)}
-          onChange={(v) => { setTypeId(v); setManufId(""); setMachineId(""); setConfigId(""); setChart(null); }} />
+        <div className="min-w-0 sm:col-span-2 xl:col-span-4">
+          <ChoixTypeMachine label="Type" compact types={types.items} value={typeId} chargement={types.chargement}
+            onChange={(v) => { setTypeId(v); setManufId(""); setMachineId(""); setConfigId(""); setChart(null); }} />
+        </div>
         <SelectField label="Constructeur" value={manufId} placeholder="Choisir…" disabled={!typeId} options={opt(manufs.items, (f) => f.id, (f) => f.name)}
           onChange={(v) => { setManufId(v); setMachineId(""); setConfigId(""); setChart(null); }} />
         <SelectField label="Modèle" value={machineId} placeholder="Choisir…" disabled={!manufId} options={opt(modeles.items, (x) => x.id, (x) => x.model)}
