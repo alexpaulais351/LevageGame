@@ -73,7 +73,7 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
       </Link>
 
       <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start">
-        <VignetteMachine typeCode={m.typeCode} typeLabel={m.typeLabel} photoUrl={m.photoUrl} largeur={200} alt={`Photo de ${m.manufacturerName} ${m.model}`} />
+        <VignetteMachine typeCode={m.typeCode} typeLabel={m.typeLabel} fabricant={m.manufacturerName} modele={m.model} photoUrl={m.photoUrl} largeur={200} alt={`Photo de ${m.manufacturerName} ${m.model}`} />
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold uppercase tracking-wide text-primary-light">{m.typeLabel}</p>
           <h1 className="text-2xl font-bold text-primary">

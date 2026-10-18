@@ -1,4 +1,5 @@
 import { VINCI } from "@/lib/design-tokens";
+import type { Gabarit } from "@/lib/visuals/gabarits";
 import { pointsSvg, projeter, silhouetteVignette, LIBELLE_TYPE, type Degrade, type Forme, type Peinture, type TypeMachine } from "@/lib/visuals/silhouettes";
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
@@ -51,9 +52,9 @@ export function FormesSvg({ formes, prefixe }: { formes: readonly Forme[]; prefi
   );
 }
 
-/** Vignette (64–96 px) d'un type de machine : illustration de profil en posture type. Décorative. */
-export function MachineVignette({ type, largeur = 96, className }: { type: TypeMachine; largeur?: number; className?: string }) {
-  const sil = silhouetteVignette(type);
+/** Vignette (64–200 px) : illustration de profil en posture type, aux cotes du modèle si son gabarit est relevé. Décorative. */
+export function MachineVignette({ type, gabarit, largeur = 96, className }: { type: TypeMachine; gabarit?: Gabarit | null; largeur?: number; className?: string }) {
+  const sil = silhouetteVignette(type, gabarit ? { gabarit } : null);
   const b = sil.bornes;
   const h = Math.round(largeur * 0.78);
   const pad = 0.4;
@@ -72,13 +73,13 @@ export function MachineVignette({ type, largeur = 96, className }: { type: TypeM
       width={largeur}
       height={h}
       role="img"
-      aria-label={`Illustration indicative : ${LIBELLE_TYPE[type]}`}
+      aria-label={`Illustration indicative : ${gabarit ? gabarit.modele : LIBELLE_TYPE[type]}`}
       className={className}
       data-testid="vignette-machine"
     >
       <rect x="0" y="0" width={largeur} height={h} rx="6" fill={VINCI.blanc} />
       <line x1="4" x2={largeur - 4} y1={oy} y2={oy} stroke={VINCI.gris} strokeWidth="1" />
-      <FormesSvg formes={formes} prefixe={`vig-${type}-${largeur}`} />
+      <FormesSvg formes={formes} prefixe={`vig-${type}-${largeur}-${(gabarit?.modele ?? "").replace(/[^A-Za-z0-9]/g, "")}`} />
     </svg>
   );
 }

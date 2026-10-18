@@ -14,6 +14,7 @@
 import { VINCI } from "@/lib/design-tokens";
 
 import { elevCamionBras, elevChariot, elevGrueChenilles, elevGrueMobile, elevGrueTour, elevPelle, elevTelescopique, moufleCrochet } from "./engins-elevation";
+import type { Gabarit } from "./gabarits";
 import { GRIS_FONCE, GRIS_MOYEN, flecheTelescopique, treillis } from "./rendu";
 
 export type TypeMachine =
@@ -172,6 +173,8 @@ export interface DimsMachine {
   balancierM?: number | null;
   /** Emprise des stabilisateurs. */
   calage?: { longueurM: number; largeurM: number } | null;
+  /** Cotes du modèle relevées sur la planche constructeur (dessin aux proportions réelles). */
+  gabarit?: Gabarit | null;
 }
 
 export type Calage = "sortis" | "rentres";
@@ -210,12 +213,26 @@ export interface DimsResolues {
   longueurFlecheM: number | null;
   calage: { longueurM: number; largeurM: number };
   calageConnu: boolean;
+  /** Abscisse de l'articulation de flèche par rapport à l'axe (0 sans gabarit). */
+  piedXM: number;
+  gabarit: Gabarit | null;
   /** Libellés des dimensions remplacées par une valeur par défaut. */
   indicatif: string[];
 }
 
 export function resoudreDims(type: TypeMachine, dims?: DimsMachine | null): DimsResolues {
   const d = DIMS_DEFAUT[type] as DimsMachine;
+  const g = dims?.gabarit ?? null;
+  // Cotes du modèle (planche constructeur) en priorité sur les proportions par défaut de la famille
+  if (g) {
+    dims = {
+      ...dims,
+      longueurPorteurM: dims?.longueurPorteurM ?? g.xArriere - g.xAvant,
+      largeurPorteurM: dims?.largeurPorteurM ?? g.largeur,
+      hauteurPiedM: dims?.hauteurPiedM ?? g.piedH,
+      calage: dims?.calage ?? g.calage,
+    };
+  }
   const indicatif: string[] = [];
   const pick = (v: number | null | undefined, def: number | null | undefined, nom: string): number => {
     if (num(v)) return v;
@@ -238,6 +255,8 @@ export function resoudreDims(type: TypeMachine, dims?: DimsMachine | null): Dims
     longueurFlecheM: num(dims?.longueurFlecheM) ? dims!.longueurFlecheM! : null,
     calage,
     calageConnu,
+    piedXM: g?.piedX ?? 0,
+    gabarit: g,
     indicatif,
   };
 }
@@ -323,12 +342,13 @@ export interface SortieElevation {
 }
 
 /** Hauteur du pied de flèche et hauteur minimale de tête, à utiliser pour déduire la tête depuis la géométrie. */
-export function profilElevation(type: TypeMachine, dims?: DimsMachine | null): { hauteurPiedM: number; hauteurTeteMinM: number; sansCable: boolean } {
+export function profilElevation(type: TypeMachine, dims?: DimsMachine | null): { hauteurPiedM: number; piedXM: number; hauteurTeteMinM: number; sansCable: boolean } {
   const d = resoudreDims(type, dims);
-  if (type === "grue_tour") return { hauteurPiedM: 0, hauteurTeteMinM: 6, sansCable: false };
-  if (type === "chariot_elevateur") return { hauteurPiedM: 0, hauteurTeteMinM: 0.1, sansCable: true };
-  if (type.startsWith("pelle")) return { hauteurPiedM: d.hauteurPiedM, hauteurTeteMinM: 0.4, sansCable: false };
-  return { hauteurPiedM: d.hauteurPiedM, hauteurTeteMinM: d.hauteurPiedM + 1, sansCable: false };
+  if (type === "grue_tour") return { hauteurPiedM: 0, piedXM: 0, hauteurTeteMinM: 6, sansCable: false };
+  if (type === "chariot_elevateur") return { hauteurPiedM: 0, piedXM: 0, hauteurTeteMinM: 0.1, sansCable: true };
+  if (type.startsWith("pelle")) return { hauteurPiedM: d.hauteurPiedM, piedXM: 0, hauteurTeteMinM: 0.4, sansCable: false };
+  const piedXM = type === "grue_mobile" || type === "grue_mobile_chenilles" ? d.piedXM : 0;
+  return { hauteurPiedM: d.hauteurPiedM, piedXM, hauteurTeteMinM: d.hauteurPiedM + 1, sansCable: false };
 }
 
 export function silhouetteElevation(e: EntreeElevation): SortieElevation {
@@ -380,8 +400,8 @@ export function silhouetteElevation(e: EntreeElevation): SortieElevation {
 }
 
 /** Silhouette de présentation (vignettes) : flèche à ~58° ou posture type de la famille. */
-export function silhouetteVignette(type: TypeMachine): SortieElevation {
-  const { hauteurPiedM } = profilElevation(type);
+export function silhouetteVignette(type: TypeMachine, dims?: DimsMachine | null): SortieElevation {
+  const { hauteurPiedM } = profilElevation(type, dims);
   let tete: { x: number; y: number };
   if (type === "grue_tour") tete = { x: 7, y: 9 };
   else if (type === "chariot_elevateur") tete = { x: 1.5, y: 1.0 };
@@ -389,7 +409,7 @@ export function silhouetteVignette(type: TypeMachine): SortieElevation {
   else if (type.startsWith("telescopique")) tete = { x: 4.5, y: hauteurPiedM + 3.5 };
   else if (type === "grue_auxiliaire") tete = { x: 5, y: hauteurPiedM + 5 };
   else tete = { x: 6.5, y: hauteurPiedM + 10.5 };
-  return silhouetteElevation({ type, tete });
+  return silhouetteElevation({ type, tete, dims });
 }
 
 // ---------------------------------------------------------------------------

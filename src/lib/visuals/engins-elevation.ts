@@ -88,66 +88,84 @@ const cable = (a: Pt, b: Pt): Forme[] => [trait(a, b, NOIR, 0.9), trait(a, b, VI
 
 export function elevGrueMobile(d: DimsResolues, st: Calage | null, tete: Pt): DessinElevation {
   const f: Forme[] = [];
+  const g = d.gabarit;
   const L = d.longueurPorteurM;
-  const x0 = -L / 2;
-  const x1 = L / 2;
+  const x0 = g ? g.xAvant : -L / 2;
+  const x1 = g ? g.xArriere : L / 2;
   const hp = d.hauteurPiedM;
-  const pied: Pt = [0, hp];
+  const px = d.piedXM;
+  const pied: Pt = [px, hp];
   const sorti = st === "sortis";
-  const jackX = Math.max(d.calage.longueurM / 2, 1.5);
-  const rr = 0.68;
+  const rr = g?.rayonRoue ?? 0.68;
+  const k = rr / 0.68; // hauteurs du châssis proportionnelles au diamètre des pneus
   const nbAxes = L > 12 ? 5 : 4;
-  const arriere = Array.from({ length: nbAxes - 2 }, (_, i) => x1 - 1.45 - (nbAxes - 3 - i) * 1.65);
-  const axes = [x0 + 1.45, x0 + 3.0, ...arriere];
+  const axesDefaut = [x0 + 1.45, x0 + 3.0, ...Array.from({ length: nbAxes - 2 }, (_, i) => x1 - 1.45 - (nbAxes - 3 - i) * 1.65)];
+  const axes = g && g.essieux.length > 0 ? g.essieux : axesDefaut;
+  const rt = g?.silhouette === "grue_rt";
+  const cab = rt ? null : (g?.cabine ?? { x0: x0 + 0.02, x1: x0 + 2.1, h: 3.42 });
+  const yCh0 = 0.92 * k;
+  const yCh1 = 1.42 * k;
+  const yPont = Math.max(1.88 * k, yCh1 + 0.3);
+  const xPont = cab ? cab.x1 + 0.05 : x0;
+  const stabs = g?.stabilisateurs?.length ? g.stabilisateurs : [axes[Math.min(1, axes.length - 1)] + rr + 0.55, axes[axes.length - 1] + rr + 0.5];
+  const xs = [x0, x1, ...(sorti ? stabs : [])];
 
-  f.push(...ombre(Math.min(x0, sorti ? -jackX - 0.6 : x0) - 0.2, Math.max(x1, sorti ? jackX + 0.6 : x1) + 0.2));
+  f.push(...ombre(Math.min(...xs) - 0.4, Math.max(...xs) + 0.4));
   // Châssis porteur
-  f.push(caisson(x0 + 0.3, 0.92, x1 - 0.1, 1.42, "acier", 0.03));
+  f.push(caisson(x0 + 0.3, yCh0, x1 - 0.1, yCh1, "acier", 0.03));
   for (const x of axes) f.push(...roue(x, rr));
   // Carrosserie de plate-forme : coffres, passages de roue, échelle, feux arrière
-  f.push(caisson(x0 + 2.15, 1.38, x1, 1.88, "peinture", 0.04));
-  f.push(trait([x0 + 2.2, 1.6], [x1 - 0.05, 1.6], GRIS_FONCE, 0.5, 0.7), reflet([x0 + 2.25, 1.84], [x1 - 0.1, 1.84], 1, 0.9));
+  f.push(caisson(xPont, yCh1 - 0.04, x1, yPont, "peinture", 0.04));
+  f.push(trait([xPont + 0.05, (yCh1 + yPont) / 2], [x1 - 0.05, (yCh1 + yPont) / 2], GRIS_FONCE, 0.5, 0.7), reflet([xPont + 0.1, yPont - 0.04], [x1 - 0.1, yPont - 0.04], 1, 0.9));
   for (const x of axes) f.push(...gardeBoue(x, rr, "peinture"));
-  for (let i = 0; i < 4; i++) {
-    const xa = x0 + 4.1 + i * 1.25;
-    if (xa + 0.9 < x1 - 0.3 && axes.every((x) => Math.abs(x - (xa + 0.45)) > 1.0)) f.push(piece(rectArrondi(xa, 1.0, xa + 0.9, 1.36, 0.03), vertical(1.0, 1.36, "peinture"), NOIR, TRAIT), trait([xa + 0.3, 1.3], [xa + 0.6, 1.3], NOIR, 1));
+  for (let xa = xPont + 1.9; xa + 0.9 < x1 - 0.3; xa += 1.25) {
+    if (axes.every((x) => Math.abs(x - (xa + 0.45)) > rr + 0.5)) f.push(piece(rectArrondi(xa, yCh0 + 0.08, xa + 0.9, yCh1 - 0.06, 0.03), vertical(yCh0 + 0.08, yCh1 - 0.06, "peinture"), NOIR, TRAIT), trait([xa + 0.3, yCh1 - 0.12], [xa + 0.6, yCh1 - 0.12], NOIR, 1));
   }
-  f.push(...echelle(x0 + 2.2, 0.55, 1.85, 0.32));
-  f.push(...chevrons(x1 - 0.12, 0.95, x1 + 0.02, 1.85, 0.1), ...feu(x1 - 0.06, 1.0, x1 + 0.04, 1.18, "rouge"));
-  // Stabilisateurs (côté visible)
-  // Caissons de stabilisateurs : derrière les essieux avant et en bout de châssis (hors des roues)
-  if (st !== null) for (const x of [axes[1] + rr + 0.55, axes[axes.length - 1] + rr + 0.5]) f.push(...stabilisateur(x, 1.42, sorti, 0.9));
+  f.push(...echelle(xPont + 0.1, 0.55, yPont - 0.03, 0.32));
+  f.push(...chevrons(x1 - 0.12, yCh0 + 0.03, x1 + 0.02, yPont - 0.03, 0.1), ...feu(x1 - 0.06, yCh0 + 0.08, x1 + 0.04, yCh0 + 0.26, "rouge"));
+  // Caissons de stabilisateurs (côté visible)
+  if (st !== null) for (const x of stabs) f.push(...stabilisateur(x, yCh1, sorti, 0.9));
   // Cabine du porteur (avant à gauche), pare-chocs, phares, échappement, gyrophare
-  f.push(caisson(x0 - 0.06, 0.72, x0 + 2.1, 1.12, "acier", 0.05));
-  f.push(...feu(x0 - 0.08, 0.86, x0 + 0.06, 1.02, "blanc"), ...feu(x0 - 0.08, 0.76, x0 + 0.06, 0.84, "ambre"));
-  f.push(...cabine(x0 + 0.02, 1.1, x0 + 2.1, 3.42, { avant: "gauche", ceinture: 0.42, inclinaison: 0.1 }));
-  f.push(...gyrophare(x0 + 1.55, 3.42, 0.1));
-  f.push(...echappement(x0 + 2.32, 1.88, 3.55, 0.11));
+  if (cab) {
+    f.push(caisson(x0 - 0.06, 0.72 * k, cab.x1, 1.12 * k, "acier", 0.05));
+    f.push(...feu(x0 - 0.08, 0.86 * k, x0 + 0.06, 1.02 * k, "blanc"), ...feu(x0 - 0.08, 0.76 * k, x0 + 0.06, 0.84 * k, "ambre"));
+    f.push(...cabine(cab.x0, 1.1 * k, cab.x1, cab.h, { avant: "gauche", ceinture: 0.42, inclinaison: 0.1 }));
+    f.push(...gyrophare(cab.x0 + (cab.x1 - cab.x0) * 0.72, cab.h, 0.1));
+    f.push(...echappement(cab.x1 + 0.22, yPont, Math.min(cab.h + 0.15, (g?.hauteur ?? 3.9) - 0.05), 0.11));
+  } else {
+    f.push(caisson(x0 - 0.06, yCh0 - 0.1, x0 + 0.5, yCh1, "acier", 0.05), ...feu(x0 - 0.08, yCh0 + 0.1, x0 + 0.06, yCh0 + 0.26, "blanc"));
+    f.push(...echappement(x0 + 0.9, yPont, yPont + 1.0, 0.11));
+  }
   // Couronne d'orientation
-  f.push(caisson(-1.45, 1.88, 1.45, 2.06, "acier", 0.02));
-  for (let i = 0; i < 12; i++) f.push(trait([-1.4 + i * 0.25, 1.9], [-1.4 + i * 0.25, 2.04], GRIS_FONCE, 0.5));
+  const yT = yPont + 0.18;
+  f.push(caisson(-1.45, yPont, 1.45, yT, "acier", 0.02));
+  for (let i = 0; i < 12; i++) f.push(trait([-1.4 + i * 0.25, yPont + 0.02], [-1.4 + i * 0.25, yT - 0.02], GRIS_FONCE, 0.5));
   // Contrepoids à l'arrière de la tourelle
-  f.push(...lest(-3.25, 2.06, -2.2, 3.25, 3));
+  const cp = g?.contrepoids ?? { x0: -3.25, x1: -2.2, hBas: yT, hHaut: Math.max(yT + 0.6, hp + 0.35) };
+  const yTop = Math.max(hp + 0.42, yT + 0.5);
+  const xTr = Math.min(-1.2, cp.x1, px - 0.45);
+  f.push(...lest(cp.x0, Math.max(cp.hBas, yT - 0.1), cp.x1, Math.max(cp.hHaut, cp.hBas + 0.4), Math.max(2, Math.round((cp.hHaut - cp.hBas) / 0.4))));
   // Tourelle : flasques, capot moteur, persiennes
-  f.push(piece([[-2.25, 2.06], [1.55, 2.06], [1.55, 2.55], [0.55, hp + 0.42], [-2.25, hp + 0.42]], lin([0, hp + 0.42], [0.4, 2.06], "peinture")));
-  f.push(...persiennes(-1.95, 2.25, -1.1, 3.05, 5));
-  f.push(trait([-2.2, hp + 0.38], [0.5, hp + 0.38], NOIR, 0.5), reflet([-2.15, hp + 0.36], [0.45, hp + 0.36], 1, 0.9));
-  f.push(...gardeCorps(-2.2, -0.85, hp + 0.42, 0.62, 0.7));
+  f.push(piece([[xTr, yT], [1.55, yT], [1.55, Math.min(yT + 0.5, yTop)], [0.55, yTop], [xTr, yTop]], lin([0, yTop], [0.4, yT], "peinture")));
+  if (yTop - yT > 0.6) f.push(...persiennes(xTr + 0.3, yT + 0.18, Math.min(xTr + 1.15, -0.4), yTop - 0.2, 5));
+  f.push(trait([xTr + 0.05, yTop - 0.04], [0.5, yTop - 0.04], NOIR, 0.5), reflet([xTr + 0.1, yTop - 0.06], [0.45, yTop - 0.06], 1, 0.9));
+  f.push(...gardeCorps(xTr + 0.05, Math.min(-0.85, xTr + 1.4), yTop, 0.62, 0.7));
   // Treuil de levage et câble jusqu'à la tête
-  const tambour: Pt = [-1.25, hp + 0.78];
+  const tambour: Pt = [Math.max(xTr + 0.6, px - 1.25), yTop + 0.36];
   f.push(...treuil(tambour, 0.3, 0.75));
   // Vérin de relevage (sous la flèche)
   const Lf = dist(pied, tete);
   const attache = add(lerp(pied, tete, 0.36), normHaut(pied, tete), -0.42);
-  f.push(...verin([1.0, 2.2], attache, 0.34, { course: Math.min(0.8, 0.5 + 6 / Math.max(Lf, 1) * 0.1) }));
+  f.push(...verin([px + 1.0 + Math.max(0, -px) * 0.6, yT + 0.14], attache, 0.34, { course: Math.min(0.8, 0.5 + (6 / Math.max(Lf, 1)) * 0.1) }));
   // Flèche télescopique
   const w0 = 1.0;
   f.push(...cable(add(tambour, [0, 1], 0.3), add(tete, normHaut(pied, tete), w0 * 0.3)));
   f.push(...flecheTelescopique(pied, tete, w0, Lf > 30 ? 5 : 4));
   f.push(rond(pied, 0.24, rad(add(pied, [-1, 1], 0.08), 0.3, "chrome"), NOIR, TRAIT));
   // Cabine de grue (côté flèche, au premier plan)
-  f.push(...cabine(0.3, 2.08, 1.78, 3.55, { avant: "droite", ceinture: 0.3, inclinaison: 0.2, retroviseur: false }));
-  f.push(...gyrophare(0.75, 3.55, 0.08));
+  const cg = g?.cabineGrue ?? { x0: 0.3, x1: 1.78, hBas: yT + 0.02, hToit: Math.max(yT + 1.45, 3.55) };
+  f.push(...cabine(cg.x0, cg.hBas, cg.x1, cg.hToit, { avant: "droite", ceinture: 0.3, inclinaison: 0.2, retroviseur: false }));
+  f.push(...gyrophare(cg.x0 + (cg.x1 - cg.x0) * 0.3, cg.hToit, 0.08));
   return { formes: f, pied, tete };
 }
 

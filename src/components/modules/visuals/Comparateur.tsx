@@ -22,6 +22,7 @@ import { axeYIncompatible, etudeAvecAlternative, evaluerAlternative, type Altern
 import { couleurZone, positionsVisuelles } from "./model";
 import { typeDeLaSelection } from "./silhouette-model";
 import { MachineVignette } from "./SilhouetteSvg";
+import { gabaritDe } from "@/lib/visuals/gabarits";
 
 interface Props {
   data: StudyData;
@@ -36,7 +37,7 @@ function Colonne({ titre, sous, result, data }: { titre: string; sous: string; r
   return (
     <section className="min-w-0 rounded-lg border border-border p-3" aria-label={titre}>
       <div className="mb-2 flex items-start gap-3">
-        {typeVisuel && <MachineVignette type={typeVisuel.type} largeur={80} className="shrink-0 rounded-md border border-border" />}
+        {typeVisuel && <MachineVignette type={typeVisuel.type} gabarit={gabaritDe(data.machine.selection?.manufacturerName, data.machine.selection?.model)} largeur={80} className="shrink-0 rounded-md border border-border" />}
         <div className="min-w-0">
           <h4 className="text-xs font-bold uppercase tracking-wide text-primary">{titre}</h4>
           <p className="break-words text-sm font-semibold">{sous}</p>
