@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
 
-import { Primitive } from "./document";
+import { PrimsSvg } from "./document";
 import { pdfTexte, type CalcBloc } from "./model";
 import type { Schema } from "./schemas";
 import type { RapidePdfModel } from "./rapide-model";
@@ -118,9 +118,7 @@ function SchemaPose({ s, sc, ff }: { s: Styles; sc: Schema; ff: string }) {
         <>
           <Svg viewBox={`0 0 ${sc.w} ${sc.h}`} width={largeur} height={(largeur * sc.h) / sc.w}>
             <Rect x={0} y={0} width={sc.w} height={sc.h} fill={VINCI.blanc} stroke={VINCI_PDF.border} strokeWidth={1} />
-            {sc.prims.map((p, i) => (
-              <Primitive key={i} p={p} ff={ff} />
-            ))}
+            <PrimsSvg prims={sc.prims} ff={ff} prefixe={sc.id} />
           </Svg>
           {sc.notes.map((n, i) => (
             <Text key={i} style={s.muted}>

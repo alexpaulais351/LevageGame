@@ -180,12 +180,12 @@ export function ElevationView({ data, result, selectionId, onPortee }: PropsVue)
           axe de rotation
         </text>
         <g data-testid="silhouette" data-type={geo.type}>
-          <FormesSvg formes={formesMachine} />
+          <FormesSvg formes={formesMachine} prefixe="elev-m" />
         </g>
 
         {/* Câble, moufle, élingues, charge */}
         {!geo.sansCable && <line x1={teteX} y1={tetePy} x2={hookX} y2={sy(crochetY + HAUTEUR_MOUFLE_M)} stroke={VINCI.noir} strokeWidth="2" />}
-        {!geo.sansCable && <FormesSvg formes={formesCrochetPx} />}
+        {!geo.sansCable && <FormesSvg formes={formesCrochetPx} prefixe="elev-c" />}
         {!geo.sansCable && (
           <>
             <line x1={hookX} y1={hookTopY} x2={hookX - (chargeL * s) / 2} y2={sy(crochetY - elingue)} stroke={VINCI.noir} strokeWidth="1.5" />

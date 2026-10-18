@@ -13,7 +13,8 @@
     "charts:sql": "tsx scripts/charts/gen-sql.ts",
     "test:coverage": "vitest run --coverage --coverage.include=src/engine/** --coverage.exclude=src/engine/__tests__/** --coverage.thresholds.lines=90 --coverage.thresholds.branches=90 --coverage.thresholds.functions=90 --coverage.thresholds.statements=90",
     "exemples:sql": "tsx scripts/exemples/gen-sql.ts",
-    "machines:xlsx": "python3 -I scripts/excel/gen-machines-xlsx.py"
+    "machines:xlsx": "python3 -I scripts/excel/gen-machines-xlsx.py",
+    "engins:planche": "tsx --tsconfig scripts/engins/tsconfig.json scripts/engins/planche.tsx"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.16",
