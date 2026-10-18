@@ -1,1 +1,2103 @@
-{"_description":"Gabarits relevés sur les planches de cotation (voir src/lib/visuals/gabarits.ts)","machines":[]}
+{
+ "_description": "Gabarits relevés sur la planche « Cotation » des fiches constructeur / loueur (PDF sources du catalogue, bucket chart-sources). Dessin uniquement (proportions réelles), aucun calcul n'en dépend. x depuis l'extrémité gauche du porteur sur la vue de profil, y au-dessus du sol, mètres. provenance : « cote » (imprimée) ou « mesure_echelle » (mesurée sur le dessin, étalonnée sur une cote imprimée). Relevé du 2026-10-18.",
+ "machines": [
+  {
+   "machine": "Caterpillar M323F",
+   "pdf": "Caterpillar_M323F.pdf",
+   "page": 3,
+   "silhouette": "pelle_rail_route",
+   "gauche_du_dessin": "arriere",
+   "longueur_porteur_m": 5.226,
+   "longueur_hors_tout_transport_m": 6.797,
+   "largeur_m": 2.533,
+   "hauteur_transport_m": 3.932,
+   "essieux_x_m": [
+    1.317,
+    3.917
+   ],
+   "diametre_pneu_m": 1.05,
+   "axe_rotation_x_m": 2.467,
+   "cabine_porteur": null,
+   "cabine_grue": {
+    "x0_m": 2.75,
+    "x1_m": 4.2,
+    "h_bas_m": 1.35,
+    "h_toit_m": 3.215
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": 6.797,
+    "h_dessus_m": 3.932,
+    "epaisseur_m": 0.5
+   },
+   "contrepoids": {
+    "x0_m": 0.901,
+    "x1_m": 1.6,
+    "h_bas_m": 1.306,
+    "h_haut_m": 3.142
+   },
+   "stabilisateurs_x_m": null,
+   "calage_m": null,
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "cote",
+    "contrepoids": "cote"
+   },
+   "remarques": "Page 3 « Dimensions », vue de profil en MODE ROUTE (galets rail relevés), contrepoids à gauche, flèche/bras/godet repliés vers la droite. Origine x = extrémité arrière du galet rail arrière (début de la cote 5226). Échelle 5,655 mm/px à 300 dpi (5226, 2600, 6797 cohérentes à 0,2 %). Chaîne : 961 (galet rail AR → essieu AR) + 2600 (empattement) + 965 (essieu AV → galet rail AV) = 4526 ≈ 4527 ✓ ; galet AR mesuré à 0,35 m ⇒ essieu AR 1,317 (= 0,356 + 0,961), essieu AV 3,917, galet AV 4,882 ; 5,226 − 4,882 = 0,344 ✓. Axe d'orientation = essieu AR + 1150 (vue mode rail : 1150 + 1450 = 2600 ✓) = 2,467 ; contrôle : rayon arrière 1566 ⇒ arrière du contrepoids à 0,901 (mesuré 0,89 ✓). Galets rail : diamètre ≈0,70 m (mesure), centres à ≈0,83 m du sol relevés en mode route ; en mode rail les galets sont abaissés : entraxe galets 4285, longueur hors tout 4985, pneus à 195 mm au-dessus du rail, longueur hors tout 6677. Hauteurs : mode route toit cabine 3215, capot/contrepoids 3142, transport 3932 (dessus de flèche), dégagement sous contrepoids 1306 ; mode rail (depuis le rail) : hors tout 4127, 3550 (repère non identifié, probablement gyrophare/rétroviseur), toit cabine 3440, capot 3402, dégagement contrepoids 1501. Contrepoids : x1 et h_haut = bloc arrière jusqu'au capot (attribution de 3142 au dessus du capot/contrepoids). Largeurs : 2533 tourelle sans passerelles, 2526 châssis, 3101 hors tout (rétroviseurs/marchepieds) ; gabarit 3290 × 4680 (vue arrière, voie 80 mm du rail). Pied de flèche : articulation masquée par la tourelle → null ; l'articulation de la flèche réglable (2 parties) est visible à x ≈2,49 m, h ≈3,77 m (mesure). Épaisseur de flèche ≈0,5 m mesurée sur la partie horizontale. Cabine mesurée (toit coté 3215). Garde au sol non cotée (bas du châssis ≈0,5 m mesuré) → null. Page 4 : positions de travail sous caténaire 3920 / 4280 (axe de rotation → axe du bras 7628 / 7514 parallèle à la voie, 5539 / 5261 perpendiculaire ; transport sur rail 5200, axe du bras à 1100 du rail). Pas de stabilisateurs sur la vue."
+  },
+  {
+   "machine": "Demag AC 100-4L",
+   "pdf": "Demag_AC_100-4L.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 11.02,
+   "longueur_hors_tout_transport_m": 13.365,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.985,
+   "essieux_x_m": [
+    3.285,
+    4.935,
+    7.375,
+    9.025
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 7.185,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.65,
+    "h_toit_m": 2.55
+   },
+   "cabine_grue": {
+    "x0_m": 5.0,
+    "x1_m": 6.8,
+    "h_bas_m": 2.2,
+    "h_toit_m": 3.8
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -2.135,
+    "h_dessus_m": 3.8,
+    "epaisseur_m": 1.0
+   },
+   "contrepoids": {
+    "x0_m": 10.085,
+    "x1_m": 11.23,
+    "h_bas_m": 3.15,
+    "h_haut_m": 3.985
+   },
+   "stabilisateurs_x_m": [
+    2.256,
+    10.372
+   ],
+   "calage_m": {
+    "longueur": 8.116,
+    "largeur": 7.2
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.697,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "x = 0 a l'extremite avant du porteur (depart de la chaine 3285/1650/2440/1650/1670/325). Tete de fleche en porte-a-faux de 2135 devant le porteur (x negatif). Deux jeux de cotes : * pneus 385/95 R25, ** pneus 445/95 R25 ou 525/80 R25 ; valeurs ** retenues (le dessin est a l'echelle des cotes **) : hauteur 3985** (3923*), plateau porteur 2002** (1940*), garde au sol entre essieux 697** (635*), angle d'attaque 17,2°**/15,8°*, angle de fuite 20,0°**/17,7°*. Controle : 2135+3285+1650+2440+1650+1670 = 12830 (cote globale OK) ; mais la cote 10635 (porteur) ne retombe pas sur 3285+1650+2440+1650+1670 = 10695 : ecart de 60 mm correspondant a la petite cote '60' a l'avant (point avant le plus saillant vs. depart de la cote 10635). Le 325 final mene a l'element arriere du chassis (x = 11,02) ; le contrepoids depasse jusqu'a 11,23 (13365 - 2135). Axe d'orientation = essieu 3 - 190 (cote 190) = 7185, recoupe par la mesure (7,19). 12000 = axe poulie de tete -> avant contrepoids ; 680 = de l'avant contrepoids a l'axe d'un trou de manutention du contrepoids (x 10,765). Pied de fleche non identifiable sur la planche (masque par la tourelle / le contrepoids) : null. Cote 3670**/3608* non attribuee avec certitude (niveau sous le dessus de fleche). Largeur 2550 (2750 avec pneus 525/80 R25). Vue de dessus : deux jeux d'entraxes longitudinaux de calage, 4929 + 3187 = 8116 (cote inferieure, retenue) et 5161 + 2915 = 8076 (cote superieure) mesures depuis l'axe d'orientation ; largeurs de calage 7200 / 6000 / 4700 / 3520 / 2550 (2750***). Patins O 600. Diametre pneu mesure (~1,45 m), coherent avec 445/95 R25. Rayons de giration en vue de dessus (R11930* etc.) non repris."
+  },
+  {
+   "machine": "Demag AC 120-1",
+   "pdf": "Demag_AC_120-1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 11.174,
+   "longueur_hors_tout_transport_m": 14.18,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.392,
+    4.642,
+    6.292,
+    7.942,
+    9.592
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 7.682,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.55,
+    "h_toit_m": 2.6
+   },
+   "cabine_grue": {
+    "x0_m": 5.45,
+    "x1_m": 7.25,
+    "h_bas_m": 2.2,
+    "h_toit_m": 3.85
+   },
+   "pied_fleche": {
+    "x_m": 10.352,
+    "h_m": 3.8
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.44,
+    "h_dessus_m": 3.85,
+    "epaisseur_m": 1.05
+   },
+   "contrepoids": {
+    "x0_m": 8.1,
+    "x1_m": 9.8,
+    "h_bas_m": 2.2,
+    "h_haut_m": 3.1
+   },
+   "stabilisateurs_x_m": [
+    3.522,
+    10.732
+   ],
+   "calage_m": {
+    "longueur": 7.21,
+    "largeur": 7.0
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.275,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche.x_m": "cote",
+    "pied_fleche.h_m": "mesure_echelle",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "mesure_echelle",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Vue de profil p.1, avant à gauche ; x=0 = avant du porteur (cote 11174). Chaîne de cotes du bas : 2440 (porte-à-faux de la tête de flèche devant le porteur) + 2392 (avant porteur -> essieu 1) + 2250 + 1650 + 1650 + 1650 + 1661 (essieu 5 -> arrière) = 11253 depuis l'avant, soit 79 mm de plus que la cote globale 11174 : incohérence de la planche, essieux pris sur la chaîne depuis l'avant. Axe de rotation = essieu 4 - 260 (cote '260') = 7,682 ; stabilisateurs = axe - 4160 et axe + 3050 (somme 7210 = entraxe vue de dessus, cohérent). Pied de flèche : axe + 2670 (cote) ; hauteur de l'axe d'articulation mesurée (cercle visible en haut de l'arrière du châssis tourelle). 14180 - 2440 - 11174 = 566 mm de flèche/tourelle dépassant derrière le porteur, alors que le dessin n'en montre ~0,3 m : dessin pas strictement à l'échelle (le dessin est ~1 % plus court que les cotes). Echelle : ~12,2 mm/px horizontal (11174), ~12,45 mm/px vertical (4000) à 200 dpi. La cote 275 est interprétée comme garde au sol (sous le châssis, près de l'essieu 1). Contrepoids : interprété comme le bloc arrière de la tourelle sous le pied de flèche (limites incertaines, pas de cote). Hauteur hors tout 4000 au sommet de la tête de flèche. Largeur 2750, calage 7210 x 7000 (vue de dessus). Pneus non cotés (mesurés ~1,45-1,48 m). Diamètre de giration et rayons sur la vue de dessus non repris."
+  },
+  {
+   "machine": "Demag AC 200-1",
+   "pdf": "Demag_AC_200-1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 12.576,
+   "longueur_hors_tout_transport_m": 14.712,
+   "largeur_m": 3.0,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.44,
+    4.89,
+    6.54,
+    8.58,
+    10.23
+   ],
+   "diametre_pneu_m": 1.55,
+   "axe_rotation_x_m": 8.47,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.55,
+    "h_toit_m": 2.5
+   },
+   "cabine_grue": {
+    "x0_m": 6.75,
+    "x1_m": 8.75,
+    "h_bas_m": 2.7,
+    "h_toit_m": 3.85
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -1.444,
+    "h_dessus_m": 3.95,
+    "epaisseur_m": 1.15
+   },
+   "contrepoids": {
+    "x0_m": 11.25,
+    "x1_m": 13.268,
+    "h_bas_m": 2.2,
+    "h_haut_m": 3.3
+   },
+   "stabilisateurs_x_m": [
+    3.68,
+    12.12
+   ],
+   "calage_m": {
+    "longueur": 8.44,
+    "largeur": 8.2
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Planche p.1 = image raster ~100 ppi. Cabine porteur a gauche ; x = 0 a l'avant du porteur, tete de fleche en porte-a-faux 1444 mm (x_tete = -1,444, cote). 5 essieux. Chaine : 2440 + 2450 + 1650 + 2040 + 1650 + 2346 = 12576 (OK) ; 1444 + 12576 = 14020 ; 14712 va jusqu'a l'arriere de la tourelle/contrepoids (x = 13,268), au-dela de l'arriere du porteur. Axe de rotation = 4e essieu - 110 = 8,470 ; controles : 8,470 + R4800 = 13,270 (OK avec 14712 - 1444 = 13,268) ; 4790 + 3650 = 8440 (OK, vue de dessus). Stabilisateurs = axe - 4,790 et axe + 3,650. Cote 2700 = axe -> point a x = 11,17 et 12350 = poulie de tete -> ce meme point : probablement le pied de fleche, mais l'articulation n'est pas dessinee et sa hauteur n'est pas lisible -> pied_fleche = null (x probable 11,17 par les cotes). R4130 = rayon arriere secondaire (x = 12,60). Hauteur 4000 (cote, a la tete de fleche). Vue de dessus : largeurs 2800 et 3000 (largeur hors tout retenue 3,0 m, 2800 = largeur du chassis probable, a verifier) ; largeurs de calage 5700 / 6850 / 8200, retenue 8200. Echelles : 13,57 mm/px horizontal (12576) et 13,31 mm/px vertical (4000) a 200 dpi ; ecart des cotes partielles sur le dessin jusqu'a ~4 %. Contrepoids = bloc arriere de la tourelle, identification par interpretation. Garde au sol non cotee (angles 21 deg avant, 13,5 deg arriere). Diametre pneu mesure ~1,53 m."
+  },
+  {
+   "machine": "Demag AC 30 City",
+   "pdf": "Demag_AC_30_City.pdf",
+   "page": 1,
+   "silhouette": "grue_city",
+   "gauche_du_dessin": "autre: tête de flèche en porte-à-faux (avant de marche) ; cabine unique sur la tourelle",
+   "longueur_porteur_m": 6.88,
+   "longueur_hors_tout_transport_m": 8.375,
+   "largeur_m": 2.5,
+   "hauteur_transport_m": 3.15,
+   "essieux_x_m": [
+    1.45,
+    5.25
+   ],
+   "diametre_pneu_m": 1.35,
+   "axe_rotation_x_m": 3.1,
+   "cabine_porteur": null,
+   "cabine_grue": {
+    "x0_m": 1.35,
+    "x1_m": 3.2,
+    "h_bas_m": 1.55,
+    "h_toit_m": 3.15
+   },
+   "pied_fleche": {
+    "x_m": 5.9,
+    "h_m": 3.05
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.495,
+    "h_dessus_m": 2.05,
+    "epaisseur_m": 0.85
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    0.2,
+    6.45
+   ],
+   "calage_m": {
+    "longueur": 5.95,
+    "largeur": 5.9
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.45,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "mesure_echelle",
+    "essieux_x_m": "mesure_echelle",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "cote",
+    "stabilisateurs_x_m": "mesure_echelle",
+    "calage_m": "cote",
+    "garde_sol_m": "mesure_echelle"
+   },
+   "remarques": "Planche Foselev : le dessin est mal recalé par rapport aux lignes de cote (la ligne de sol tracée passe ~0,30 m au-dessus du bas des pneus, la silhouette déborde des lignes d'attache). Échelle prise sur le dessin lui-même : porteur 6880 = du pare-chocs avant au bloc arrière (5,16 mm/px à 300 dpi), sol = bas des pneus ; contrôle : pneus ronds de 1,35 m, hors tout dessiné 8,47 m (≈8375, 1 %). Chaîne de cotes du bas : 1160 (avant → essieu AV, origine ≈0,30 m depuis l'avant) + 1650 (essieu AV → axe d'orientation) + 2130 (axe → essieu AR) ; essieu AV mesuré 1,47 m, axe et essieu AR déduits par les cotes (3,10 / 5,24) ; essieu AR mesuré 5,30 (écart 6 cm). 3410 = tête de flèche → ? (repère à ~1,9 m du porteur, non identifié) ; 2950 = axe d'orientation → extrémité arrière de la flèche ; 7485 = longueur flèche repliée (oblique). x_tete = -1,495 (porte-à-faux de flèche coté 1495 ; mesuré 1,60). Pied de flèche = axe dessiné à l'arrière de la tourelle (mesure). Aucune cote de hauteur sur la planche : hauteur 3,15 m = toit de cabine mesuré (arrière de flèche 3,13 m). Stabilisateurs : vérins mesurés à 0,20 et 6,45 m sur la vue de profil, soit 6,25 m d'entraxe alors que la vue de dessus cote 5950 (incohérence du dessin, à confirmer). Largeur de calage : 5900 (pleine extension), 4000 (extension intermédiaire), largeur porteur 2500. Bloc arrière gris (x 5,60 → 6,88 m, h 0,77 → 1,93 m) : capot moteur ou contrepoids, non identifié sur la planche → contrepoids laissé à null. Angle de sortie avant coté 20°."
+  },
+  {
+   "machine": "Demag AC 40-2L",
+   "pdf": "Demag_AC_40-2L.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 8.456,
+   "longueur_hors_tout_transport_m": 10.684,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.4,
+   "essieux_x_m": [
+    3.048,
+    6.598
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 5.668,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.6,
+    "h_toit_m": 2.5
+   },
+   "cabine_grue": {
+    "x0_m": 4.7,
+    "x1_m": 6.3,
+    "h_bas_m": 1.9,
+    "h_toit_m": 3.4
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -1.861,
+    "h_dessus_m": 3.25,
+    "epaisseur_m": 0.7
+   },
+   "contrepoids": {
+    "x0_m": 7.868,
+    "x1_m": 8.823,
+    "h_bas_m": 2.15,
+    "h_haut_m": 3.2
+   },
+   "stabilisateurs_x_m": [
+    1.879,
+    8.134
+   ],
+   "calage_m": {
+    "longueur": 6.255,
+    "largeur": 5.95
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "x = 0 a l'avant du porteur (cote 8456 de l'avant porteur a l'arriere). Tete de fleche en porte-a-faux de 1861 (x negatif) ; x_tete = -1,861 est une cote. Hauteurs fonction des pneus (tableau A/B/C/D/E) : valeurs retenues pour 16.00 x 25 (le dessin est a l'echelle de D = 3400) : A (dessus tete de fleche) 3400, B (crochet) 2525, C (plateau porteur) 1630, D (hors tout) 3400, E (largeur) 2550 ; en 14.00 x 25 : 3350/2475/1580/3350/2550 ; en 20.5 x 25 : largeur 2850. Hauteurs marquees * = suspension abaissee de 80 mm. Axe d'orientation = essieu 2 - 930 = 5668 (origine des cotes 2200 et R3155). Contrepoids : x0 = axe + 2200 = 7868 (cote, recoupe mesure 7,81), x1 = axe + 3155 = 8823 = 10684 - 1861 (cote, rayon arriere de tourelle R3155) ; hauteurs mesurees. Stabilisateurs : avant = 3740 - 1861 = 1879 (cote) ; via 3048 - 1149 = 1899 (ecart 20 mm) ; arriere = 1879 + 6255 = 8134 (cote) ; via essieu 2 + 1555 = 8153 et axe + 2485 = 8153 (ecart 19 mm). Controle : 3048 + 3550 + 1926 = 8524 ne retombe pas sur 8456 (ecart 68 mm) ; 930 + 1555 = 2485 OK ; 1861 + 8456 = 10317 + 367 de debord de tourelle = 10684. Le dessin n'est pas partout a l'echelle (ex. 1149 et 2756 nettement hors echelle). Largeurs de calage (vue de dessus) 5950 / 4786 (patins), entraxe longitudinal 6255. Pied de fleche non identifiable avec certitude (zone des articulations a l'arriere de tourelle vers x 7,4-7,6 / h 2,4) : null. Garde au sol non cotee (angles a = b = 11° ou 13° selon pneus)."
+  },
+  {
+   "machine": "Demag AC 50-1",
+   "pdf": "Demag_AC_50-1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 9.065,
+   "longueur_hors_tout_transport_m": 11.2,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.53,
+   "essieux_x_m": [
+    2.895,
+    5.94,
+    7.52
+   ],
+   "diametre_pneu_m": 1.4,
+   "axe_rotation_x_m": 5.915,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.55,
+    "h_toit_m": 2.5
+   },
+   "cabine_grue": {
+    "x0_m": 4.25,
+    "x1_m": 6.15,
+    "h_bas_m": 1.9,
+    "h_toit_m": 3.55
+   },
+   "pied_fleche": {
+    "x_m": 8.465,
+    "h_m": 3.315
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.835,
+    "h_dessus_m": 3.5,
+    "epaisseur_m": 0.95
+   },
+   "contrepoids": {
+    "x0_m": 8.35,
+    "x1_m": 9.365,
+    "h_bas_m": 2.36,
+    "h_haut_m": 3.25
+   },
+   "stabilisateurs_x_m": [
+    1.815,
+    8.665
+   ],
+   "calage_m": {
+    "longueur": 6.85,
+    "largeur": 6.4
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "mesure_echelle",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "contrepoids.x0_m": "mesure_echelle",
+    "contrepoids.x1_m": "cote",
+    "contrepoids.h_bas_m": "cote",
+    "contrepoids.h_haut_m": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Vue de profil p.1, avant à gauche ; x=0 = avant du porteur (cote 9065). Chaîne : 1835 (tête de flèche devant le porteur) + 1815 (avant -> stabilisateur avant) + 4100 (stab. avant -> axe de rotation) ; 3020 = essieu 1 -> axe ; 25 = axe -> essieu 2 ; 1580 = essieu 2 -> essieu 3 ; 2750 = axe -> stab. arrière (4100 + 2750 = 6850 = entraxe vue de dessus, cohérent). R3450 = rayon arrière de tourelle depuis l'axe ; contrôle 1835 + 5915 + 3450 = 11200 = longueur hors tout (cohérent). 2550 = axe -> articulation de flèche ; 3315 = hauteur de l'articulation ; 2360 = dessous du contrepoids ; 1780 = dessus du plateau du porteur à l'arrière (non repris). Les essieux mesurés sur le dessin sont ~0,1 m plus en arrière que la chaîne de cotes (dessin approximatif) : valeurs de cotes retenues. Hauteur 3530 au toit de la cabine grue / dessus de flèche. Echelle ~10,03 mm/px à 200 dpi. Pneus et garde au sol non cotés. Largeur 2550, calage 6850 x 6400 (vue de dessus)."
+  },
+  {
+   "machine": "Demag AC 55-3",
+   "pdf": "Demag_AC_55-3.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 9.73,
+   "longueur_hors_tout_transport_m": 11.496,
+   "largeur_m": 2.5,
+   "hauteur_transport_m": 3.611,
+   "essieux_x_m": [
+    3.106,
+    5.106,
+    7.506
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 6.156,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.7,
+    "h_toit_m": 2.5
+   },
+   "cabine_grue": {
+    "x0_m": 4.35,
+    "x1_m": 6.15,
+    "h_bas_m": 1.9,
+    "h_toit_m": 3.5
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -1.777,
+    "h_dessus_m": 3.45,
+    "epaisseur_m": 0.8
+   },
+   "contrepoids": {
+    "x0_m": 8.55,
+    "x1_m": 9.7,
+    "h_bas_m": 2.7,
+    "h_haut_m": 3.5
+   },
+   "stabilisateurs_x_m": [
+    1.956,
+    8.856
+   ],
+   "calage_m": {
+    "longueur": 6.9,
+    "largeur": 6.5
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.229,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Vue de profil p.1, cabine porteur a gauche, tete de fleche en porte-a-faux avant de 1777 mm (x_tete = -1,777 m, cote). Chaine de cotes : 3106 + 2000 + 2400 + 1820 = 9326 (OK) ; 4200 + 2700 = 6900 (OK, = entraxe calage vue de dessus) ; mais 1777 + 9326 + 404 = 11507 contre 11496 imprime (ecart 11 mm, signale). longueur_porteur = 9326 + 404 = 9,73 m (11496 - 1777 = 9,719 m). Axe de rotation = extremite commune des cotes 4200/2700 et origine de la cote 1350 vers le 3e essieu : 3106 + 2000 + 2400 - 1350 = 6,156 m. Stabilisateurs : 6,156 - 4,200 = 1,956 m et 6,156 + 2,700 = 8,856 m. Hauteur 3611 mm avec pneus 385/95R25, 3661 mm avec 445/95R25. Largeur 2500 = cote transversale du porteur en vue de dessus (le contrepoids mesure 2550 de large) ; largeurs de calage imprimees 2500 / 3000 / 4500 / 6500, retenue 6500 (pleine extension). garde_sol 0,229 = plus petite garde imprimee a l'avant (pneus 385/95R25 ; 179 avec semelles polyamide), 279 / 334 / 384 aux autres points ; garde sous chassis au centre non chiffree. Mesures a l'echelle etalonnees sur 11496 et 9326 (8,65 mm/px a 200 dpi), sol verifie par la cote 3611. Diametre de pneu mesure ~1,49 m (proche d'un 445/95R25, le dessin ne precise pas). Pied de fleche (articulation) non visible sur le dessin : null. Contrepoids = blocs orange a l'arriere de la tourelle (H1/H2 en vue de dessus, largeur 2550)."
+  },
+  {
+   "machine": "Demag AC 80-2",
+   "pdf": "Demag_AC_80-2.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 9.97,
+   "longueur_hors_tout_transport_m": 12.11,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 3.8,
+   "essieux_x_m": [
+    2.96,
+    4.66,
+    6.66,
+    8.31
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 6.41,
+   "cabine_porteur": {
+    "x0_m": 0.1,
+    "x1_m": 1.6,
+    "h_toit_m": 2.45
+   },
+   "cabine_grue": {
+    "x0_m": 4.95,
+    "x1_m": 6.8,
+    "h_bas_m": 2.05,
+    "h_toit_m": 3.6
+   },
+   "pied_fleche": {
+    "x_m": 9.11,
+    "h_m": 3.55
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.76,
+    "h_dessus_m": 3.8,
+    "epaisseur_m": 1.05
+   },
+   "contrepoids": {
+    "x0_m": 9.0,
+    "x1_m": 10.11,
+    "h_bas_m": 2.75,
+    "h_haut_m": 3.585
+   },
+   "stabilisateurs_x_m": [
+    1.81,
+    9.51
+   ],
+   "calage_m": {
+    "longueur": 7.7,
+    "largeur": 7.0
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.5,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee": "cote",
+    "contrepoids": "cote",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "mesure_echelle"
+   },
+   "remarques": "Chaîne du bas : 2000 (porte-à-faux avant de la flèche/moufle) + 9970 (porteur, du pare-chocs avant à l'arrière du châssis) + 140 (dépassement arrière de la tourelle) = 12110 ✓ ; 2960 + 1700 + 2000 + 1650 + 1660 = 9970 ✓ (essieux cotés). Axe d'orientation déduit du rayon arrière R3700 : 9,97 + 0,14 − 3,70 = 6,41 m (mesuré 6,47) ; stabilisateurs = axe − 4600 et axe + 3100 (4600 + 3100 = 7700 = entraxe longitudinal de la vue de dessus ✓). Pied de flèche = axe + 2700 = 9,11 m (x coté) ; h 3,55 m mesuré. Flèche : 10870 = pied → tête, donc tête à −1,76 m ; l'élément le plus à gauche (moufle/poulies) à −2,00 m (cote 2000). Hauteurs cotées : 3800 hors tout (dessus de flèche), 3585 et 2750 lus comme dessus et dessous du contrepoids/arrière de tourelle (attribution à confirmer), 2000 = dessus du châssis. Le dessin n'est pas homogène verticalement (échelle 7,3 mm/px sur 3800, 6,9 sur 2750) : les hauteurs mesurées (cabines, pied de flèche, épaisseur de flèche, pneu, garde au sol) sont étalonnées sur 3800 et approximatives (±0,1 m). x0 du contrepoids mesuré (≈9,0 m), x1 = arrière hors tout. Vue de dessus : largeur 2750, calage 7000 × 7700 (largeur intermédiaire 4500) ; rayons R10780 (9000), R11380 (9760), R11880 (10200), R5720 (4030) non reportés. Angles d'attaque/sortie 21°."
+  },
+  {
+   "machine": "Galizia G100E",
+   "pdf": "Galizia_G100E.pdf",
+   "page": 1,
+   "silhouette": "pick_and_carry",
+   "gauche_du_dessin": "arriere",
+   "longueur_porteur_m": 4.17,
+   "longueur_hors_tout_transport_m": 4.75,
+   "largeur_m": 2.1,
+   "hauteur_transport_m": 2.5,
+   "essieux_x_m": [
+    0.63,
+    3.73
+   ],
+   "diametre_pneu_m": 0.7,
+   "axe_rotation_x_m": null,
+   "cabine_porteur": {
+    "x0_m": 1.35,
+    "x1_m": 2.7,
+    "h_toit_m": 2.35
+   },
+   "cabine_grue": null,
+   "pied_fleche": {
+    "x_m": 0.5,
+    "h_m": 2.2
+   },
+   "fleche_repliee": {
+    "x_tete_m": 4.75,
+    "h_dessus_m": 2.0,
+    "epaisseur_m": 0.4
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": null,
+   "calage_m": null,
+   "chenilles": null,
+   "garde_sol_m": 0.25,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "mesure_echelle",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "cabine_porteur": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "garde_sol_m": "mesure_echelle"
+   },
+   "remarques": "Pick and carry (pas de tourelle, pas de stabilisateurs). Dessin : arriere (capot moteur / masse arriere) a gauche, fleche dirigee vers l'avant (droite) au-dessus de l'essieu avant. Cotes : 630 + 3100 + 440 = 4170 (controle OK) ; hauteur hors tout 2500 (= dessus de l'extremite arriere de la fleche) ; 1560 = hauteur du crochet (niveau du point d'accrochage sous la tete de fleche) ; largeurs vue de dessus 2030 (arriere) / 2100 (avant, hors roues), 950 et 1100 = voies interieures ; R 3725 et R 3100 = rayons de giration. Le rendu du dessin n'est pas isotrope : echelle horizontale 3,81 mm/px (sur 4170), verticale 3,96 mm/px (sur 2500 et 1560, concordants) ; chaque mesure a ete faite avec l'echelle de sa direction. Articulation de fleche (pied_fleche) : axe le plus haut a l'arriere, sur l'extremite arriere de la fleche, x ~ 0,50 m depuis l'arriere, h ~ 2,20 m ; un second axe (biellette / support) se trouve juste dessous a x ~ 0,50, h ~ 1,95 ; identification de l'axe principal par lecture du dessin, a confirmer. Verin de relevage articule sur la fleche vers x ~ 3,0 m, h ~ 1,75 m. Fleche en position route inclinee vers l'avant : dessus 2,50 a l'arriere, ~2,0 a la tete ; tete de fleche a x ~ 4,75 (depassement ~0,6 m devant le porteur) ; epaisseur ~0,4 m a la tete. Position du crochet : sous la tete de fleche a x ~ 4,55 m (environ 0,8 m devant l'essieu avant), point haut du crochet a 1,56 m (cote 1560), bas du crochet ~1,25 m (mesure). Cabine unique (conduite et manoeuvre) reportee dans cabine_porteur. Pas de contrepoids distinct identifiable (masse arriere integree au chassis, x 0-1,35). Roues avant et arriere de meme diametre (~0,70-0,72 m mesure). Garde au sol mesuree sous le caisson central (~0,25 m)."
+  },
+  {
+   "machine": "Grove GMK5150L",
+   "pdf": "Grove_GMK5150L.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 12.581,
+   "longueur_hors_tout_transport_m": 15.027,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 3.998,
+   "essieux_x_m": [
+    2.674,
+    5.214,
+    6.864,
+    9.064,
+    10.714
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 8.714,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.65,
+    "h_toit_m": 2.4
+   },
+   "cabine_grue": {
+    "x0_m": 6.95,
+    "x1_m": 9.1,
+    "h_bas_m": 1.95,
+    "h_toit_m": 3.85
+   },
+   "pied_fleche": {
+    "x_m": 11.15,
+    "h_m": 3.6
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.994,
+    "h_dessus_m": 3.85,
+    "epaisseur_m": 1.35
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    3.964,
+    11.994
+   ],
+   "calage_m": {
+    "longueur": 8.01,
+    "largeur": 7.6
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.335,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "mesure_echelle",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Vue de profil p.1, avant à gauche ; x=0 = avant du porteur. Chaîne du bas : 1994 (tête de flèche devant le porteur) + 2674 + 2540 + 1650 + 2200 + 1650 + 1867 = 14575 ; 2674+...+1867 = 12581 (cohérent) ; 8714 (avant -> axe) + 3867 (axe -> arrière) = 12581 (cohérent) ; 350 = axe -> essieu 4 (8714 + 350 = 9064, cohérent). Cotes de hauteur et de garde au sol dépendent des pneus (tableau) : valeurs retenues pour 16.00 R25 (A=3998, D=1795, E=335, F=494, B=2750) ; 14.00 R25 : A=3948, E=272, B=2750 ; 20.5 R25 : A=3998, B=2900 ; A surbaissée (-105 mm) = 3868. Cotes supérieures depuis l'axe : 10708 (= 1994 + 8714, tête de flèche), 10413 (moufle), 3248 / 3749 / 4083 / 4319 vers l'arrière (tambour de treuil et éléments arrière de tourelle) : l'élément le plus arrière est à axe + 4319 = 13,033 m, soit 0,45 m derrière l'arrière du porteur (12,581) ; la cote 14575 s'arrête à l'arrière du porteur, la longueur réelle hors tout pourrait donc être ~15,03 m (non coté directement). Pied de flèche : articulation interprétée (cercle à l'arrière de la tourelle), mesure à l'échelle incertaine. Contrepoids non identifiable avec certitude sur la vue : null. Echelle ~12,0 mm/px à 200 dpi (8714). Vue de dessus : stabilisateurs côté haut = axe - 4896 / axe + 3114 (8010) ; côté bas = axe - 4604 / axe + 3446 (8050), valeurs côté haut retenues. Largeurs de calage : 7600 (pleine extension), 6700, 5900, 5100, 2500 (rentré). Pneus non cotés (mesure ~1,47 m). MISE A JOUR stabilisateurs : la vue de dessus montre des poutres décalées d'un côté à l'autre ; valeurs retenues = moyenne des deux côtés (convention vérifiée sur les profils Tadano ATF 90G-4 et Grove GMK 6400 où les vérins de profil tombent sur cette moyenne). MISE A JOUR longueur hors tout : contrôle vectoriel (33,33 mm/pt) : l'élément arrière de tourelle (axe + 4319) dépasse de 0,45 m l'arrière du porteur ; longueur hors tout transport retenue = 1994 + 8714 + 4319 = 15027 (somme de cotes) ; la cote 14575 s'arrête à l'arrière du porteur."
+  },
+  {
+   "machine": "Grove GMK 3050-1",
+   "pdf": "Grove_GMK_3050-1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 8.685,
+   "longueur_hors_tout_transport_m": 10.895,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.665,
+   "essieux_x_m": [
+    2.725,
+    5.515,
+    7.165
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 5.6,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.65,
+    "h_toit_m": 2.7
+   },
+   "cabine_grue": {
+    "x0_m": 3.95,
+    "x1_m": 6.05,
+    "h_bas_m": 1.9,
+    "h_toit_m": 3.6
+   },
+   "pied_fleche": {
+    "x_m": 7.85,
+    "h_m": 3.25
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.965,
+    "h_dessus_m": 3.6,
+    "epaisseur_m": 0.95
+   },
+   "contrepoids": {
+    "x0_m": 8.0,
+    "x1_m": 8.93,
+    "h_bas_m": 2.4,
+    "h_haut_m": 3.45
+   },
+   "stabilisateurs_x_m": [
+    1.475,
+    8.3
+   ],
+   "calage_m": {
+    "longueur": 6.825,
+    "largeur": 6.2
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Vue de profil p.1, cabine porteur a gauche ; tete de fleche (et moufle accroche a l'avant) en porte-a-faux de 1965 mm (x_tete = -1,965 m, cote). Chaine : 1475 + 1250 + 2790 + 1650 + 1135 = 8300 ; 1475 + 6825 = 8300 (OK) ; 8685 - 8300 = 385 mm entre stabilisateur arriere et arriere du porteur (non cote, mesure ~395). 1965 + 8685 = 10650 ; 10895 se termine a l'arriere de la tourelle (8,93 m) et non a l'arriere du porteur. Un element arriere (roue/objet monte a l'arriere du porteur, cote 410) depasse au-dela de 8685 : encombrement arriere total 1965 + 8685 + 410 = 11060 mm (non imprime comme cote globale). Axe de rotation = 2e essieu + 85 mm (cote 85) = 5,600 m ; controle : arriere tourelle 8,930 - 3320 (rayon arriere) = 5,610 (ecart 10 mm). Hauteurs : 3665 mm (cote gauche, tete de fleche) et 3612 mm (cote droite) ; hauteur_transport = 3,665. Largeur 2550 (vue de dessus) ; largeurs de calage 4400 et 6200, retenue 6200 ; entraxe longitudinal 6825 (vue de dessus 4235 + 2590 = 6825, OK ; 4015 + 2810 = 6825, OK). Pied de fleche = axe circulaire a l'extremite de la cote 9600 (mesure). Contrepoids : bloc a l'arriere de la tourelle sous le treuil, identification par interpretation du dessin (pas de legende). Diametre de pneu mesure 1,41-1,49 m (dimension de pneu non indiquee). Echelle 10,14 mm/px a 200 dpi etalonnee sur 10895 / 8685 / 6825 / 9600 ; sol verifie par la cote 3612. Garde au sol non cotee."
+  },
+  {
+   "machine": "Grove GMK 5130-2",
+   "pdf": "Grove_GMK_5130-2.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 12.262,
+   "longueur_hors_tout_transport_m": 14.998,
+   "largeur_m": 2.728,
+   "hauteur_transport_m": 3.995,
+   "essieux_x_m": [
+    2.731,
+    5.272,
+    6.922,
+    8.922,
+    10.572
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 8.772,
+   "cabine_porteur": {
+    "x0_m": 0.1,
+    "x1_m": 1.75,
+    "h_toit_m": 2.7
+   },
+   "cabine_grue": {
+    "x0_m": 7.1,
+    "x1_m": 9.2,
+    "h_bas_m": 2.15,
+    "h_toit_m": 3.8
+   },
+   "pied_fleche": {
+    "x_m": 11.3,
+    "h_m": 3.4
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.871,
+    "h_dessus_m": 3.85,
+    "epaisseur_m": 1.1
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    4.022,
+    11.822
+   ],
+   "calage_m": {
+    "longueur": 7.8,
+    "largeur": 7.5
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Chaîne du bas : 1871 (porte-à-faux de la tête de flèche) | 2731 (avant → essieu 1) | 1291 (→ stabilisateur AV) | 1250 (→ essieu 2) | 1650 (→ essieu 3) | 2000 (→ essieu 4) | 1650 (→ essieu 5) | 1250 (→ stabilisateur AR) ; porteur 12262 (soit 440 après le stabilisateur AR, mesure cohérente). Contrôle : 1871 + 12262 = 14133, plus le dépassement arrière de la tourelle 865 = 14998 ✓ (4360 = axe → arrière hors tout ; axe = 13,127 − 4,360 = 8,767, et cote 150 = axe → essieu 4 ⇒ 8,772 ✓). Stabilisateurs : la vue de profil donne 4,022 / 11,822 (7800 ✓) ; vue de dessus : appuis décalés d'un côté à l'autre (axe − 4892 / + 2908 côté haut, axe − 4608 / + 3192 côté bas, 7800 dans les deux cas). Largeur : 2728 = porteur (vue de dessus) ; 3100 = largeur hors tout à l'avant avec la fléchette repliée sur le côté. Calage transversal 7500 (intermédiaires 6700 / 5900 / 5100). Hauteur hors tout 3995 = tête de flèche ; dessus de flèche courant ≈3,83 m (mesure). Tête de flèche à −1,871 (cote) ; 12900 = axe des poulies de tête → pied de flèche, d'où pied ≈11,3 m (mesure, h ≈3,4 m, articulation non dessinée, repère = ligne d'attache de la cote). Cote 1800 = hauteur du plateau du porteur à l'arrière. Contrepoids non identifiable sur la vue (arrière de tourelle 10,8 → 13,13 m, h 1,8 → 3,85 m environ) → null. Garde au sol non cotée (bas du châssis entre essieux 2-3 ≈0,93 m mesuré) → null. Angles : 23° (sortie), 18°. Rayons : R12600/Ra10300 (fléche avant), R9700/Ra8180, R6400/Ra4095, R13475/Ra11410 non reportés. Échelle profil 7,97 mm/px à 300 dpi, cotes partielles toutes cohérentes à ±1 %."
+  },
+  {
+   "machine": "Grove GMK 5200",
+   "pdf": "Grove_GMK_5200.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 13.64,
+   "longueur_hors_tout_transport_m": 15.63,
+   "largeur_m": 3.0,
+   "hauteur_transport_m": 3.956,
+   "essieux_x_m": [
+    2.44,
+    5.44,
+    7.09,
+    9.09,
+    10.94
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 9.24,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.3,
+    "h_toit_m": 2.55
+   },
+   "cabine_grue": {
+    "x0_m": 7.8,
+    "x1_m": 9.3,
+    "h_bas_m": 2.3,
+    "h_toit_m": 3.75
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -1.99,
+    "h_dessus_m": 3.956,
+    "epaisseur_m": 1.25
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    4.19,
+    12.69
+   ],
+   "calage_m": {
+    "longueur": 8.5,
+    "largeur": 8.5
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "cote",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Planche = image JPEG basse resolution (100 ppp) : chiffres lisibles mais mesures a l'echelle a +/- 0,1 m (echelle 13,97 mm/px a 200 ppp, etalonnee sur 15630 ; hauteur 3956 recoupee a 0,3 %). x = 0 a l'avant du porteur (depart de 13210). Chaine basse : 1990 (porte-a-faux tete de fleche) + 2440 + 1750 + 1250 + 1650 + 2000 + 1850 + 1750 + 950 = 15630 (controle OK). Points : essieux 2440 / 5440 / 7090 / 9090 / 10940 ; stabilisateurs 4190 et 12690 (recoupes : 4190 + 5050 = axe d'orientation 9240 = essieu 4 + 150 ; axe + 3450 = 12690) ; arriere porteur 13640 = 15630 - 1990. 13210 = de l'avant porteur a un point situe 430 avant l'extremite arriere (fin du chassis hors element arriere). 2866 = de la tete de fleche a un point a x = 0,876 (non identifie). Haut : 15460 = tete de fleche -> arriere superstructure (axe + 4230 = 13470, coherent) ; 13500 = poulie de tete (x -1,66 mesure) -> axe + 2600 = 11840 ; 917 au-dela (12757) ; 520 au-dela de 13470 ; R 4995 = rayon arriere de tourelle : sur la vue de profil, un element de superstructure (tambour/treuil a l'arriere) est dessine jusqu'a axe + 4995 = 14,235 m, soit au-dela de la longueur hors tout cotee 15630 (incoherence de la planche, a verifier). Pied de fleche probablement a axe + 2600 = 11,84 m (fin de la cote 13500, ~3,6 m de haut) mais non identifiable avec certitude sur l'image : null. Hauteur 3956 (+170 / -130 selon suspension) ; 1250 = hauteur de la section de tete de fleche (retenue comme epaisseur) ; 1833 = hauteur du plateau du porteur a l'arriere ; angles d'attaque 20° / de fuite 18°. Contrepoids non identifiable en position route (caisson blanc x ~11,1-12,5 m, h ~2,3-3,15 m sur la tourelle, nature non confirmee) : null. Vue de dessus : largeur 3000 ; largeurs de calage 8500 / 5700 / 5520 / 4900 ; entraxe longitudinal 5215 + 3277 = 8492 (cote haute 8493) et 4884 + 3623 = 8507 (cote basse) ; retenu 8,5 (cote de profil 4190 -> 12690). Garde au sol non cotee : null."
+  },
+  {
+   "machine": "Grove GMK 6400",
+   "pdf": "Grove_GMK_6400.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 15.73,
+   "longueur_hors_tout_transport_m": 17.536,
+   "largeur_m": 2.975,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.785,
+    4.485,
+    7.985,
+    9.635,
+    12.085,
+    13.735
+   ],
+   "diametre_pneu_m": 1.55,
+   "axe_rotation_x_m": 11.635,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.7,
+    "h_toit_m": 2.7
+   },
+   "cabine_grue": {
+    "x0_m": 9.25,
+    "x1_m": 11.4,
+    "h_bas_m": 2.1,
+    "h_toit_m": 3.95
+   },
+   "pied_fleche": {
+    "x_m": 14.035,
+    "h_m": 3.75
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.806,
+    "h_dessus_m": 4.0,
+    "epaisseur_m": 1.1
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    6.49,
+    15.19
+   ],
+   "calage_m": {
+    "longueur": 8.7,
+    "largeur": 8.5
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.45,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche.x_m": "cote",
+    "pied_fleche.h_m": "mesure_echelle",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "cote",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Planche de cotation = p.1 sur 15 (les autres pages sont des abaques). Dessin vectoriel : positions relevées dans le PDF (échelle 42,03 mm/pt, cohérente sur 15730, 17536, 17300, 2400). x=0 = avant du porteur. Chaîne du bas : 1806 (tête de flèche devant le porteur) + 2785 + 1700 + 3500 + 1650 + 2450 + 1650 + 1450 (essieu 6 -> stabilisateur arrière en profil) + 542 = 17533 (1806 + 15727) contre 17536 / 15730 : écart de 3 mm. Axe de rotation = essieu 5 - 450 (cote) = 11,635 (confirmé à l'échelle : 11,64). INCOHÉRENCE : la cote 3402 (axe -> arrière de tourelle) contredit 17300 (tête de flèche -> arrière de tourelle) : 17300 - 1806 - 11635 = 3859 ; le dessin à l'échelle donne 3,86 m ; la valeur 3402 semble erronée. Arrière de tourelle à x = 15,49 (dans l'emprise du porteur, 15,73). Pied de flèche : x = axe + 2400 (cote, petit axe dans le bloc arrière orange), hauteur mesurée ; interprétation à vérifier (un grand cercle plus en arrière à x ~15,2 m peut être le treuil). Cotes de hauteur selon pneus (tableau) : retenu 16.00 R25 (A=4000, B=2975, E=450, D=1865) ; 14.00 R25 : A=3956, B=2970, E=400 ; 20.5 R25 : A=4000, B=3070 ; A surbaissée = 3870. Dessus de flèche : 4,0 m à l'avant (≈ A), le dessin monte à ~4,1 m vers l'arrière. Epaisseur de flèche ~1,1 m à l'avant, ~1,8 m au niveau de la cabine grue (caisson de base). Contrepoids non identifiable avec certitude : null. Vue de dessus : stabilisateurs côté haut axe - 5345 / axe + 3355 (8700) retenus ; côté bas axe - 4950 / axe + 3750 (8700) ; le profil place le stabilisateur arrière à 15,185 (1450 après l'essieu 6). Largeurs de calage : 8500 (pleine), 7400, 6300, 5480, 5000, 3000. Pneus non cotés (mesure 1,55 m). MISE A JOUR stabilisateurs : la vue de dessus montre des poutres décalées d'un côté à l'autre ; valeurs retenues = moyenne des deux côtés (convention vérifiée sur les profils Tadano ATF 90G-4 et Grove GMK 6400 où les vérins de profil tombent sur cette moyenne). Ici le profil donne 15,185 pour le vérin arrière (essieu 6 + 1450), égal à la moyenne 15,19."
+  },
+  {
+   "machine": "Liebherr LR 1100",
+   "pdf": "Liebherr_LR_1100.pdf",
+   "page": 1,
+   "silhouette": "grue_chenilles_treillis",
+   "gauche_du_dessin": "autre: avant (pied de flèche en treillis et chevalet couchés vers l'avant)",
+   "longueur_porteur_m": 6.46,
+   "longueur_hors_tout_transport_m": 11.8,
+   "largeur_m": 5.05,
+   "hauteur_transport_m": null,
+   "essieux_x_m": null,
+   "diametre_pneu_m": null,
+   "axe_rotation_x_m": 3.26,
+   "cabine_porteur": null,
+   "cabine_grue": {
+    "x0_m": 0.4,
+    "x1_m": 2.25,
+    "h_bas_m": 1.45,
+    "h_toit_m": 3.35
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -3.84,
+    "h_dessus_m": 2.3,
+    "epaisseur_m": 0.95
+   },
+   "contrepoids": {
+    "x0_m": 6.9,
+    "x1_m": 7.96,
+    "h_bas_m": 1.4,
+    "h_haut_m": 4.35
+   },
+   "stabilisateurs_x_m": null,
+   "calage_m": null,
+   "chenilles": {
+    "longueur_m": 6.46,
+    "hauteur_m": 1.3,
+    "voie_m": 4.4
+   },
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "axe_rotation_x_m": "cote",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "cote",
+    "chenilles": "mesure_echelle"
+   },
+   "remarques": "Vue de profil en configuration de montage (contrepoids empilé, chevalet relevé), pas en position transport : hauteur transport non cotée → null. Cotes : chenille 6460 (barbotins 5360) ; 7600 = avant de tourelle → arrière du contrepoids, 2900 = avant de tourelle → axe d'orientation, d'où rayon arrière 4700 (= R4700 de la vue de dessus ✓) ; 1500 = dépassement du contrepoids derrière la chenille ⇒ axe = 6,46 + 1,50 − 4,70 = 3,26 m depuis l'avant de la chenille (mesuré 3,25 ✓) ; 2680 = axe → barbotin arrière (barbotin AV à 0,58 m, AR à 5,94 m) ; 1150 = axe → repère non identifié vers l'avant. Contrepoids : bas 1400, haut 4350 (cotes), x1 = axe + 4,70 = 7,96 (cote), x0 mesuré ≈6,90. 11800 (vue de dessus) = longueur hors tout tête du pied de flèche → arrière du contrepoids, d'où x_tete = 7,96 − 11,80 = −3,84 (mesuré −3,78) ; h_dessus/épaisseur = élément en treillis couché (mesure) ; le bras supérieur (chevalet/haubans) culmine à ≈3,35 m. Cote 1950 à gauche = probablement hauteur de l'articulation du pied de flèche (ligne d'attache à mi-hauteur du treillis), articulation masquée par la cabine → pied_fleche laissé à null. R6300 = rayon de relevage du chevalet. Largeur 5050 = hors tout chenilles (en service) ; voie ≈4,40 m entre axes des patins (mesure vue de dessus, patins ≈0,67 m) ; hauteur de chenille ≈1,30 m (mesure). Échelle ≈10,4 mm/px (300 dpi), cotes partielles cohérentes à ±1 %."
+  },
+  {
+   "machine": "Liebherr LTM 1030-2.1",
+   "pdf": "Liebherr_LTM_1030-2.1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 8.38,
+   "longueur_hors_tout_transport_m": 10.31,
+   "largeur_m": 2.5,
+   "hauteur_transport_m": 3.55,
+   "essieux_x_m": [
+    2.855,
+    6.435
+   ],
+   "diametre_pneu_m": 1.35,
+   "axe_rotation_x_m": 5.505,
+   "cabine_porteur": {
+    "x0_m": 0.15,
+    "x1_m": 1.55,
+    "h_toit_m": 2.65
+   },
+   "cabine_grue": {
+    "x0_m": 4.3,
+    "x1_m": 6.0,
+    "h_bas_m": 1.75,
+    "h_toit_m": 3.55
+   },
+   "pied_fleche": {
+    "x_m": 7.805,
+    "h_m": 2.95
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.655,
+    "h_dessus_m": 3.5,
+    "epaisseur_m": 0.5
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    1.8405,
+    8.1155
+   ],
+   "calage_m": {
+    "longueur": 6.275,
+    "largeur": 6.0
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "mesure_echelle",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Planche = image JPEG 100 ppp. AUCUNE cote de hauteur sur la planche : toutes les hauteurs sont mesurees a l'echelle horizontale (9,17 mm/px a 200 ppp, etalonnee sur 10035 et 10310), en supposant le dessin isotrope (non verifiable) : fiabilite moyenne. x = 0 a l'avant du porteur. Cotes : 1655 (porte-a-faux tete de fleche) + 8380 (porteur) = 10035 OK ; mais 2855 + 2650 + 930 + 1954 = 8389 (ecart 9 mm avec 8380) ; 2650 + 930 = 3580 (empattement) OK. Axe d'orientation = 2855 + 2650 = 5505. Haut : 10310 = tete de fleche -> arriere tourelle = axe + 3150 (8655 + 1655 = 10310 OK) ; pied de fleche = axe + 2300 = 7805 (axe visible sur le dessin, x mesure 7,80 ; hauteur mesuree 2,93) ; 9240 = poulie de tete -> pied de fleche ; 400 = pied de fleche -> point a 8205 (non identifie). Fleche inclinee en position route (dessus ~3,5 m a la tete, ~3,1 m au pied) ; x_tete = -1,655 est une cote. Hauteur hors tout mesuree ~3,55 m (toit de cabine grue / tete de fleche). Vue de dessus : stabilisateurs a l'axe - 3664,5 et axe + 2610,5 (entraxe 6275, cote basse, retenu) ; cote haute : axe - 3885,5 et axe + 2389,5 (= 1619,5 et 7894,5 ; entraxe 6275 aussi) - les deux paires de poutres sont decalees. Largeurs de calage 6000 / 4300 ; largeur hors tout 2500 (C variable selon pneus, non chiffre). Contrepoids non identifiable distinctement (arriere de tourelle x ~7,4-8,65) : null. Garde au sol non cotee."
+  },
+  {
+   "machine": "Liebherr LTM 1040-2.1",
+   "pdf": "Liebherr_LTM_1040-2.1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 8.534,
+   "longueur_hors_tout_transport_m": 10.93,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.6,
+   "essieux_x_m": [
+    2.886,
+    6.466
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 5.536,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.65,
+    "h_toit_m": 2.65
+   },
+   "cabine_grue": {
+    "x0_m": 4.0,
+    "x1_m": 6.15,
+    "h_bas_m": 1.85,
+    "h_toit_m": 3.55
+   },
+   "pied_fleche": {
+    "x_m": 8.081,
+    "h_m": 2.55
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.071,
+    "h_dessus_m": 3.55,
+    "epaisseur_m": 0.8
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    1.731,
+    8.036
+   ],
+   "calage_m": {
+    "longueur": 6.305,
+    "largeur": 6.028
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.425,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche.x_m": "cote",
+    "pied_fleche.h_m": "mesure_echelle",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "mesure_echelle",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Dessin vectoriel p.1 ; échelle horizontale 27,8 mm/pt (10605, 8534, 10930 cohérents) ; échelle verticale ~27,25 mm/pt (étalonnée sur A=3600, les cotes B et D donnent 26-27,4 : léger écart). x=0 = avant du porteur. Chaîne du bas : 2071 (tête de flèche devant le porteur) + 2886 (avant -> essieu 1) + 3580 (entraxe) + 2068 (essieu 2 -> arrière) = 10605 (cohérent) ; 2650 (essieu 1 -> axe) + 930 (axe -> essieu 2) = 3580 (cohérent) ; la cote 2053 (axe+930 -> repère arrière) diffère de 2068 de 15 mm (repère légèrement en avant de l'arrière). Hors tout transport 10930 = tête de flèche -> arrière de tourelle (axe + 3323), contrôle 2071 + 2886 + 2650 + 3323 = 10930 (cohérent) ; la tourelle dépasse de 0,325 m l'arrière du porteur ; 10605 = hors tout au niveau du porteur. Pied de flèche : axe + 2545 (cote, cercle d'articulation), hauteur mesurée. 3100 = axe -> arrière du treuil. Hauteurs selon pneus : retenu 445/95 R25 (16.00 R25) A=3600, B=3419, D=1648, I=425, C=2100 ; 385/95 R25 : A=3550, I=375, C=2160 ; A abaissé = 3500 / 3450. Contrepoids non identifiable sur la vue : null. Vue de dessus : stabilisateurs côté haut axe - 3915,5 / axe + 2389,5 retenus ; côté bas axe - 3694,5 / axe + 2610,5 (même entraxe 6305). Largeur de calage 6028 (pleine), 4328 (partielle), 2328-6028 avec VarioBase. Pneus non cotés (mesure ~1,48 m). MISE A JOUR stabilisateurs : la vue de dessus montre des poutres décalées d'un côté à l'autre ; valeurs retenues = moyenne des deux côtés (convention vérifiée sur les profils Tadano ATF 90G-4 et Grove GMK 6400 où les vérins de profil tombent sur cette moyenne)."
+  },
+  {
+   "machine": "Liebherr LTM 1055-3.1",
+   "pdf": "Liebherr_LTM_1055-3.1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 9.435,
+   "longueur_hors_tout_transport_m": 11.36,
+   "largeur_m": null,
+   "hauteur_transport_m": 3.75,
+   "essieux_x_m": [
+    2.865,
+    5.865,
+    7.515
+   ],
+   "diametre_pneu_m": 1.4,
+   "axe_rotation_x_m": 6.34,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.8,
+    "h_toit_m": 2.75
+   },
+   "cabine_grue": {
+    "x0_m": 4.75,
+    "x1_m": 6.75,
+    "h_bas_m": 2.0,
+    "h_toit_m": 3.6
+   },
+   "pied_fleche": {
+    "x_m": 8.84,
+    "h_m": 3.6
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.52,
+    "h_dessus_m": 3.75,
+    "epaisseur_m": 1.05
+   },
+   "contrepoids": {
+    "x0_m": 8.45,
+    "x1_m": 9.75,
+    "h_bas_m": 1.85,
+    "h_haut_m": 2.2
+   },
+   "stabilisateurs_x_m": [
+    1.514,
+    8.855
+   ],
+   "calage_m": {
+    "longueur": 7.341,
+    "largeur": 6.3
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "hauteur_transport_m": "mesure_echelle",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Planche p.1 = image raster ~100 ppi (precision des mesures ~ +/- 0,05 a 0,1 m). Cabine porteur a gauche ; x = 0 a l'avant du porteur, tete de fleche en porte-a-faux 1520 mm (x_tete = -1,52, cote). Chaine : 2865 + 3000 + 1650 + 1920 = 9435 (OK) ; 1520 + 9435 = 10955 (OK) ; 1520 + 2865 = 4385 (et 2400 = tete -> point avant non identifie). Axe de rotation = 2e essieu + 475 = 6,340 ; controle : 11360 - 1520 - 3500 = 6,340 (OK). 11360 = tete de fleche -> arriere de la tourelle (x = 9,84), plus long que 10955 (arriere porteur). Pied de fleche : axe + 2500 = 8,84 (cote ; 10160 = poulie de tete -> pied de fleche, coherent), hauteur mesuree ; 550 = pied de fleche -> element arriere. AUCUNE cote de hauteur ni de largeur sur la planche : hauteur_transport (sommet de fleche ~3,77 m) et toutes les hauteurs mesurees a l'echelle horizontale (10,22 mm/px a 200 dpi, etalonnee sur 10955 et 11360) ; largeur_m = null. Les cotes 1520/2865 ne tombent pas exactement sur le dessin (frontiere decalee d'environ 80 mm). Stabilisateurs : vue de dessus, cote superieure 4826 + 2515 = 7341 retenue (1,514 et 8,855 m) ; cote inferieure 4574 + 2785 = 7359 (1,766 et 9,125 m) - deux cotations differentes, a verifier. Largeurs de calage 4500 / 6300, retenue 6300 ; patin 500 x 500. Contrepoids : plaque arrondie posee sur l'arriere du porteur en transport (un contour en tirets sur la tourelle montre sa position montee) - identification par interpretation. Reperes F et G (garde au sol / angles) sans valeur imprimee : garde_sol = null."
+  },
+  {
+   "machine": "Liebherr LTM 1070-4.1",
+   "pdf": "Liebherr_LTM_1070-4.1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 10.043,
+   "longueur_hors_tout_transport_m": 12.52,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.85,
+   "essieux_x_m": [
+    2.788,
+    4.438,
+    6.488,
+    8.138
+   ],
+   "diametre_pneu_m": 1.4,
+   "axe_rotation_x_m": 6.763,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.75,
+    "h_toit_m": 2.75
+   },
+   "cabine_grue": {
+    "x0_m": 5.2,
+    "x1_m": 7.1,
+    "h_bas_m": 1.95,
+    "h_toit_m": 3.75
+   },
+   "pied_fleche": {
+    "x_m": 8.963,
+    "h_m": 3.5
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.037,
+    "h_dessus_m": 3.85,
+    "epaisseur_m": 0.9
+   },
+   "contrepoids": {
+    "x0_m": 9.2,
+    "x1_m": 10.223,
+    "h_bas_m": 2.818,
+    "h_haut_m": 3.468
+   },
+   "stabilisateurs_x_m": [
+    1.437,
+    9.428
+   ],
+   "calage_m": {
+    "longueur": 7.991,
+    "largeur": 6.3
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.41,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee": "cote",
+    "contrepoids": "cote",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Hauteurs A–G données par un tableau selon les pneus : valeurs retenues pour 14.00 R 25 (A 3850, B 2550, C 2153, D 3468, E 2818, F 1710, G 410) car le pneu dessiné mesure ≈1,40 m et la garde G mesurée ≈0,40 m ; en 16.00 R 25 : A 3900, B 2680, D 3518, E 2868, F 1760, G 460 ; en 20.5 R 25 : A 3900, B 2820, C 2273, D 3518, E 2868, F 1760, G 460 (A abaissé −100 mm possible). Chaîne : 2297 (porte-à-faux moufle/tête) + 2788 + 1650 + 2050 + 1650 + 1905 = 12340 ✓ (porteur 10043 ✓). Axe = essieu 3 + 275 = 6,763 ; axe + 3280 = arrière porteur 10,043 ✓ ; axe + 3460 (R arrière) = 10,223, + 2297 → 12520 ✓. Pied de flèche = axe + 2200 = 8,963 (h ≈3,50 m mesuré) ; 11000 = pied → tête de flèche ⇒ tête à −2,037 ; élément le plus avant (moufle) à −2,297. 680 et 705 : cotes de l'arrière de tourelle (treuil / 2e treuil en option dessiné en pointillé), non exploitées. Contrepoids = bloc arrière de tourelle : bas E = 2818, haut D = 3468 (attribution des lignes à confirmer), x0 mesuré ≈9,2 m, x1 = rayon arrière. Hauteur de toit de la cabine porteur et cabine grue mesurées (échelle 7,96 mm/px horizontale ; verticalement le dessin donne ≈+2 % sur A/D/E/F). Stabilisateurs décalés : côté gauche axe −5326 / +2665 (7991), côté droit axe −5074 / +2935 (8009) → valeurs du côté 7991 retenues ; calage transversal 6300 (intermédiaire 4500). La cote 3002 (moufle → repère à 0,705 m du porteur) n'est pas identifiée. Rayons de braquage non reportés."
+  },
+  {
+   "machine": "Liebherr LTM 1070-4.2",
+   "pdf": "Liebherr_LTM_1070-4.2.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 10.114,
+   "longueur_hors_tout_transport_m": 12.515,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.95,
+   "essieux_x_m": [
+    2.785,
+    4.435,
+    6.485,
+    8.135
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 6.76,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.65,
+    "h_toit_m": 2.7
+   },
+   "cabine_grue": {
+    "x0_m": 5.0,
+    "x1_m": 6.85,
+    "h_bas_m": 2.1,
+    "h_toit_m": 3.624
+   },
+   "pied_fleche": {
+    "x_m": 8.96,
+    "h_m": 3.65
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.295,
+    "h_dessus_m": 3.95,
+    "epaisseur_m": 1.05
+   },
+   "contrepoids": {
+    "x0_m": 8.97,
+    "x1_m": 10.22,
+    "h_bas_m": 2.894,
+    "h_haut_m": 3.85
+   },
+   "stabilisateurs_x_m": [
+    1.686,
+    9.695
+   ],
+   "calage_m": {
+    "longueur": 8.009,
+    "largeur": 6.3
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.428,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee": "cote",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "x = 0 a l'avant du porteur. Chaine : 2295 (porte-a-faux tete de fleche) + 2785 + 1650 + 2050 + 1650 + 1979 = 12409 (controle OK) ; 10114 porteur OK ; 275 + 3354 = 1650 + 1979 = 3629 OK. Axe d'orientation = essieu 3 + 275 = 6760. Haut : 12515 = tete de fleche -> arriere tourelle = axe + 3460 = 10220 (OK) ; 11000 = poulie de tete -> axe + 2200 = 8960, ou un axe rond est dessine (h mesuree ~3,65 m) : retenu comme pied de fleche (x cote, h mesuree). 3005 = de la tete de fleche a un point x = 0,71 (non identifie). 13030 = longueur avec le bloc orange dessine a part au-dessus (treuil / equipement optionnel), arriere a x = 10,735. Hauteurs selon pneus (tableau) : valeurs 445/95 R 25 (16.00 R 25) retenues, le dessin y correspond (A mesure 3,94) : A hors tout 3950 (3850 suspension abaissee de 100 mm), D 3624 (toit cabine de grue), E 2894 (bas du bloc arriere orange), F 1866 (plateau), G 428 (garde au sol), B largeur 2550, C 2100 ; en 385/95 R 25 : A 3900, D 3574, E 2844, F 1816, G 378, C 2160 ; en 525/80 R 25 : largeur 2690. Contrepoids = bloc arriere orange de tourelle (x 8,97-10,20 mesure ; x1 = axe + 3460 = 10,22 cote ; bas = E 2894 cote ; haut ~3,85 mesure) : il inclut probablement le treuil, attribution a confirmer. Vue de dessus : stabilisateurs axe - 5074 et axe + 2935 (entraxe 8009, cote basse, retenu : 1,686 / 9,695) ; cote haute axe - 5326 / axe + 2665 (7991 : 1,434 / 9,425). Largeur de calage 6300 (2320-6300 avec VarioBase), 4500 intermediaire. Angles H/I/K/L = 13°/15°/21°/19° (16.00 R 25)."
+  },
+  {
+   "machine": "Liebherr LTM 1090-4.1",
+   "pdf": "Liebherr_LTM_1090-4.1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 10.534,
+   "longueur_hors_tout_transport_m": 12.895,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 3.955,
+   "essieux_x_m": [
+    2.704,
+    4.354,
+    6.754,
+    8.404
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 7.084,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.65,
+    "h_toit_m": 2.75
+   },
+   "cabine_grue": {
+    "x0_m": 5.45,
+    "x1_m": 7.45,
+    "h_bas_m": 2.2,
+    "h_toit_m": 3.8
+   },
+   "pied_fleche": {
+    "x_m": 9.234,
+    "h_m": 3.75
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.121,
+    "h_dessus_m": 3.9,
+    "epaisseur_m": 1.1
+   },
+   "contrepoids": {
+    "x0_m": 9.6,
+    "x1_m": 10.95,
+    "h_bas_m": 2.4,
+    "h_haut_m": 3.15
+   },
+   "stabilisateurs_x_m": [
+    1.504,
+    10.023
+   ],
+   "calage_m": {
+    "longueur": 8.4805,
+    "largeur": 7.0
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.42,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche.x_m": "cote",
+    "pied_fleche.h_m": "mesure_echelle",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "mesure_echelle",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Dessin vectoriel p.1 ; échelle horizontale 29,22 mm/pt (entraxe essieux 1-4 = 5700), verticale ~28,6 mm/pt (étalonnée sur A=3955). x=0 = avant du porteur. Chaîne du bas : 2121 (tête de flèche devant le porteur) + 2704 + 1650 + 2400 + 1650 + 2130 = 12655 (cohérent ; 10534 sans la flèche, cohérent). Axe de rotation = essieu 3 + 330 (cote) = 7,084 (7,06 à l'échelle). Cotes depuis l'axe : 2150 = articulation de flèche ; 3690 = arrière de tourelle (12895 - 2121 - 7084 = 3690, cohérent) ; 4060 = arrière du contrepoids/lest dessiné en pointillés ; 3480 non attribuée. INCOHÉRENCE : 2150 + 695 + 885 = 3730 ≠ 3690 (les traits de rappel à l'échelle donnent 2845 puis 3689 : la cote 885 semble devoir être ~845). Hors tout transport 12895 (tête de flèche -> arrière de tourelle) ; 12655 = au niveau du porteur ; avec le lest en pointillés : 2121 + 7084 + 4060 = 13265. Contrepoids : plaques dessinées en pointillés sous l'arrière de la tourelle (contrepoids éventuellement transporté), position mesurée, interprétation incertaine. Cotes selon pneus : retenu 16.00 R25 (A=3955, B=2750, C=2310, D=1940, E=3200, F=3715, G=420, H=460) ; 14.00 R25 : A=3905, G=370 ; 20.5 R25 : A=3955, B=2980 ; A abaissé = 3855. Garde au sol = G (min de G/H). Vue de dessus : stabilisateurs côté haut axe - 5705 / axe + 2775,5 (8480,5) retenus ; côté bas axe - 5455 / axe + 3102,5 (8557,5). Largeurs de calage 7000 (pleine), 5000, 4080 ; patins 500 x 500. Pneus non cotés (mesure ~1,48 m). MISE A JOUR stabilisateurs : la vue de dessus montre des poutres décalées d'un côté à l'autre ; valeurs retenues = moyenne des deux côtés (convention vérifiée sur les profils Tadano ATF 90G-4 et Grove GMK 6400 où les vérins de profil tombent sur cette moyenne)."
+  },
+  {
+   "machine": "Liebherr LTM 1100-4.2",
+   "pdf": "Liebherr_LTM_1100-4.2.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 10.728,
+   "longueur_hors_tout_transport_m": 13.513,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.799,
+    4.449,
+    6.889,
+    8.539
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 7.199,
+   "cabine_porteur": {
+    "x0_m": 0.1,
+    "x1_m": 1.8,
+    "h_toit_m": 2.7
+   },
+   "cabine_grue": {
+    "x0_m": 5.35,
+    "x1_m": 7.2,
+    "h_bas_m": 2.15,
+    "h_toit_m": 3.85
+   },
+   "pied_fleche": {
+    "x_m": 9.5,
+    "h_m": 3.7
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.23,
+    "h_dessus_m": 4.0,
+    "epaisseur_m": 1.2
+   },
+   "contrepoids": {
+    "x0_m": 7.9,
+    "x1_m": 9.8,
+    "h_bas_m": 2.15,
+    "h_haut_m": 3.35
+   },
+   "stabilisateurs_x_m": [
+    1.444,
+    9.975
+   ],
+   "calage_m": {
+    "longueur": 8.531,
+    "largeur": 7.009
+   },
+   "chenilles": null,
+   "garde_sol_m": 0.428,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote",
+    "garde_sol_m": "cote"
+   },
+   "remarques": "Vue de profil p.1, cabine porteur a gauche. x = 0 a l'avant du porteur ; tete de fleche en porte-a-faux 2230 mm (x_tete = -2,23, cote). Chaine : 2799 + 1650 + 2440 + 1650 + 2189 = 10728 (OK) ; 2230 + 10728 = 12958 (OK) ; axe = 3e essieu + 310 = 7,199 ; 7,199 + 3529 = 10,728 (OK, arriere porteur) ; 7,199 + 4084 = 11,283 = arriere tourelle, et 2230 + 11283 = 13513 (OK) = longueur hors tout en transport. La cote 11460 va de l'axe de poulie de tete au pied de fleche (axe circulaire mesure a x = 9,50 m, h = 3,70 m). Encart superieur 14008 / 1399 / 929 = variante avec equipement supplementaire a l'arriere (non exploitee). Hauteurs/largeur/garde au sol selon le tableau par monte de pneus : A (haut. hors tout) 3950 / 4000 / 4000, B (largeur) 2750 / 2750 / 2890, D (haut. arriere) 3667 / 3717 / 3717, E 1890 / 1940 / 1940, F (garde au sol) 378 / 428 / 428 pour 385/95 R25, 445/95 R25, 525/80 R25 ; valeurs retenues = 445/95 R25 (le dessin correspond a A = 4000 : echelle verticale 11,19 mm/px contre 11,36 mm/px horizontalement a 200 dpi). Avec A = 100 mm abaisse : 3850 / 3900. Stabilisateurs : vue de dessus, cote superieure 5755 (avant -> axe) + 2776 (axe -> arriere) = 8531 retenue (1,444 et 9,975 m) ; la cote inferieure donne 5505 + 3103 = 8608 (1,694 et 10,302 m) - deux cotations differentes sur la meme planche, a verifier. Largeurs de calage 4830 / 5007 / 7009 et 2515-7009 (VarioBase) ; retenue 7009. Contrepoids : bloc de plaques a l'arriere de la tourelle, identification par interpretation. Diametre pneu mesure ~1,51 m."
+  },
+  {
+   "machine": "Liebherr LTM 1250-1",
+   "pdf": "Liebherr_LTM_1250-1.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 15.585,
+   "longueur_hors_tout_transport_m": 17.661,
+   "largeur_m": 3.0,
+   "hauteur_transport_m": 4.15,
+   "essieux_x_m": [
+    2.65,
+    4.5,
+    7.35,
+    9.0,
+    11.58,
+    13.23
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 11.05,
+   "cabine_porteur": {
+    "x0_m": 0.15,
+    "x1_m": 1.7,
+    "h_toit_m": 2.55
+   },
+   "cabine_grue": {
+    "x0_m": 9.0,
+    "x1_m": 10.85,
+    "h_bas_m": 2.3,
+    "h_toit_m": 4.05
+   },
+   "pied_fleche": {
+    "x_m": 13.65,
+    "h_m": 3.9
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.75,
+    "h_dessus_m": 4.15,
+    "epaisseur_m": 1.35
+   },
+   "contrepoids": {
+    "x0_m": 13.95,
+    "x1_m": 16.62,
+    "h_bas_m": 2.3,
+    "h_haut_m": 3.35
+   },
+   "stabilisateurs_x_m": [
+    5.7065,
+    14.546
+   ],
+   "calage_m": {
+    "longueur": 8.8395,
+    "largeur": 8.5
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "mesure_echelle",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee": "cote",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Aucune cote de hauteur sur la planche : toutes les hauteurs sont mesurées à l'échelle horizontale (11,05 mm/px à 300 dpi, sol = ligne tracée) — hauteur hors tout 4,15 m = dessus de flèche/tête, à confirmer sur la fiche constructeur. Chaîne : 2076 (porte-à-faux moufle) + 2650 + 1850 + 2850 + 1650 + 2580 + 1650 + 2355 = 17661 ✓ (porteur 15585 ✓). 15320 = avant → fin du châssis (essieu 6 + 2090 ✓), les 265 mm restants = attelage/pare-chocs arrière. Axe = essieu 5 − 530 = 11,05. Pied de flèche = axe + 2600 = 13,65 (h ≈3,9 m mesuré) ; 15400 = tête de flèche → pied ⇒ tête à −1,75, moufle à −2,076. 2600 + 840 + 1134 = 4574 = axe → arrière de tourelle (15,62 m) ✓ ; 5570 = axe → arrière du lest additionnel dessiné en pointillé (16,62 m). Contrepoids = plaques de lest en pointillé (position de travail, pas en transport) : x0, h_bas, h_haut mesurés, x1 coté. Stabilisateurs décalés : un côté axe − 5343,5 / + 3496 (8839,5), l'autre axe − 4956,5 / + 3904 (8860,5) ; valeurs du premier côté retenues. Calage transversal 8500 (intermédiaires ca. 6560, 5585, 4570) ; largeur porteur 3000. Cote 2975 (moufle → repère à 0,90 m du porteur) non identifiée. Rayons R14100, R13000, R11400, R5600, R6420 non reportés. Garde au sol non lisible → null."
+  },
+  {
+   "machine": "Liebherr MK 110",
+   "pdf": "Liebherr_MK_110.pdf",
+   "page": 1,
+   "silhouette": "grue_automotrice_a_tour",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 13.55,
+   "longueur_hors_tout_transport_m": 16.65,
+   "largeur_m": 3.0,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.56,
+    6.045,
+    8.08,
+    10.08,
+    11.73
+   ],
+   "diametre_pneu_m": 1.3,
+   "axe_rotation_x_m": 10.1,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.35,
+    "h_toit_m": 2.05
+   },
+   "cabine_grue": {
+    "x0_m": 12.5,
+    "x1_m": 14.25,
+    "h_bas_m": 3.0,
+    "h_toit_m": 4.0
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -0.83,
+    "h_dessus_m": 4.0,
+    "epaisseur_m": 1.6
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    5.05,
+    13.3
+   ],
+   "calage_m": {
+    "longueur": 8.25,
+    "largeur": 8.2
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "mesure_echelle",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "stabilisateurs_x_m": "mesure_echelle",
+    "calage_m": "cote",
+    "mk": "mesure_echelle"
+   },
+   "mk": {
+    "hauteur_pied_fleche_m": 34.9,
+    "longueur_fleche_m": 51.4,
+    "notes": "Mesures sur le diagramme p. 2 (fleche horizontale, tour en configuration 33,0 m sous crochet), echelle etalonnee sur la cote 8,25 m (46,1 mm/px a 200 ppp) ; recoupement : hauteur du bas du crochet mesuree 32,9 m pour 33,0 m cote (OK). Pied de fleche (articulation fleche/tete de tour) ~34,9 m au-dessus du sol. Longueur de fleche mesuree ~51,4 m (articulation -> pointe) ; le rayon cote est 52,0 m alors que le crochet dessine n'est qu'a ~50,2 m de l'axe de tour a cette echelle : incertitude ~ +/- 1,5 m. Autres cotes p. 2 : hauteurs sous crochet 25,0 / 33,0 m (fleche horizontale, portee 52,0 m, 1800 kg) ; fleche relevee 15° : 45,7 m / portee 50,2 m / 1700 kg ; 30° : 58,0 m / 45,3 m / 1800 kg ; 45° : 68,0 m / 37,2 m / 1700 kg."
+   },
+   "remarques": "x = 0 a l'avant du porteur (cote 0,83 m entre la tete de tour repliee, point le plus avant, et l'avant du porteur). Chaine : 3,39 + 3,485 + 2,035 + 2,0 + 1,65 + 4,09 = 16,65 m (controle OK) ; 0,83 + 13,55 + 2,27 = 16,65 OK. Essieux = chaine - 0,83 (essieu 1 mesure a 2,50 contre 2,56 cote). Le paquet tour + fleche replie depasse de 0,83 m a l'avant (x = -0,83) et de 2,27 m a l'arriere du porteur (jusqu'a x = 15,82). Cote '1,65 m' en bas a gauche (depuis l'extremite avant) non attribuee. 1,63 m = hauteur du plateau du porteur a l'arriere (dessin isotrope : 4,0 m de hauteur hors tout recoupe a l'echelle de 16,65 m). Angles d'attaque 12°, de fuite 12° / 8,5°. Charges par essieu : 13,5 / 13,5 / 12,3 / 12,3 / 12,3 t. Axe d'orientation (couronne) mesure en vue de dessus au droit de l'essieu 4 (~10,1 m ; rayon arriere R = 4,00 m) - pas de cote longitudinale. Stabilisateurs : abscisses mesurees en vue de dessus (echelle 14,47 mm/px etalonnee sur 8,25 m, recalee sur les essieux) pour la paire cotee 8,25 m (5,05 et 13,30) ; l'autre paire de poutres est dessinee ~0,3 m plus en avant (4,75 / 12,95). Largeurs de calage 8,20 / 5,95 m ; cotes 1,70 / 2,50 / 2,60 m de la vue de dessus non exploitees (attribution incertaine). Cabine de grue en position transport a l'arriere sur le paquet tour (mesure). Pied de fleche en transport non identifiable : null. Pas de contrepoids distinct identifiable : null. Diametre pneu mesure ~1,3 m."
+  },
+  {
+   "machine": "Liebherr MK 140",
+   "pdf": "Liebherr_MK_140.pdf",
+   "page": 1,
+   "silhouette": "grue_automotrice_a_tour",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 12.64,
+   "longueur_hors_tout_transport_m": 15.97,
+   "largeur_m": 3.0,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.55,
+    5.19,
+    7.14,
+    9.39,
+    11.04
+   ],
+   "diametre_pneu_m": 1.35,
+   "axe_rotation_x_m": 9.25,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.8,
+    "h_toit_m": 2.05
+   },
+   "cabine_grue": null,
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -0.75,
+    "h_dessus_m": 4.0,
+    "epaisseur_m": 2.05
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    4.05,
+    12.3
+   ],
+   "calage_m": {
+    "longueur": 8.25,
+    "largeur": 8.2
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "mk": {
+    "hauteur_pied_fleche_m": 37.55,
+    "longueur_fleche_m": 58.2,
+    "notes": "Mesures à l'échelle sur le diagramme de hauteurs p.2 (quadrillage 1 m, configuration de mât la plus haute, flèche à 0°) : articulation de flèche à ~37,55 m de haut et ~1,85 m de l'origine des portées ; pointe de flèche à ~59,9 m de portée et ~42,1 m de haut ; longueur de flèche déduite ~58,2 m (non cotée). Contrôle : crochet à la portée cotée 58,5 m, hauteur sous crochet cotée 39,9 m. Autres hauteurs de mât (crochet à 30,3 m et 20,8 m) : pied de flèche non dessiné, non relevé. Angles de flèche 0/15/30/45° ; portées max 58,5 / 56,5 / 50,7 / 41,5 m."
+   },
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "mesure_echelle",
+    "cabine_porteur": "mesure_echelle",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "cote",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "stabilisateurs_x_m": "mesure_echelle",
+    "calage_m": "cote",
+    "mk.hauteur_pied_fleche_m": "mesure_echelle",
+    "mk.longueur_fleche_m": "mesure_echelle"
+   },
+   "remarques": "Dessin vectoriel p.1 ; échelle profil 63,26 mm/pt (12,64 m) horizontal, ~62,5 mm/pt vertical (4,0 m sur la vue arrière : 61,7). x=0 = avant du porteur. Chaîne : 0,75 (paquet mât/flèche replié devant le porteur) + 2,55 + 2,64 + 1,95 + 2,25 + 1,65 + 1,60 (= 12,64, cohérent) + 2,58 (porte-à-faux arrière du paquet) = 15,97 (cohérent). La cote 0,23 m (à l'arrière, au-delà de 15,97) n'est pas attribuable avec certitude. Charges par essieu 12,0 t. 1,37 m = hauteur d'un repère arrière du châssis (non repris). Vue arrière : hauteur 4,0 m, largeur 3,0 m, voie 2,61 m. Axe de rotation non coté sur le profil : position mesurée sur la vue de dessus (centre de la couronne ; échelle 62,1 mm/pt étalonnée sur 8,25 m) à ~10,0 m de l'extrémité avant du paquet, soit ~9,25 m de l'avant du porteur ; stabilisateurs = axe - 5,35 / axe + 2,90 (côté haut ; côté bas : axe - 5,06 / axe + 3,19). Calage 8,25 x 8,20 m (aussi 6,95 et 5,95 m de large) ; patins 0,6 x 0,6 m, max. 48 t. 'fleche_repliee' = paquet mât + flèche repliés (dessus 4,0 m, dessous ~1,95 m au-dessus du sol à l'avant). Cabine grue : deux éléments possibles sur le profil (petite fenêtre au milieu, grand vitrage à l'arrière), non identifiable avec certitude : null. Pied de flèche en transport et contrepoids non identifiables : null. Garde au sol non cotée (angles d'attaque 12° / 13°). MISE A JOUR stabilisateurs : la vue de dessus montre des poutres décalées d'un côté à l'autre ; valeurs retenues = moyenne des deux côtés (convention vérifiée sur les profils Tadano ATF 90G-4 et Grove GMK 6400 où les vérins de profil tombent sur cette moyenne). Pour la MK 140 : axe mesuré 9,25 ; côté haut 3,90 / 12,15 ; côté bas 4,19 / 12,44."
+  },
+  {
+   "machine": "Liebherr MK 88",
+   "pdf": "Liebherr_MK_88.pdf",
+   "page": 1,
+   "silhouette": "grue_automotrice_a_tour",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 11.58,
+   "longueur_hors_tout_transport_m": 15.94,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 4.0,
+   "essieux_x_m": [
+    2.61,
+    4.95,
+    7.85,
+    9.5
+   ],
+   "diametre_pneu_m": 1.35,
+   "axe_rotation_x_m": 8.66,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.85,
+    "h_toit_m": 2.1
+   },
+   "cabine_grue": null,
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -2.08,
+    "h_dessus_m": 4.0,
+    "epaisseur_m": 2.11
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    3.68,
+    10.98
+   ],
+   "calage_m": {
+    "longueur": 7.3,
+    "largeur": 7.0
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "fleche_repliee": "cote",
+    "stabilisateurs_x_m": "mesure_echelle",
+    "calage_m": "cote",
+    "mk": "mesure_echelle"
+   },
+   "mk": {
+    "hauteur_pied_fleche_m": 30.15,
+    "longueur_fleche_m": 44.0,
+    "notes": "Mesures sur le diagramme des hauteurs p.2 (quadrillage 5 m, 33,7 px/m a 300 dpi). Fleche horizontale (0 deg) en position haute : articulation a ~30,15 m au-dessus du sol, a ~1,75 m de l'axe de rotation ; crochet a 30,2 m (cote) pour 45,0 m de portee (cote). Position basse : articulation a ~18,0 m, crochet a 17,9 m (cote) pour 45,0 m. Flechettes relevees 15 / 30 / 45 deg : crochet 40,2 / 50,4 / 59,1 m pour 43,3 / 38,9 / 31,9 m de portee (cotes). longueur_fleche = distance articulation -> extremite de pointe mesuree (~44,0 m) ; non imprimee comme cote."
+   },
+   "remarques": "Vue de profil p.1 en position transport : tour et fleche repliees en un paquet au-dessus du porteur, depassant de 2,08 m a l'avant (x_tete = -2,08, cote) et de 2,28 m a l'arriere (fin du paquet a x = 13,86). Chaine : 4,69 + 2,34 + 2,9 + 1,65 + 4,36 = 15,94 (OK) ; 2,08 + 11,58 + 2,28 = 15,94 (OK) ; 10,74 + 5,20 = 15,94 (OK). Essieux = 4,69 - 2,08 puis cotes partielles ; axe de rotation = 10,74 - 2,08 = 8,66 (centre de la couronne en vue de dessus, controle par mesure). fleche_repliee : dessus = 4,0 m (cote hauteur hors tout), dessous du paquet a l'avant = 1,89 m (cote) d'ou epaisseur 2,11 m. Largeur 2,75 m hors tout (vue arriere), 2,36 m = voie (cote vue arriere). Charges par essieu 4 x 12,0 t. Stabilisateurs mesures en vue de dessus (16,94 mm/px, etalonnee sur 7,30 m ; controles 15,94 et 10,74 retrouves) : appuis a x = 3,68 et 10,98 (entraxe 7,30 cote). Calage 7,30 x 7,00 m ou 7,30 x 5,75 m (cotes), charge max par appui 40 t, plaque 0,5 x 0,5 m. Cabine de grue, pied de fleche et contrepoids non identifiables sans ambiguite sur la vue transport : null. Garde au sol non cotee (angles d'attaque 12 deg). Diametre de pneu mesure 1,32-1,34 m. Rayons : R = 10,43 / 7,54 m (giration), r = 3,55 m (3,70 m avec lest additionnel) rayon arriere tourelle."
+  },
+  {
+   "machine": "Tadano ATF 50G-3",
+   "pdf": "Tadano_ATF_50G-3.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 9.39,
+   "longueur_hors_tout_transport_m": 11.373,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.733,
+   "essieux_x_m": [
+    2.97,
+    5.645,
+    7.295
+   ],
+   "diametre_pneu_m": 1.35,
+   "axe_rotation_x_m": 6.345,
+   "cabine_porteur": {
+    "x0_m": 0.1,
+    "x1_m": 1.85,
+    "h_toit_m": 2.6
+   },
+   "cabine_grue": {
+    "x0_m": 4.8,
+    "x1_m": 6.9,
+    "h_bas_m": 1.9,
+    "h_toit_m": 3.6
+   },
+   "pied_fleche": {
+    "x_m": 8.645,
+    "h_m": 3.2
+   },
+   "fleche_repliee": {
+    "x_tete_m": -1.355,
+    "h_dessus_m": 3.55,
+    "epaisseur_m": 0.85
+   },
+   "contrepoids": {
+    "x0_m": 8.7,
+    "x1_m": 9.795,
+    "h_bas_m": 2.667,
+    "h_haut_m": 3.074
+   },
+   "stabilisateurs_x_m": [
+    1.72,
+    8.92
+   ],
+   "calage_m": {
+    "longueur": 7.2,
+    "largeur": 6.3
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee": "cote",
+    "contrepoids": "cote",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Pneus de la planche : 385/95 R 25 (14.00 R 25) ; hauteurs marquées * à ±100 mm. Chaîne : 1578 (moufle) + 9390 (porteur : 2970 + 2675 + 1650 + 2095 ✓) + 405 de dépassement de la tourelle = 11373 ✓. Axe = essieu 2 + 700 = 6,345 ; contrôle : axe + 3450 (rayon arrière R3450) = 9,795 = 11,373 − 1,578 ✓. 4233,5 = axe → arrière du lest additionnel en pointillé (783,5 au-delà, 10,58 m). Pied de flèche = axe + 2300 = 8,645 (h ≈3,20 m mesuré) ; 10000 = tête → pied ⇒ tête à −1,355 ; moufle à −1,578. Stabilisateurs : 4625 / 2575 autour de l'axe (7200) ; vue de dessus côté haut 4755,5 / 2439,5 (7195), côté bas 4494,5 / 2710,5 (7205) ; calage transversal 6300 (intermédiaire 4300 ; patins 450 × 450). Hauteurs cotées à droite : 3720, 3194, 3074, 2667, 2222 (lignes de l'arrière de tourelle / lest en pointillé) — contrepoids retenu entre 2667 et 3074 (attribution à confirmer) ; x0 mesuré ≈8,7 m, x1 = rayon arrière. 3733 = hauteur hors tout (tête de flèche). Largeur 2550 en 385/95 R 25, 2660 en 445/95 R 25 (16.00 R 25). Angles 17,6° (avant) / 15,3° (arrière). Cabines, épaisseur et dessus de flèche mesurés (7,04 mm/px à 300 dpi). Garde au sol non cotée → null."
+  },
+  {
+   "machine": "Tadano ATF 60G-3",
+   "pdf": "Tadano_ATF_60G-3.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 9.735,
+   "longueur_hors_tout_transport_m": 11.178,
+   "largeur_m": 2.55,
+   "hauteur_transport_m": 3.678,
+   "essieux_x_m": [
+    3.26,
+    4.91,
+    7.76
+   ],
+   "diametre_pneu_m": 1.5,
+   "axe_rotation_x_m": 6.06,
+   "cabine_porteur": {
+    "x0_m": 0.05,
+    "x1_m": 1.6,
+    "h_toit_m": 2.65
+   },
+   "cabine_grue": {
+    "x0_m": 3.6,
+    "x1_m": 5.6,
+    "h_bas_m": 1.95,
+    "h_toit_m": 3.6
+   },
+   "pied_fleche": null,
+   "fleche_repliee": {
+    "x_tete_m": -1.418,
+    "h_dessus_m": 3.65,
+    "epaisseur_m": 0.65
+   },
+   "contrepoids": null,
+   "stabilisateurs_x_m": [
+    2.01,
+    9.21
+   ],
+   "calage_m": {
+    "longueur": 7.2,
+    "largeur": 6.4
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "fleche_repliee": "cote",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "x = 0 a l'avant du porteur. Chaine : 1418 (porte-a-faux tete de fleche) + 3260 + 1650 + 2850 + 1975 + 516 = 11669 (controle OK) ; 9735 = 3260 + 1650 + 2850 + 1975 OK. Axe d'orientation = essieu 2 + 1150 = 6060 ; stabilisateurs = axe - 4050 = 2010 et axe + 3150 = 9210 (7200 OK). Longueur hors tout : 11178 (= axe + 3700 + 1418) sans l'equipement entre parentheses ; 11669 avec l'element arriere (491) qui porte l'arriere a x = 10,251 (= 9735 + 516). Ecart : 1418 + 9735 = 11153 contre 11178 (la superstructure depasse de 25 mm l'arriere du porteur, axe + 3700 = 9760). Autres cotes haut : 9474 = poulie de tete -> axe + 2255 = 8315 (probablement le pied de fleche, mais l'articulation n'est pas identifiable sur le dessin : null) ; 3505 -> 9565. Hauteurs marquees * (+/- 100) : hors tout 3678 (tete de fleche), 3255 (dessus du treuil arriere), 2905, 2807, 1827 (plateau). h_dessus de fleche mesure 3,62-3,68 ; epaisseur de fleche mesuree ~0,65 (dessous ~2,96). Largeur 2550 avec 385/95 R 25 (2660 en 445/95 R 25, 2820 en 525/80 R 25). Vue de dessus : calage cote haute 4181,5 + 3014,5 = 7196 ; cote basse 3919,5 + 3285,5 = 7205 (paires de poutres decalees : 1,878 / 9,075 et 2,141 / 9,346 depuis l'avant) ; profil 7200 retenu ; largeurs de calage 6400 / 4385 ; patins 542. Angles 16° / 17°. Contrepoids non identifiable en configuration route : null. Garde au sol non cotee."
+  },
+  {
+   "machine": "Tadano ATF 90G-4",
+   "pdf": "Tadano_ATF_90G-4.pdf",
+   "page": 1,
+   "silhouette": "grue_tout_terrain",
+   "gauche_du_dessin": "avant (cabine du porteur)",
+   "longueur_porteur_m": 10.782,
+   "longueur_hors_tout_transport_m": 13.237,
+   "largeur_m": 2.75,
+   "hauteur_transport_m": 3.925,
+   "essieux_x_m": [
+    3.002,
+    4.702,
+    7.142,
+    8.842
+   ],
+   "diametre_pneu_m": 1.45,
+   "axe_rotation_x_m": 7.287,
+   "cabine_porteur": {
+    "x0_m": 0.0,
+    "x1_m": 1.9,
+    "h_toit_m": 2.65
+   },
+   "cabine_grue": {
+    "x0_m": 5.4,
+    "x1_m": 7.6,
+    "h_bas_m": 2.15,
+    "h_toit_m": 3.85
+   },
+   "pied_fleche": {
+    "x_m": 9.287,
+    "h_m": 3.463
+   },
+   "fleche_repliee": {
+    "x_tete_m": -2.064,
+    "h_dessus_m": 3.8,
+    "epaisseur_m": 1.05
+   },
+   "contrepoids": {
+    "x0_m": 9.4,
+    "x1_m": 10.987,
+    "h_bas_m": 2.147,
+    "h_haut_m": 2.994
+   },
+   "stabilisateurs_x_m": [
+    1.752,
+    10.293
+   ],
+   "calage_m": {
+    "longueur": 8.541,
+    "largeur": 7.2
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_porteur": "mesure_echelle",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "cote",
+    "fleche_repliee.x_tete_m": "cote",
+    "fleche_repliee.h_dessus_m": "mesure_echelle",
+    "fleche_repliee.epaisseur_m": "mesure_echelle",
+    "contrepoids.x0_m": "mesure_echelle",
+    "contrepoids.x1_m": "cote",
+    "contrepoids.h_bas_m": "cote",
+    "contrepoids.h_haut_m": "cote",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Dessin vectoriel p.1, pneus 445/95 R25 (16.00 R25) ; échelle 31,59 mm/pt (10782), cotes de hauteur marquées * = ± 100 mm. x=0 = avant du porteur. Chaîne du bas : 2064 (tête de flèche devant le porteur) + 3002 + 1700 + 2440 + 1700 + 1940 = 12846 (cohérent ; 10782 sans la flèche, cohérent). Axe de rotation = essieu 3 + 145 (cote) = 7,287 (confirmé à l'échelle). Depuis l'axe : 2000 = articulation de flèche, 3210 = élément de treuil, 3700 = arrière du contrepoids, 3886 = élément le plus arrière ; contrôles : 2064 + 7287 + 3700 = 13051 (cote, cohérent) ; 8842 + 2145 = 10987 = axe + 3700 (cohérent) ; 391 = arrière porteur -> élément le plus arrière (10782 + 391 = 11173 = axe + 3886, cohérent). Longueur hors tout transport retenue = 12846 + 391 = 13237 (la cote 13051 s'arrête à l'arrière du contrepoids). Hauteurs : 3925* hors tout, 3463* = axe d'articulation de flèche (coïncide avec le cercle d'articulation à l'échelle), 2994* = dessus du contrepoids, 2147* = dessous du contrepoids (contrepoids dessiné en pointillés), 685* = dessous du porte-à-faux avant (pas une garde au sol sous essieux : garde_sol null). Stabilisateurs : la vue de dessus montre des poutres décalées par côté (côté haut axe - 5681 / axe + 2860 ; côté bas axe - 5390 / axe + 3151, entraxe 8541 des deux côtés) ; la vue de profil place les vérins à la moyenne, 1,752 et 10,293 (entraxe 8540, cote), valeurs retenues. Largeur 2750 (14.00/16.00 R25), 2970 (20.5 R25) ; calage 7200 (pleine) ou 5000 ; patins 542. Pneus non cotés (mesure ~1,46 m)."
+  },
+  {
+   "machine": "Terex A600",
+   "pdf": "Terex_A600.pdf",
+   "page": 1,
+   "silhouette": "grue_rt",
+   "gauche_du_dessin": "avant (tete de fleche ; pas de cabine porteur, cabine unique sur tourelle)",
+   "longueur_porteur_m": 7.45,
+   "longueur_hors_tout_transport_m": 12.75,
+   "largeur_m": 3.0,
+   "hauteur_transport_m": 3.58,
+   "essieux_x_m": [
+    1.78,
+    5.58
+   ],
+   "diametre_pneu_m": 1.6,
+   "axe_rotation_x_m": 3.63,
+   "cabine_porteur": null,
+   "cabine_grue": {
+    "x0_m": 2.65,
+    "x1_m": 4.75,
+    "h_bas_m": 2.0,
+    "h_toit_m": 3.57
+   },
+   "pied_fleche": {
+    "x_m": 5.75,
+    "h_m": 3.25
+   },
+   "fleche_repliee": {
+    "x_tete_m": -5.13,
+    "h_dessus_m": 3.4,
+    "epaisseur_m": 0.8
+   },
+   "contrepoids": {
+    "x0_m": 6.35,
+    "x1_m": 7.62,
+    "h_bas_m": 2.15,
+    "h_haut_m": 2.9
+   },
+   "stabilisateurs_x_m": [
+    0.43,
+    7.03
+   ],
+   "calage_m": {
+    "longueur": 6.6,
+    "largeur": 7.2
+   },
+   "chenilles": null,
+   "garde_sol_m": null,
+   "provenance": {
+    "longueur_porteur_m": "cote",
+    "longueur_hors_tout_transport_m": "cote",
+    "largeur_m": "cote",
+    "hauteur_transport_m": "cote",
+    "essieux_x_m": "cote",
+    "diametre_pneu_m": "mesure_echelle",
+    "axe_rotation_x_m": "cote",
+    "cabine_grue": "mesure_echelle",
+    "pied_fleche": "mesure_echelle",
+    "fleche_repliee": "mesure_echelle",
+    "contrepoids": "mesure_echelle",
+    "stabilisateurs_x_m": "cote",
+    "calage_m": "cote"
+   },
+   "remarques": "Grue tout-terrain RT a 2 essieux, cabine unique sur la tourelle (cabine_porteur = null). Tete de fleche a gauche, porte-a-faux 5130 mm (x_tete = -5,13, cote) ; x = 0 a l'avant du chassis porteur. Chaine : 5130 + 1780 + 1850 + 1950 + 1870 + 170 = 12750 (OK) ; 1780 + 1850 + 1950 + 1870 = 7450 (OK). INCOHERENCE : la cote 3850 (axe de rotation -> arriere du contrepoids) ne correspond pas a 1950 + 1870 + 170 = 3990 (ecart 140 mm) ; axe retenu a 1780 + 1850 = 3,63 m. Stabilisateurs : vue de dessus 3200 (avant -> axe) + 3400 (axe -> arriere) = 6600 (OK avec la cote 6600) : 3,63 - 3,20 = 0,43 et 3,63 + 3,40 = 7,03 ; largeur de calage 7200, largeur porteur 3000 (vue de dessus). Hauteurs : 3570 (23.5 R25) / 3650 (26.5 R25) a gauche (sommet cabine), 3580 / 3660 a droite ; retenu 3,58 (pneus 23.5 R25). DESSIN NON STRICTEMENT A L'ECHELLE : les cotes partielles ne tombent pas proportionnellement (11,3 a 13,3 mm/px selon le troncon) et l'echelle verticale (10,7 mm/px, etalonnee sur 3570 au sommet de cabine) differe de l'horizontale (11,55 mm/px) : les mesures a l'echelle (cabine, contrepoids, fleche, pied de fleche) sont approximatives (+/- 0,2 m), interpolees entre les cotes voisines. Diametre de pneu mesure horizontalement ~1,60 m (1,49 m verticalement). Pied de fleche : axe circulaire au sommet arriere de la tourelle, identification par interpretation. Garde au sol centrale non cotee ; cotes imprimees : 290 (23.5 R25) / 325 (26.5 R25) sous l'avant, 520 / 550 a l'arriere, 200 / 130 = course des patins sous le niveau du sol ; angles 20/22 deg avant, 18/20 deg arriere."
+  }
+ ]
+}

@@ -13,7 +13,7 @@
  */
 import { VINCI } from "@/lib/design-tokens";
 
-import { elevCamionBras, elevChariot, elevGrueChenilles, elevGrueMobile, elevGrueTour, elevPelle, elevTelescopique, moufleCrochet } from "./engins-elevation";
+import { elevCamionBras, elevChariot, elevGrueAutomotriceTour, elevPickCarry, elevGrueChenilles, elevGrueMobile, elevGrueTour, elevPelle, elevTelescopique, moufleCrochet } from "./engins-elevation";
 import type { Gabarit } from "./gabarits";
 import { GRIS_FONCE, GRIS_MOYEN, flecheTelescopique, treillis } from "./rendu";
 
@@ -339,6 +339,8 @@ export interface SortieElevation {
   /** Angle pied → tête par rapport à l'horizontale (°), valable pour une flèche rectiligne. */
   angleDeg: number;
   indicatif: string[];
+  /** Modèle et planche de cotation utilisés pour les proportions, `null` = proportions de la famille. */
+  cotesModele: string | null;
 }
 
 /** Hauteur du pied de flèche et hauteur minimale de tête, à utiliser pour déduire la tête depuis la géométrie. */
@@ -358,13 +360,13 @@ export function silhouetteElevation(e: EntreeElevation): SortieElevation {
   let r: { formes: Forme[]; pied: Pt; tete: Pt; sansCable?: boolean };
   switch (e.type) {
     case "grue_mobile":
-      r = elevGrueMobile(dm, st, tete);
+      r = dm.gabarit?.silhouette === "pick_and_carry" ? elevPickCarry(dm, tete) : elevGrueMobile(dm, st, tete);
       break;
     case "grue_mobile_chenilles":
       r = elevGrueChenilles(dm, tete);
       break;
     case "grue_tour":
-      r = elevGrueTour(dm, tete);
+      r = dm.gabarit?.silhouette === "grue_automotrice_a_tour" ? elevGrueAutomotriceTour(dm, st ?? "sortis", tete) : elevGrueTour(dm, tete);
       break;
     case "grue_auxiliaire":
       r = elevCamionBras(dm, st, tete);
@@ -396,6 +398,7 @@ export function silhouetteElevation(e: EntreeElevation): SortieElevation {
     longueurFlecheM: Math.hypot(dx, dy),
     angleDeg: (Math.atan2(dy, dx) * 180) / Math.PI,
     indicatif: dm.indicatif,
+    cotesModele: dm.gabarit ? `${dm.gabarit.modele}, ${dm.gabarit.source}` : null,
   };
 }
 

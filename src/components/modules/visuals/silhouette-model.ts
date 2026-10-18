@@ -142,7 +142,11 @@ export function hauteurAxeM(geo: GeoElevation): number {
 export function noteIndicatif(geo: GeoElevation): string {
   const liste = [...geo.sil.indicatif];
   if (!geo.typeReconnu) liste.push("type de machine non reconnu (silhouette de grue mobile)");
-  const dims = liste.length > 0 ? `silhouette « ${geo.type.replace(/_/g, " ")} » avec proportions par défaut (${liste.join(", ")})` : "silhouette de la famille de machine";
+  const dims = geo.sil.cotesModele
+    ? `dessin aux cotes du modèle (${geo.sil.cotesModele})${liste.length > 0 ? `, valeurs par défaut pour : ${liste.join(", ")}` : ""}`
+    : liste.length > 0
+      ? `silhouette « ${geo.type.replace(/_/g, " ")} » avec proportions par défaut (${liste.join(", ")})`
+      : "silhouette de la famille de machine";
   return `Schéma indicatif — ne remplace pas les plans constructeur : ${dims}`;
 }
 

@@ -112,10 +112,9 @@ export function versDessin(g: GabaritReleve): Gabarit | null {
       : null,
     stabilisateurs: g.stabilisateurs_x_m ? g.stabilisateurs_x_m.filter(fini).map(X).sort((a, b) => a - b) : null,
     calage: g.calage_m && fini(g.calage_m.longueur) && fini(g.calage_m.largeur) ? { longueurM: g.calage_m.longueur, largeurM: g.calage_m.largeur } : null,
-    chenilles: g.chenilles && fini(g.chenilles.longueur_m) ? (() => {
-      const l = g.chenilles!.longueur_m;
-      return { x0: -l / 2, x1: l / 2, h: g.chenilles!.hauteur_m };
-    })() : null,
+    chenilles: g.chenilles && fini(g.chenilles.longueur_m)
+      ? (([x0, x1]) => ({ x0, x1, h: g.chenilles!.hauteur_m }))(fini(g.axe_rotation_x_m) ? plage(0, g.chenilles.longueur_m) : [-g.chenilles.longueur_m / 2, g.chenilles.longueur_m / 2])
+      : null,
     fleche: g.mk ? { longueurM: g.mk.longueur_fleche_m, piedH: g.mk.hauteur_pied_fleche_m } : null,
   };
 }
@@ -129,7 +128,7 @@ const cle = (s: string) =>
     .replace(/tadano\s+faun/g, "tadano")
     .replace(/[^a-z0-9]/g, "");
 
-const INDEX = new Map<string, GabaritReleve>((brut as { machines: GabaritReleve[] }).machines.map((g) => [cle(g.machine), g]));
+const INDEX = new Map<string, GabaritReleve>((brut as unknown as { machines: GabaritReleve[] }).machines.map((g) => [cle(g.machine), g]));
 
 /** Gabarit du modèle (fabricant + modèle tels qu'au catalogue), `null` si la cotation n'a pas été relevée. */
 export function gabaritDe(fabricant: string | null | undefined, modele: string | null | undefined): Gabarit | null {
