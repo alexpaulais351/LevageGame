@@ -13,6 +13,9 @@
  */
 import { VINCI } from "@/lib/design-tokens";
 
+import { elevCamionBras, elevChariot, elevGrueChenilles, elevGrueMobile, elevGrueTour, elevPelle, elevTelescopique, moufleCrochet } from "./engins-elevation";
+import { GRIS_FONCE, GRIS_MOYEN, flecheTelescopique, treillis } from "./rendu";
+
 export type TypeMachine =
   | "grue_mobile"
   | "grue_mobile_chenilles"
@@ -77,17 +80,18 @@ export function typeMachineDepuis(code: string | null | undefined, libelle?: str
 
 export type Pt = [number, number];
 
-export type Forme =
-  | { k: "poly"; pts: Pt[]; fill?: string; stroke?: string; sw?: number }
-  | { k: "circle"; cx: number; cy: number; r: number; fill?: string; stroke?: string; sw?: number }
-  | { k: "line"; x1: number; y1: number; x2: number; y2: number; stroke: string; w: number; dash?: string };
+/** Arrêt de dégradé : position (0–1), couleur de la charte, opacité facultative. */
+export type Arret = readonly [number, string, number?];
+/** Dégradé en coordonnées de la forme (projeté avec elle) : linéaire a → b, ou radial de centre c et rayon r. */
+export type Degrade = { k: "lin"; a: Pt; b: Pt; arrets: readonly Arret[] } | { k: "rad"; c: Pt; r: number; arrets: readonly Arret[] };
+export type Peinture = string | Degrade;
 
-/**
- * Nuances de gris neutre des silhouettes (corps, organes), en complément des gris de la charte.
- * Flèche = bleu VINCI ; câble / pneus = noir ; vitres = bleu très clair.
- */
-export const GRIS_FONCE = "#5A5A5A"; // texte secondaire charte VINCI
-export const GRIS_MOYEN = "#B5ABA1"; // gris VINCI
+export type Forme =
+  | { k: "poly"; pts: Pt[]; fill?: Peinture; stroke?: string; sw?: number; op?: number }
+  | { k: "circle"; cx: number; cy: number; r: number; fill?: Peinture; stroke?: string; sw?: number; op?: number }
+  | { k: "line"; x1: number; y1: number; x2: number; y2: number; stroke: string; w: number; dash?: string; op?: number };
+
+export { GRIS_FONCE, GRIS_MOYEN, cinematiquePelle } from "./rendu";
 const C = {
   corps: GRIS_FONCE,
   organe: GRIS_MOYEN,
@@ -135,9 +139,12 @@ export function calculerBornes(formes: readonly Forme[]): Bornes {
 export function projeter(formes: readonly Forme[], t: { ox: number; oy: number; s: number; flipY: boolean }): Forme[] {
   const X = (x: number) => t.ox + x * t.s;
   const Y = (y: number) => t.oy + (t.flipY ? -y : y) * t.s;
+  const P = ([x, y]: Pt): Pt => [X(x), Y(y)];
+  const peint = (p?: Peinture): Peinture | undefined =>
+    p === undefined || typeof p === "string" ? p : p.k === "lin" ? { ...p, a: P(p.a), b: P(p.b) } : { ...p, c: P(p.c), r: p.r * t.s };
   return formes.map((f): Forme => {
-    if (f.k === "poly") return { ...f, pts: f.pts.map(([x, y]) => [X(x), Y(y)] as Pt) };
-    if (f.k === "circle") return { ...f, cx: X(f.cx), cy: Y(f.cy), r: f.r * t.s };
+    if (f.k === "poly") return { ...f, pts: f.pts.map(P), fill: peint(f.fill) };
+    if (f.k === "circle") return { ...f, cx: X(f.cx), cy: Y(f.cy), r: f.r * t.s, fill: peint(f.fill) };
     return { ...f, x1: X(f.x1), y1: Y(f.y1), x2: X(f.x2), y2: Y(f.y2) };
   });
 }
@@ -272,17 +279,11 @@ const boite = (x0: number, y0: number, x1: number, y1: number, fill: string, str
   poly([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], fill, stroke, sw);
 const cercle = (cx: number, cy: number, r: number, fill?: string, stroke?: string, sw = 1.1): Forme => ({ k: "circle", cx, cy, r, fill, stroke, sw });
 const ligne = (a: Pt, b: Pt, stroke: string, w = 1.5, dash?: string): Forme => ({ k: "line", x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke, w, dash });
-const roue = (cx: number, cy: number, r: number): Forme[] => [
-  cercle(cx, cy, r, C.noir, C.noir, 1),
-  cercle(cx, cy, r * 0.5, C.clair, C.corps, 1),
-  cercle(cx, cy, r * 0.12, C.corps),
-];
 /** Rectangle à coins coupés. */
 const chanfrein = (x0: number, y0: number, x1: number, y1: number, c: number, fill: string, stroke: string = C.noir): Forme =>
   poly([[x0 + c, y0], [x1 - c, y0], [x1, y0 + c], [x1, y1 - c], [x1 - c, y1], [x0 + c, y1], [x0, y1 - c], [x0, y0 + c]], fill, stroke);
 
 const dist = (a: Pt, b: Pt) => Math.hypot(b[0] - a[0], b[1] - a[1]);
-const lerp = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 const norm = (a: Pt, b: Pt): Pt => {
   const d = dist(a, b) || 1;
   return [-(b[1] - a[1]) / d, (b[0] - a[0]) / d];
@@ -295,67 +296,6 @@ function bande(a: Pt, b: Pt, wa: number, wb: number): Pt[] {
   return [add(a, n, wa / 2), add(b, n, wb / 2), add(b, n, -wb / 2), add(a, n, -wa / 2)];
 }
 
-/** Bande le long d'une polyligne, largeur par sommet (normales moyennées). */
-function bandePolyligne(pts: Pt[], w: number[]): Pt[] {
-  const g: Pt[] = [];
-  const d: Pt[] = [];
-  pts.forEach((p, i) => {
-    const n0 = i > 0 ? norm(pts[i - 1], p) : norm(p, pts[i + 1]);
-    const n1 = i < pts.length - 1 ? norm(p, pts[i + 1]) : n0;
-    let nx = n0[0] + n1[0];
-    let ny = n0[1] + n1[1];
-    const l = Math.hypot(nx, ny) || 1;
-    nx /= l;
-    ny /= l;
-    g.push([p[0] + (nx * w[i]) / 2, p[1] + (ny * w[i]) / 2]);
-    d.push([p[0] - (nx * w[i]) / 2, p[1] - (ny * w[i]) / 2]);
-  });
-  return [...g, ...d.reverse()];
-}
-
-/** Flèche télescopique segmentée : sections emboîtées de plus en plus fines vers la tête. */
-function flecheTelescopique(a: Pt, b: Pt, w0: number, nbSections = 4): Forme[] {
-  const out: Forme[] = [];
-  const bornes = [[0, 0.5], [0.4, 0.74], [0.66, 0.92], [0.86, 1]];
-  const n = Math.min(nbSections, bornes.length);
-  for (let i = 0; i < n; i++) {
-    const [t0, t1] = i === n - 1 ? [bornes[i][0], 1] : bornes[i];
-    const wa = w0 * (1 - 0.2 * i);
-    const wb = w0 * (1 - 0.2 * (i + 1) + 0.04);
-    out.push(poly(bande(lerp(a, b, t0), lerp(a, b, t1), wa, Math.max(wb, w0 * 0.3)), i % 2 === 0 ? C.fleche : VINCI.bleuLight, C.flecheFonce));
-  }
-  out.push(cercle(b[0], b[1], w0 * 0.34, C.flecheFonce, C.noir));
-  return out;
-}
-
-/** Flèche à treillis (grues sur chenilles, grues à tour). */
-function treillis(a: Pt, b: Pt, wa: number, wb: number, pas = 1.1): Forme[] {
-  const L = dist(a, b);
-  const cellules = Math.max(3, Math.min(70, Math.round(L / pas)));
-  const n = norm(a, b);
-  const haut = (t: number): Pt => add(lerp(a, b, t), n, (wa + (wb - wa) * t) / 2);
-  const bas = (t: number): Pt => add(lerp(a, b, t), n, -(wa + (wb - wa) * t) / 2);
-  const out: Forme[] = [poly(bande(a, b, wa, wb), C.vitre, C.flecheFonce, 1)];
-  out.push(ligne(haut(0), haut(1), C.fleche, 2.2), ligne(bas(0), bas(1), C.fleche, 2.2));
-  for (let i = 0; i < cellules; i++) {
-    const t0 = i / cellules;
-    const t1 = (i + 1) / cellules;
-    if (i % 2 === 0) out.push(ligne(haut(t0), bas(t1), C.fleche, 1.1));
-    else out.push(ligne(bas(t0), haut(t1), C.fleche, 1.1));
-  }
-  out.push(ligne(haut(1), bas(1), C.flecheFonce, 2));
-  return out;
-}
-
-/** Stabilisateur vu de face (vérin + semelle) à l'abscisse `x`, du châssis `yHaut` au sol. */
-function stabilisateurElev(x: number, yHaut: number, sorti: boolean): Forme[] {
-  if (!sorti) return [boite(x - 0.3, yHaut - 0.35, x + 0.3, yHaut, C.organe)];
-  return [
-    boite(x - 0.45, yHaut - 0.35, x + 0.45, yHaut, C.organe),
-    boite(x - 0.11, 0.18, x + 0.11, yHaut - 0.3, C.corps),
-    boite(x - 0.5, 0, x + 0.5, 0.18, C.noir),
-  ];
-}
 
 // ---------------------------------------------------------------------------
 // Élévation
@@ -389,25 +329,6 @@ export function profilElevation(type: TypeMachine, dims?: DimsMachine | null): {
   if (type === "chariot_elevateur") return { hauteurPiedM: 0, hauteurTeteMinM: 0.1, sansCable: true };
   if (type.startsWith("pelle")) return { hauteurPiedM: d.hauteurPiedM, hauteurTeteMinM: 0.4, sansCable: false };
   return { hauteurPiedM: d.hauteurPiedM, hauteurTeteMinM: d.hauteurPiedM + 1, sansCable: false };
-}
-
-/**
- * Cinématique plane à deux barres : flèche L1 puis balancier L2 de P (pied) à T (tête), coude vers le haut.
- * Si T n'est pas atteignable, les deux longueurs sont mises à l'échelle (proportions conservées) : le schéma reste
- * cohérent avec le point de charge, au prix de longueurs indicatives. `k` = facteur appliqué.
- */
-export function cinematiquePelle(p: Pt, t: Pt, l1: number, l2: number): { coude: Pt; l1: number; l2: number; k: number } {
-  const d = Math.max(dist(p, t), 1e-6);
-  const min = Math.abs(l1 - l2) * 1.08 + 1e-6;
-  const max = (l1 + l2) * 0.97;
-  const k = d > max ? d / max : d < min ? d / min : 1;
-  const a1 = l1 * k;
-  const a2 = l2 * k;
-  const a = (a1 * a1 - a2 * a2 + d * d) / (2 * d);
-  const h = Math.sqrt(Math.max(0, a1 * a1 - a * a));
-  const u: Pt = [(t[0] - p[0]) / d, (t[1] - p[1]) / d];
-  const n: Pt = [-u[1], u[0]];
-  return { coude: [p[0] + u[0] * a + n[0] * h, p[1] + u[1] * a + n[1] * h], l1: a1, l2: a2, k };
 }
 
 export function silhouetteElevation(e: EntreeElevation): SortieElevation {
@@ -458,240 +379,6 @@ export function silhouetteElevation(e: EntreeElevation): SortieElevation {
   };
 }
 
-function elevGrueMobile(d: DimsResolues, st: Calage | null, tete: Pt) {
-  const f: Forme[] = [];
-  const L = d.longueurPorteurM;
-  const x0 = -L / 2;
-  const x1 = L / 2;
-  const hp = d.hauteurPiedM;
-  const sorti = st === "sortis";
-  const jackX = d.calage.longueurM / 2;
-  if (st !== null) for (const x of [-jackX, jackX]) f.push(...stabilisateurElev(x, 1.15, sorti));
-  // Châssis, cabine du porteur, aile
-  f.push(boite(x0, 0.75, x1, 1.45, C.corps));
-  f.push(poly([[x0, 1.45], [x0, 3.15], [x0 + 0.55, 3.55], [x0 + 1.75, 3.55], [x0 + 2.05, 1.45]], C.acier));
-  f.push(poly([[x0 + 0.45, 2.15], [x0 + 0.45, 3.3], [x0 + 0.62, 3.4], [x0 + 1.5, 3.4], [x0 + 1.7, 2.15]], C.vitre));
-  // Essieux : 2 à l'avant, le reste à l'arrière
-  const axes = [x0 + 1.3, x0 + 2.75, x1 - 2.9, x1 - 1.5, x1 - 0.3].slice(0, 4 + (L > 12 ? 1 : 0));
-  for (const x of axes) f.push(...roue(x, 0.62, 0.62));
-  // Tourelle, contrepoids
-  f.push(chanfrein(-1.9, 1.45, 1.8, hp + 0.15, 0.2, C.corps));
-  f.push(boite(-2.9, 1.45, -1.9, hp + 0.15, C.organe));
-  f.push(cercle(0, 1.5, 0.28, C.noir));
-  // Flèche
-  f.push(ligne([-0.2, 1.9], lerp([0, hp], tete, 0.38), C.organe, 4));
-  f.push(...flecheTelescopique([0, hp], tete, 0.95, 4));
-  f.push(cercle(0, hp, 0.2, C.noir, C.noir));
-  // Cabine de grue, côté flèche, devant
-  f.push(poly([[0.3, hp - 0.95], [0.3, hp + 0.55], [0.5, hp + 0.78], [1.45, hp + 0.78], [1.65, hp - 0.95]], C.corps));
-  f.push(poly([[0.5, hp - 0.45], [0.5, hp + 0.55], [0.62, hp + 0.65], [1.38, hp + 0.65], [1.5, hp - 0.45]], C.vitre));
-  return { formes: f, pied: [0, hp] as Pt, tete };
-}
-
-function elevGrueChenilles(d: DimsResolues, tete: Pt) {
-  const f: Forme[] = [];
-  const hp = d.hauteurPiedM;
-  const L = d.longueurPorteurM;
-  // Train de chenilles (vu de côté) : carter, galets, barbotin et poulie de tension
-  f.push(poly([[-L / 2 - 0.1, 0.55], [-L / 2 + 0.5, 0], [L / 2 - 0.5, 0], [L / 2 + 0.1, 0.55], [L / 2 - 0.3, 1.25], [-L / 2 + 0.3, 1.25]], C.noir));
-  f.push(poly([[-L / 2 + 0.4, 0.22], [L / 2 - 0.4, 0.22], [L / 2 - 0.4, 1.0], [-L / 2 + 0.4, 1.0]], C.corps, C.corps, 0.8));
-  for (let i = 0; i < 6; i++) f.push(cercle(-L / 2 + 0.8 + (i * (L - 1.6)) / 5, 0.45, 0.2, C.acier, C.noir, 0.8));
-  f.push(cercle(-L / 2 + 0.3, 0.62, 0.42, C.organe, C.noir), cercle(L / 2 - 0.3, 0.62, 0.42, C.organe, C.noir));
-  // Châssis porteur et partie tournante
-  f.push(boite(-2.2, 1.25, 2.2, 1.85, C.corps));
-  f.push(chanfrein(-3.6, 1.85, 1.7, 3.25, 0.25, C.corps));
-  // Contrepoids empilé à l'arrière
-  f.push(chanfrein(-5.3, 1.7, -3.55, 3.4, 0.15, C.organe));
-  f.push(ligne([-5.3, 2.25], [-3.55, 2.25], C.noir, 1), ligne([-5.3, 2.8], [-3.55, 2.8], C.noir, 1));
-  // Mât en A + haubanage de flèche
-  const mat: Pt = [-1.6, hp + 2.3];
-  f.push(poly([[-2.3, 3.2], [mat[0] - 0.15, mat[1]], [mat[0] + 0.15, mat[1]], [-0.9, 3.2]], C.corps));
-  f.push(ligne(mat, lerp([0, hp], tete, 0.62), C.noir, 1.2));
-  // Flèche treillis
-  f.push(...treillis([0, hp], tete, 1.35, 0.55, 1.15));
-  f.push(cercle(tete[0], tete[1], 0.22, C.flecheFonce, C.noir), cercle(0, hp, 0.24, C.noir));
-  // Cabine
-  f.push(poly([[0.4, 3.25], [0.4, 4.35], [0.55, 4.5], [1.5, 4.5], [1.7, 3.25]], C.corps));
-  f.push(poly([[0.58, 3.6], [0.58, 4.3], [0.7, 4.38], [1.4, 4.38], [1.52, 3.6]], C.vitre));
-  return { formes: f, pied: [0, hp] as Pt, tete };
-}
-
-function elevGrueTour(d: DimsResolues, tete: Pt) {
-  const f: Forme[] = [];
-  const H = Math.max(tete[1], 6);
-  const r = Math.max(tete[0], 0);
-  const jl = r + Math.max(3, r * 0.2);
-  const cj = Math.max(4, jl * 0.3);
-  const jb = H; // axe de la flèche (treillis centré sur cette ligne)
-  // Embase et mât treillis
-  f.push(boite(-d.largeurPorteurM / 2, 0, d.largeurPorteurM / 2, 0.7, C.corps));
-  f.push(...treillis([0, 0.7], [0, jb - 1.1], 1.6, 1.6, 1.3));
-  f.push(boite(-0.95, jb - 1.1, 0.95, jb - 0.5, C.organe));
-  // Flèche horizontale, contre-flèche et porte-flèche
-  f.push(...treillis([0, jb], [jl, jb], 1.1, 0.5, 1.3));
-  f.push(...treillis([0, jb], [-cj, jb], 1.1, 0.5, 1.3));
-  const apex: Pt = [0, H + Math.max(2.5, jl * 0.1)];
-  f.push(poly([[-0.55, jb + 0.55], [0, apex[1]], [0.55, jb + 0.55]], C.vitre, C.flecheFonce));
-  f.push(ligne(apex, [jl, jb + 0.5], C.noir, 1.2), ligne(apex, [-cj, jb + 0.5], C.noir, 1.2));
-  // Contrepoids, cabine, chariot
-  f.push(boite(-cj, jb - 0.8, -cj + Math.min(2.4, cj * 0.5), jb + 0.05, C.corps));
-  f.push(boite(0.95, jb - 1.8, 2.1, jb - 0.6, C.corps), boite(1.1, jb - 1.55, 1.95, jb - 0.85, C.vitre));
-  f.push(boite(r - 0.45, jb - 0.35, r + 0.45, jb + 0.1, C.flecheFonce));
-  return { formes: f, pied: [0, jb] as Pt, tete: [r, jb - 0.35] as Pt };
-}
-
-function elevCamionBras(d: DimsResolues, st: Calage | null, tete: Pt) {
-  const f: Forme[] = [];
-  const hp = d.hauteurPiedM;
-  const L = d.longueurPorteurM;
-  const x0 = -5.6;
-  const x1 = x0 + L;
-  const sorti = st === "sortis";
-  // Stabilisateurs : sous la grue et à l'arrière
-  if (st !== null) for (const x of [-0.9, x1 - 0.9]) f.push(...stabilisateurElev(x, 1.15, sorti));
-  // Camion : châssis, cabine, plateau, roues
-  f.push(boite(x0, 0.75, x1, 1.3, C.corps));
-  f.push(poly([[x0, 1.3], [x0, 3.1], [x0 + 0.5, 3.45], [x0 + 1.7, 3.45], [x0 + 2.0, 1.3]], C.acier));
-  f.push(poly([[x0 + 0.4, 2.1], [x0 + 0.4, 3.2], [x0 + 0.58, 3.3], [x0 + 1.45, 3.3], [x0 + 1.65, 2.1]], C.vitre));
-  f.push(boite(x0 + 2.3, 1.3, x1, 1.55, C.organe));
-  f.push(boite(x0 + 2.3, 1.55, x1, 2.1, C.clair));
-  for (const x of [x0 + 1.2, x1 - 2.6, x1 - 1.3]) f.push(...roue(x, 0.62, 0.62));
-  // Colonne et embase de grue
-  f.push(boite(-0.55, 1.55, 0.55, hp - 0.05, C.corps));
-  // Flèche articulée : bras principal, genou, bras télescopique
-  const dd = dist([0, hp], tete) || 1;
-  const m = lerp([0, hp], tete, 0.42);
-  const n = norm([0, hp], tete);
-  const coude: Pt = add(m, n[1] < 0 ? [-n[0], -n[1]] : n, Math.min(0.18 * dd, 1.2));
-  f.push(ligne([0.1, 1.9], lerp([0, hp], coude, 0.5), C.organe, 4));
-  f.push(poly(bande([0, hp], coude, 0.62, 0.5), C.fleche, C.flecheFonce));
-  f.push(ligne(lerp([0, hp], coude, 0.75), lerp(coude, tete, 0.22), C.organe, 3.5));
-  f.push(...flecheTelescopique(coude, tete, 0.46, 3));
-  f.push(cercle(coude[0], coude[1], 0.3, C.flecheFonce, C.noir), cercle(0, hp, 0.2, C.noir));
-  return { formes: f, pied: [0, hp] as Pt, tete };
-}
-
-function elevTelescopique(d: DimsResolues, st: Calage | null, tete: Pt, acc: Accessoire | null, rotatif: boolean) {
-  const f: Forme[] = [];
-  const hp = d.hauteurPiedM;
-  const L = d.longueurPorteurM;
-  const x0 = rotatif ? -L / 2 : -0.9;
-  const x1 = x0 + L;
-  const sorti = st === "sortis";
-  const roues: number[] = rotatif ? [-L / 2 + 0.95, L / 2 - 0.95] : [x0 + 1.25, x1 - 1.0];
-  if (st !== null) for (const x of rotatif ? [-d.calage.longueurM / 2 + 0.2, d.calage.longueurM / 2 - 0.2] : [x0 + 0.35, x1 - 0.3]) f.push(...stabilisateurElev(x, 0.95, sorti));
-  // Châssis, capot, roues
-  f.push(boite(x0, 0.55, x1, 1.3, C.corps));
-  f.push(chanfrein(x0 + 0.1, 1.3, x1 - 0.1, rotatif ? 1.45 : 1.55, 0.1, C.corps));
-  for (const x of roues) f.push(...roue(x, 0.62, 0.62));
-  if (rotatif) {
-    // Tourelle tournante, contrepoids, cabine côté flèche
-    f.push(chanfrein(-1.9, 1.45, 1.6, hp + 0.1, 0.18, C.corps));
-    f.push(boite(-2.5, 1.45, -1.9, hp, C.organe));
-  } else {
-    f.push(boite(x0, 1.3, x0 + 0.6, hp + 0.25, C.organe));
-  }
-  // Vérin de relevage + flèche télescopique
-  const vx = rotatif ? 0.9 : 1.15;
-  f.push(ligne([vx, rotatif ? 1.6 : 1.4], lerp([0, hp], tete, 0.42), C.organe, 4));
-  f.push(...flecheTelescopique([0, hp], tete, 0.62, 3));
-  f.push(cercle(0, hp, 0.2, C.noir));
-  // Cabine latérale
-  const cx0 = rotatif ? 0.5 : 0.85;
-  const cy0 = rotatif ? 1.45 : 1.3;
-  f.push(poly([[cx0, cy0], [cx0, cy0 + 1.65], [cx0 + 0.15, cy0 + 1.85], [cx0 + 1.0, cy0 + 1.85], [cx0 + 1.1, cy0]], C.acier));
-  f.push(poly([[cx0 + 0.15, cy0 + 0.45], [cx0 + 0.15, cy0 + 1.6], [cx0 + 0.25, cy0 + 1.7], [cx0 + 0.9, cy0 + 1.7], [cx0 + 0.95, cy0 + 0.45]], C.vitre));
-  // Accessoire en bout de flèche
-  const u: Pt = [(tete[0] - 0) / (dist([0, hp], tete) || 1), (tete[1] - hp) / (dist([0, hp], tete) || 1)];
-  if (acc === "fourches") {
-    f.push(boite(tete[0] - 0.12, tete[1] - 1.0, tete[0] + 0.12, tete[1] + 0.1, C.corps));
-    f.push(boite(tete[0] - 0.12, tete[1] - 1.0, tete[0] + 1.1, tete[1] - 0.88, C.corps));
-  } else if (acc === "potence") {
-    f.push(poly(bande(tete, add(tete, u, 0.9), 0.22, 0.14), C.corps));
-  }
-  return { formes: f, pied: [0, hp] as Pt, tete };
-}
-
-function elevPelle(type: "pelle_pneus" | "pelle_chenilles" | "pelle_rail_route", d: DimsResolues, st: Calage | null, tete: Pt) {
-  const f: Forme[] = [];
-  const chenilles = type === "pelle_chenilles";
-  const hautTrain = chenilles ? 1.0 : 1.3;
-  const sorti = st === "sortis";
-  // Train de roulement
-  if (chenilles) {
-    const L = d.longueurPorteurM;
-    f.push(poly([[-L / 2 - 0.05, 0.5], [-L / 2 + 0.45, 0], [L / 2 - 0.45, 0], [L / 2 + 0.05, 0.5], [L / 2 - 0.3, 1.0], [-L / 2 + 0.3, 1.0]], C.noir));
-    f.push(cercle(-L / 2 + 0.4, 0.5, 0.36, C.organe, C.noir), cercle(L / 2 - 0.4, 0.5, 0.36, C.organe, C.noir));
-    for (let i = 0; i < 5; i++) f.push(cercle(-L / 2 + 1.0 + (i * (L - 2)) / 4, 0.3, 0.17, C.acier, C.noir, 0.8));
-  } else {
-    const L = d.longueurPorteurM;
-    f.push(boite(-L / 2 + 0.3, 0.75, L / 2 - 0.3, hautTrain, C.corps));
-    for (const x of [-L / 2 + 1.1, L / 2 - 1.1]) f.push(...roue(x, 0.65, 0.65));
-    if (st !== null) {
-      // lame avant + stabilisateurs arrière
-      f.push(poly([[L / 2 - 0.25, hautTrain], [L / 2 + 0.55, 0.2], [L / 2 + 0.75, 0.2], [L / 2 + 0.75, hautTrain - 0.1]], C.organe));
-      if (sorti) f.push(...stabilisateurElev(-L / 2 - 0.1, hautTrain, true));
-    }
-    if (type === "pelle_rail_route") {
-      // galets de guidage rail aux deux extrémités + tronçon de voie
-      f.push(boite(-L / 2 - 1.2, 0, L / 2 + 1.2, 0.16, C.acier));
-      for (const x of [-L / 2 - 0.55, L / 2 + 0.55]) {
-        f.push(boite(x - 0.05, 0.4, x + 0.05, hautTrain, C.organe, C.organe, 0.8));
-        f.push(cercle(x, 0.34, 0.2, C.organe, C.noir), cercle(x, 0.34, 0.07, C.noir));
-      }
-    }
-  }
-  // Partie tournante : contrepoids, capot, cabine
-  const y0 = hautTrain;
-  f.push(boite(-1.55, y0, 0.85, y0 + 0.15, C.noir));
-  f.push(poly([[-2.05, y0 + 0.15], [-2.05, y0 + 1.6], [-1.6, y0 + 1.95], [-0.45, y0 + 1.95], [0.85, y0 + 1.15], [0.85, y0 + 0.15]], C.corps));
-  f.push(chanfrein(-2.05, y0 + 0.25, -1.35, y0 + 1.55, 0.2, C.organe));
-  const pied: Pt = [0.65, y0 + 0.55];
-  // Flèche monobloc coudée + balancier (cinématique à deux barres)
-  const l2 = d.balancierM;
-  const cin = cinematiquePelle(pied, tete, l2 * 1.95, l2);
-  const milieu = lerp(pied, cin.coude, 0.5);
-  const nB = norm(pied, cin.coude);
-  const bossage = add(milieu, nB[1] < 0 ? [-nB[0], -nB[1]] : nB, 0.28);
-  f.push(ligne([0.1, y0 + 0.2], lerp(pied, cin.coude, 0.45), C.organe, 5));
-  f.push(poly(bandePolyligne([pied, bossage, cin.coude], [0.5, 0.7, 0.45]), C.fleche, C.flecheFonce));
-  f.push(ligne(lerp(pied, bossage, 0.7), lerp(cin.coude, tete, 0.18), C.organe, 4));
-  f.push(poly(bande(cin.coude, tete, 0.42, 0.3), C.fleche, C.flecheFonce));
-  f.push(cercle(cin.coude[0], cin.coude[1], 0.2, C.noir), cercle(pied[0], pied[1], 0.2, C.noir));
-  // Attache rapide + anneau de levage
-  f.push(poly([[tete[0] - 0.22, tete[1] + 0.05], [tete[0] + 0.22, tete[1] + 0.05], [tete[0], tete[1] - 0.3]], C.corps));
-  f.push(cercle(tete[0], tete[1] - 0.42, 0.13, undefined, C.noir, 2));
-  // Cabine (au premier plan)
-  f.push(poly([[-0.05, y0 + 1.05], [-0.05, y0 + 2.2], [0.1, y0 + 2.4], [0.95, y0 + 2.4], [1.1, y0 + 1.05]], C.corps));
-  f.push(poly([[0.08, y0 + 1.25], [0.08, y0 + 2.15], [0.17, y0 + 2.28], [0.9, y0 + 2.28], [1.0, y0 + 1.25]], C.vitre));
-  return { formes: f, pied, tete: [tete[0], tete[1] - 0.42] as Pt };
-}
-
-function elevChariot(d: DimsResolues, tete: Pt) {
-  const f: Forme[] = [];
-  const forkY = Math.max(tete[1], 0.1);
-  const mastH = Math.max(3.2, forkY + 1.3);
-  const ax = tete[0] - 1.05; // essieu avant ; centre de charge à la portée saisie
-  const xm = ax + 0.45;
-  const L = d.longueurPorteurM;
-  // Contrepoids, capot, plancher
-  f.push(poly([[ax - L + 0.5, 0.3], [ax - L + 0.5, 1.2], [ax - L + 1.0, 1.45], [ax - 0.1, 1.0], [ax - 0.1, 0.3]], C.corps));
-  f.push(chanfrein(ax - L + 0.2, 0.3, ax - L + 1.1, 1.4, 0.25, C.organe));
-  // Protège-conducteur et siège
-  f.push(boite(ax - 1.25, 1.0, ax - 0.55, 1.2, C.noir));
-  f.push(ligne([ax - 1.2, 1.2], [ax - 1.2, 2.15], C.corps, 3), ligne([ax - 0.25, 1.15], [ax - 0.25, 2.15], C.corps, 3));
-  f.push(boite(ax - 1.35, 2.15, ax - 0.1, 2.25, C.corps));
-  // Roues
-  f.push(...roue(ax, 0.42, 0.42), ...roue(ax - L + 0.85, 0.34, 0.34));
-  // Mât et tablier, fourches
-  f.push(boite(xm - 0.07, 0.35, xm + 0.07, mastH, C.corps));
-  f.push(boite(xm + 0.1, 0.45, xm + 0.2, mastH - 0.2, C.organe));
-  f.push(ligne([xm - 0.35, 0.8], [xm - 0.05, mastH * 0.5], C.organe, 3));
-  f.push(boite(xm + 0.2, forkY - 0.05, xm + 0.32, forkY + 0.9, C.corps));
-  f.push(poly([[xm + 0.2, forkY - 0.12], [xm + 1.45, forkY - 0.12], [xm + 1.55, forkY - 0.06], [xm + 0.2, forkY + 0.04]], C.corps));
-  return { formes: f, pied: [xm, forkY] as Pt, tete: [tete[0], forkY] as Pt, sansCable: true };
-}
-
 /** Silhouette de présentation (vignettes) : flèche à ~58° ou posture type de la famille. */
 export function silhouetteVignette(type: TypeMachine): SortieElevation {
   const { hauteurPiedM } = profilElevation(type);
@@ -711,12 +398,7 @@ export function silhouetteVignette(type: TypeMachine): SortieElevation {
 
 /** Moufle + crochet dont le point d'attache (haut) est en (x, y). Hauteur 1,25 m. */
 export function formesCrochet(x: number, y: number): Forme[] {
-  return [
-    boite(x - 0.3, y - 0.7, x + 0.3, y - 0.1, C.corps),
-    cercle(x, y - 0.4, 0.09, C.clair, C.clair, 1),
-    ligne([x, y - 0.7], [x, y - 0.9], C.noir, 3),
-    { k: "poly", pts: [[x - 0.14, y - 0.9], [x + 0.14, y - 0.9], [x + 0.24, y - 1.1], [x + 0.06, y - 1.25], [x - 0.14, y - 1.2], [x - 0.24, y - 1.05]], stroke: C.noir, sw: 2.6 },
-  ];
+  return moufleCrochet(x, y);
 }
 
 // ---------------------------------------------------------------------------

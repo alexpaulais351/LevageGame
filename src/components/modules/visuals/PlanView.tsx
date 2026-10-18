@@ -114,7 +114,7 @@ export function PlanView({ data, result, selectionId, onSelect }: PropsVue) {
 
         {/* Silhouette de la machine (vue de dessus, indicative) */}
         <g data-testid="silhouette-plan" data-type={geo.type}>
-          <FormesSvg formes={formesMachine} />
+          <FormesSvg formes={formesMachine} prefixe="plan-m" />
         </g>
 
         {/* Cercles de portée et positions */}

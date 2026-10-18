@@ -24,13 +24,13 @@ import type { StudyResult } from "@/lib/study/compute";
 import { formatNombreAuto } from "@/lib/study/format";
 import type { StudyData } from "@/lib/study/types";
 import { formatMasse, formatNombreFR } from "@/lib/utils";
-import { formesCrochet, projeter, type Forme } from "@/lib/visuals/silhouettes";
+import { formesCrochet, projeter, type Forme, type Peinture } from "@/lib/visuals/silhouettes";
 
 export type Prim =
-  | { k: "line"; x1: number; y1: number; x2: number; y2: number; stroke: string; w: number; dash?: string }
+  | { k: "line"; x1: number; y1: number; x2: number; y2: number; stroke: string; w: number; dash?: string; op?: number }
   | { k: "rect"; x: number; y: number; w: number; h: number; fill?: string; stroke?: string; sw?: number; dash?: string }
-  | { k: "path"; d: string; fill?: string; stroke?: string; sw?: number; dash?: string }
-  | { k: "circle"; cx: number; cy: number; r: number; fill?: string; stroke?: string; sw?: number; dash?: string }
+  | { k: "path"; d: string; fill?: Peinture; stroke?: string; sw?: number; dash?: string; op?: number }
+  | { k: "circle"; cx: number; cy: number; r: number; fill?: Peinture; stroke?: string; sw?: number; dash?: string; op?: number }
   | { k: "text"; x: number; y: number; t: string; size: number; fill: string; anchor?: "start" | "middle" | "end"; bold?: boolean; rotate?: number };
 
 export interface Schema {
@@ -62,9 +62,9 @@ const r2 = (v: number) => Math.round(v * 100) / 100;
 /** Formes de silhouette (déjà en pixels) → primitives de la fiche : même géométrie que l'écran. */
 export function formesVersPrims(formes: readonly Forme[]): Prim[] {
   return formes.map((f): Prim => {
-    if (f.k === "poly") return { k: "path", d: `M${f.pts.map(([x, y]) => `${r2(x)},${r2(y)}`).join(" L")} Z`, fill: f.fill, stroke: f.stroke, sw: f.sw };
-    if (f.k === "circle") return { k: "circle", cx: r2(f.cx), cy: r2(f.cy), r: r2(f.r), fill: f.fill, stroke: f.stroke, sw: f.sw };
-    return { k: "line", x1: r2(f.x1), y1: r2(f.y1), x2: r2(f.x2), y2: r2(f.y2), stroke: f.stroke, w: f.w, dash: f.dash };
+    if (f.k === "poly") return { k: "path", d: `M${f.pts.map(([x, y]) => `${r2(x)},${r2(y)}`).join(" L")} Z`, fill: f.fill, stroke: f.stroke, sw: f.sw, op: f.op };
+    if (f.k === "circle") return { k: "circle", cx: r2(f.cx), cy: r2(f.cy), r: r2(f.r), fill: f.fill, stroke: f.stroke, sw: f.sw, op: f.op };
+    return { k: "line", x1: r2(f.x1), y1: r2(f.y1), x2: r2(f.x2), y2: r2(f.y2), stroke: f.stroke, w: f.w, dash: f.dash, op: f.op };
   });
 }
 

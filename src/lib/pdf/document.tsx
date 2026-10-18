@@ -1,5 +1,5 @@
 /** Rendu @react-pdf/renderer de la fiche d'adéquation (A4 portrait) à partir du `PdfModel`. */
-import { Circle, Document, G, Image, Line, Page, Path, Rect, StyleSheet, Svg, Text, Text as SvgText, View } from "@react-pdf/renderer";
+import { Circle, Defs, Document, G, Image, Line, LinearGradient, Page, Path, RadialGradient, Rect, Stop, StyleSheet, Svg, Text, Text as SvgText, View } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
 
 import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
@@ -14,6 +14,8 @@ import {
   type PdfModel,
   type TauxLigne,
 } from "./model";
+import type { Degrade, Peinture } from "@/lib/visuals/silhouettes";
+
 import type { Prim, Schema } from "./schemas";
 
 const LARGEUR = 595.28 - 2 * 34; // largeur utile (pt)
@@ -204,16 +206,16 @@ function BlocCalcul({ s, c }: { s: Styles; c: CalcBloc }) {
 // Schémas SVG
 // ---------------------------------------------------------------------------
 
-export function Primitive({ p, ff }: { p: Prim; ff: string }) {
+function Primitive({ p, ff, fill }: { p: Prim; ff: string; fill?: string }) {
   switch (p.k) {
     case "line":
-      return <Line x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.stroke} strokeWidth={p.w} strokeDasharray={p.dash} />;
+      return <Line x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.stroke} strokeWidth={p.w} strokeDasharray={p.dash} strokeOpacity={p.op} />;
     case "rect":
       return <Rect x={p.x} y={p.y} width={Math.max(0, p.w)} height={Math.max(0, p.h)} fill={p.fill ?? "none"} stroke={p.stroke} strokeWidth={p.sw} strokeDasharray={p.dash} />;
     case "path":
-      return <Path d={p.d} fill={p.fill ?? "none"} stroke={p.stroke} strokeWidth={p.sw} strokeDasharray={p.dash} />;
+      return <Path d={p.d} fill={fill ?? "none"} fillOpacity={p.op} stroke={p.stroke} strokeWidth={p.sw} strokeDasharray={p.dash} />;
     case "circle":
-      return <Circle cx={p.cx} cy={p.cy} r={Math.max(0, p.r)} fill={p.fill ?? "none"} stroke={p.stroke} strokeWidth={p.sw} strokeDasharray={p.dash} />;
+      return <Circle cx={p.cx} cy={p.cy} r={Math.max(0, p.r)} fill={fill ?? "none"} fillOpacity={p.op} stroke={p.stroke} strokeWidth={p.sw} strokeDasharray={p.dash} />;
     case "text":
       return (
         <G transform={p.rotate ? `rotate(${p.rotate} ${p.x} ${p.y})` : undefined}>
@@ -221,6 +223,45 @@ export function Primitive({ p, ff }: { p: Prim; ff: string }) {
         </G>
       );
   }
+}
+
+const r2 = (v: number) => Math.round(v * 100) / 100;
+
+function DefDegrade({ id, g }: { id: string; g: Degrade }) {
+  const arrets = g.arrets.map(([o, c, op], i) => <Stop key={i} offset={o} stopColor={c} stopOpacity={op ?? 1} />);
+  return g.k === "lin" ? (
+    <LinearGradient id={id} gradientUnits="userSpaceOnUse" x1={r2(g.a[0])} y1={r2(g.a[1])} x2={r2(g.b[0])} y2={r2(g.b[1])}>
+      {arrets}
+    </LinearGradient>
+  ) : (
+    <RadialGradient id={id} gradientUnits="userSpaceOnUse" cx={r2(g.c[0])} cy={r2(g.c[1])} r={Math.max(0.01, r2(g.r))}>
+      {arrets}
+    </RadialGradient>
+  );
+}
+
+/** Primitives d'un schéma (dans un `Svg`), dégradés des illustrations d'engins compris. `prefixe` : identifiants uniques. */
+export function PrimsSvg({ prims, ff, prefixe }: { prims: readonly Prim[]; ff: string; prefixe: string }) {
+  const defs: { id: string; g: Degrade }[] = [];
+  const peinture = (f: Peinture | undefined, i: number): string | undefined => {
+    if (f === undefined || typeof f === "string") return f;
+    const id = `${prefixe}g${i}`;
+    defs.push({ id, g: f });
+    return `url(#${id})`;
+  };
+  const elements = prims.map((p, i) => <Primitive key={i} p={p} ff={ff} fill={p.k === "path" || p.k === "circle" ? peinture(p.fill, i) : undefined} />);
+  return (
+    <>
+      {defs.length > 0 && (
+        <Defs>
+          {defs.map((d) => (
+            <DefDegrade key={d.id} id={d.id} g={d.g} />
+          ))}
+        </Defs>
+      )}
+      {elements}
+    </>
+  );
 }
 
 function SvgTexte({ p, ff }: { p: Extract<Prim, { k: "text" }>; ff: string }) {
@@ -239,9 +280,7 @@ function SchemaVue({ s, sc, ff, largeur }: { s: Styles; sc: Schema; ff: string; 
         <>
           <Svg viewBox={`0 0 ${sc.w} ${sc.h}`} width={largeur} height={(largeur * sc.h) / sc.w}>
             <Rect x={0} y={0} width={sc.w} height={sc.h} fill={VINCI.blanc} stroke={VINCI_PDF.border} strokeWidth={1} />
-            {sc.prims.map((p, i) => (
-              <Primitive key={i} p={p} ff={ff} />
-            ))}
+            <PrimsSvg prims={sc.prims} ff={ff} prefixe={sc.id} />
           </Svg>
           {sc.notes.map((n, i) => (
             <Text key={i} style={[s.muted, { alignSelf: "flex-start" }]}>
