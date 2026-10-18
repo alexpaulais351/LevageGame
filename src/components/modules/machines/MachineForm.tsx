@@ -14,6 +14,7 @@ import type { SpecsSaisies } from "@/lib/machines/schemas";
 import { nombreVersTexte, parseNombreFR } from "@/lib/study/units";
 
 import { RetourForm } from "../account/form-bits";
+import { ChoixTypeMachine } from "./ChoixTypeMachine";
 
 const VIDE: EtatForm = {};
 const selectClasse =
@@ -22,6 +23,7 @@ const selectClasse =
 interface Option {
   id: string;
   label: string;
+  code?: string;
 }
 
 interface Initial {
@@ -65,6 +67,7 @@ export function MachineForm({ types, constructeurs, initial }: { types: Option[]
   const soumettre = (fd: FormData) => {
     const num = (t: string) => parseNombreFR(t);
     const v = { masse: num(champs.masse), longueur: num(champs.longueur), largeur: num(champs.largeur), calageL: num(champs.calageL), calageW: num(champs.calageW) };
+    if (!typeId) return setErreurLocale("Choisissez le type de machine.");
     if (Object.values(v).some((x) => Number.isNaN(x))) return setErreurLocale("Caractéristiques : nombre attendu (ex. 12,5).");
     const photo = fd.get("photo");
     if (photo instanceof File && photo.size > PHOTO_TAILLE_MAX) return setErreurLocale("Photo : 2 Mo maximum.");
@@ -93,16 +96,9 @@ export function MachineForm({ types, constructeurs, initial }: { types: Option[]
       <CardContent>
         <form action={soumettre} className="flex flex-col gap-5" aria-label={initial ? "Modifier la machine" : "Nouvelle machine"}>
           <div className="grid gap-4 sm:grid-cols-3">
-            <Champ label="Type de machine" id={id("type")}>
-              <select id={id("type")} className={selectClasse} value={typeId} onChange={(e) => setTypeId(e.target.value)} required>
-                <option value="">Choisir un type</option>
-                {types.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </Champ>
+            <div className="min-w-0 sm:col-span-3">
+              <ChoixTypeMachine label="Type de machine" types={types} value={typeId} onChange={setTypeId} />
+            </div>
             <Champ label="Constructeur" id={id("manuf")}>
               <select id={id("manuf")} className={selectClasse} value={manufId} onChange={(e) => setManufId(e.target.value)} required>
                 <option value="">Choisir un constructeur</option>

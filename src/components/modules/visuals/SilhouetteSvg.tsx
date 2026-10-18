@@ -83,3 +83,24 @@ export function MachineVignette({ type, gabarit, largeur = 96, className }: { ty
     </svg>
   );
 }
+
+/** Pictogramme monochrome (couleur courante) d'un type de machine : silhouette de profil sans relief, pour les sélecteurs. */
+export function MachinePicto({ type, largeur = 56 }: { type: TypeMachine; largeur?: number }) {
+  const sil = silhouetteVignette(type);
+  const b = sil.bornes;
+  const h = Math.round(largeur * 0.75);
+  const pad = 0.3;
+  const s = Math.min(largeur / (b.maxX - b.minX + 2 * pad), h / (b.maxY - b.minY + 2 * pad));
+  const ox = (largeur - (b.maxX - b.minX) * s) / 2 - b.minX * s;
+  const oy = (h - (b.maxY - b.minY) * s) / 2 + b.maxY * s;
+  const formes = projeter(sil.formes, { ox, oy, s, flipY: true })
+    .filter((f) => !(f.k === "poly" && f.op !== undefined && f.op < 0.3))
+    .map((f): Forme =>
+      f.k === "line" ? { ...f, stroke: "currentColor", w: Math.max(0.6, f.w * 0.5), op: undefined } : { ...f, fill: "currentColor", stroke: "currentColor", sw: 0.2, op: undefined },
+    );
+  return (
+    <svg viewBox={`0 0 ${largeur} ${h}`} width={largeur} height={h} aria-hidden focusable="false">
+      <FormesSvg formes={formes} prefixe={`picto-${type}`} />
+    </svg>
+  );
+}

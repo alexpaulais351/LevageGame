@@ -76,19 +76,16 @@ export function createSupabaseProvider(portee: PorteeCatalogue = "public"): Cata
   return {
     kind: "supabase",
     async listTypes() {
-      if (mine) {
-        const rows = ou(await proprietaire(db().from("machines").select("type:machine_types(id, code, label)"))) as unknown as {
-          type: CatalogType | CatalogType[] | null;
-        }[];
-        const uniques = new Map<string, CatalogType>();
-        for (const r of rows) {
-          const t = Array.isArray(r.type) ? r.type[0] : r.type;
-          if (t) uniques.set(t.id, t);
-        }
-        return [...uniques.values()].sort((a, b) => a.label.localeCompare(b.label, "fr"));
+      // Types ayant au moins un modèle dans la portée (catalogue public ou machines personnelles), les plus fournis d'abord.
+      const rows = ou(await proprietaire(db().from("machines").select("type:machine_types(id, code, label)"))) as unknown as {
+        type: CatalogType | CatalogType[] | null;
+      }[];
+      const uniques = new Map<string, CatalogType>();
+      for (const r of rows) {
+        const t = Array.isArray(r.type) ? r.type[0] : r.type;
+        if (t) uniques.set(t.id, { ...t, nbModeles: (uniques.get(t.id)?.nbModeles ?? 0) + 1 });
       }
-      const rows = ou(await db().from("machine_types").select("id, code, label").order("label"));
-      return (rows as CatalogType[]) ?? [];
+      return [...uniques.values()].sort((a, b) => (b.nbModeles ?? 0) - (a.nbModeles ?? 0) || a.label.localeCompare(b.label, "fr"));
     },
     async listManufacturers(typeId) {
       const rows = ou(

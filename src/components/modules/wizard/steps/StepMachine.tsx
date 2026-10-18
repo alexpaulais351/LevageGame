@@ -12,6 +12,7 @@ import { LIBELLE_TYPE, typeMachineDepuis } from "@/lib/visuals/silhouettes";
 
 import { Grille, SousTitre, StepShell } from "../StepShell";
 import { SelectField, UNITES_MASSE, UnitNumberField } from "../fields";
+import { ChoixTypeMachine } from "../../machines/ChoixTypeMachine";
 import { MachineVignette } from "../../visuals/SilhouetteSvg";
 import { gabaritDe } from "@/lib/visuals/gabarits";
 import { useErreurs } from "../use-erreurs";
@@ -140,26 +141,10 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
           </span>
         </p>
       )}
-      {typeVisuel && (
-        <div className="flex items-center gap-3" data-testid="apercu-type">
-          <MachineVignette type={typeVisuel} gabarit={gabarit} largeur={96} className="shrink-0 rounded-md border border-border" />
-          <p className="text-sm">
-            <span className="font-semibold text-primary">{gabarit ? `${LIBELLE_TYPE[typeVisuel]} — ${gabarit.modele}` : LIBELLE_TYPE[typeVisuel]}</span>
-            <span className="block text-xs text-muted-foreground">
-              {gabarit ? `Dessin aux cotes du modèle (${gabarit.source}) — indicatif, ne remplace pas les plans constructeur.` : "Silhouette indicative — ne remplace pas les plans constructeur."}
-            </span>
-          </p>
-        </div>
-      )}
       <Grille>
-        <SelectField
-          label="Type de moyen de levage"
-          value={typeId}
-          placeholder={types.chargement ? "Chargement…" : "Choisir un type"}
-          options={opt(types.items, (t) => t.id, (t) => t.label)}
-          disabled={types.items.length === 0}
-          onChange={surType}
-        />
+        <div className="min-w-0 sm:col-span-2">
+          <ChoixTypeMachine label="Type de moyen de levage" types={types.items} value={typeId} chargement={types.chargement} onChange={surType} />
+        </div>
         <SelectField
           label="Constructeur"
           value={manufId}
@@ -186,6 +171,17 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
           error={err.selection}
         />
       </Grille>
+      {typeVisuel && sel && (
+        <div className="flex items-center gap-3" data-testid="apercu-type">
+          <MachineVignette type={typeVisuel} gabarit={gabarit} largeur={gabarit ? 150 : 96} className="shrink-0 rounded-md border border-border" />
+          <p className="text-sm">
+            <span className="font-semibold text-primary">{gabarit ? `${LIBELLE_TYPE[typeVisuel]} — ${gabarit.modele}` : LIBELLE_TYPE[typeVisuel]}</span>
+            <span className="block text-xs text-muted-foreground">
+              {gabarit ? `Dessin aux cotes du modèle (${gabarit.source}) — indicatif, ne remplace pas les plans constructeur.` : "Silhouette indicative — ne remplace pas les plans constructeur."}
+            </span>
+          </p>
+        </div>
+      )}
 
       {chargementAbaque && <p className="text-sm text-muted-foreground">Lecture de l&apos;abaque…</p>}
       {erreurAbaque && (
