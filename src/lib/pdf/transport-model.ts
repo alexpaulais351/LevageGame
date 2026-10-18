@@ -32,7 +32,7 @@ export interface LigneSeuil {
 }
 
 export interface TransportPdfModel {
-  entete: { titre: string; projet: string; date: string; redacteur: string; entreprise: string };
+  entete: { titre: string; projet: string; date: string; redacteur: string; entreprise: string; logoUrl: string | null };
   decision: { titre: string; sousTitre: string; couleur: string; fond: string; particulier: boolean };
   reponses: Reponse[];
   piece: [string, string][];
@@ -70,6 +70,8 @@ export function buildTransportPdfModel(args: {
   demandeur: Demandeur;
   projet: ProjetTransport | null;
   schemas: { dataUri: string; ratio: number }[];
+  /** Logo de l'entreprise de l'utilisateur (data-URI), s'il l'a renseigné. */
+  logoUrl?: string | null;
   date?: Date;
 }): TransportPdfModel {
   const { ev, piece } = args;
@@ -109,6 +111,7 @@ export function buildTransportPdfModel(args: {
       date: formatDateFR(args.date ?? new Date()),
       redacteur: pdfTexte(args.demandeur.nom || "—"),
       entreprise: pdfTexte(args.demandeur.entreprise ?? ""),
+      logoUrl: args.logoUrl ?? null,
     },
     decision: {
       titre: particulier ? `TRANSPORT PARTICULIER NÉCESSAIRE — ${LIBELLE_CATEGORIE[cat].toUpperCase()}` : "TRANSPORT NORMAL — AUCUN TRANSPORT PARTICULIER",

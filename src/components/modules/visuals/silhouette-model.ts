@@ -105,11 +105,18 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
   teteY = Math.max(teteY, profil.hauteurTeteMinM);
 
   const sil = silhouetteElevation({ type, dims, stabilisateurs: calageDeLEtude(data), tete: { x: r, y: teteY } });
-  const elingue = sil.sansCable ? 0 : ELINGUE_M;
+  let elingue = sil.sansCable ? 0 : ELINGUE_M;
   const teteReelle = sil.tete[1];
+  // Abaque en hauteur sans hauteur sous crochet saisie : la hauteur de levage EST la hauteur du point d'attache ;
+  // la moufle, l'élingue et la charge pendent dessous, à l'échelle (la charge ne reste pas posée au sol).
+  const crochetDeduitDeLaHauteur = !sil.sansCable && hsc === null && axeY === "height_m" && pos.yM !== null;
   let crochetY: number;
   if (sil.sansCable) crochetY = teteReelle + chargeH;
-  else {
+  else if (crochetDeduitDeLaHauteur) {
+    crochetY = Math.max(teteReelle - HAUTEUR_MOUFLE_M, 0.2);
+    // Si la charge toucherait le sol, l'élingue se raccourcit (jamais sous 0,15 m) avant que la charge ne s'enfonce.
+    elingue = Math.min(elingue, Math.max(0.15, crochetY - chargeH));
+  } else {
     crochetY = hsc ?? chargeH + elingue;
     crochetY = Math.min(Math.max(crochetY, chargeH + elingue), teteReelle - HAUTEUR_MOUFLE_M - 0.15);
     crochetY = Math.max(crochetY, elingue);
@@ -129,7 +136,7 @@ export function geometrieElevation(data: StudyData, pos: PositionVisuelle, domai
     chargeIndicative,
     elingue,
     crochetY,
-    crochetIndicatif: hsc === null,
+    crochetIndicatif: hsc === null && !crochetDeduitDeLaHauteur,
   };
 }
 

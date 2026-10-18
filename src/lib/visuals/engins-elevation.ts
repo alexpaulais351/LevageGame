@@ -479,8 +479,10 @@ export function elevTelescopique(d: DimsResolues, st: Calage | null, tete: Pt, a
 // Pelles hydrauliques (pneus, chenilles, rail-route)
 // ---------------------------------------------------------------------------
 
-export function elevPelle(type: "pelle_pneus" | "pelle_chenilles" | "pelle_rail_route", d: DimsResolues, st: Calage | null, tete: Pt): DessinElevation {
+export function elevPelle(type: "pelle_pneus" | "pelle_chenilles" | "pelle_rail_route", d: DimsResolues, st: Calage | null, anneau: Pt): DessinElevation {
   const f: Forme[] = [];
+  // Le point demandé est l'anneau de levage (point d'attache, hauteur de levage de l'abaque) ; l'axe du balancier est 0,42 m plus haut.
+  const tete: Pt = [anneau[0], anneau[1] + 0.42];
   const chenilles = type === "pelle_chenilles";
   const hautTrain = chenilles ? 1.0 : 1.3;
   const sorti = st === "sortis";
@@ -562,7 +564,7 @@ export function elevPelle(type: "pelle_pneus" | "pelle_chenilles" | "pelle_rail_
   const cg = d.gabarit?.cabineGrue ?? { x0: -0.55, x1: 0.95, hBas: y0 + 0.16, hToit: y0 + 2.05 };
   f.push(...cabine(cg.x0, Math.max(cg.hBas, y0 + 0.16), cg.x1, cg.hToit, { avant: "droite", ceinture: 0.3, inclinaison: 0.08 }));
   f.push(...gyrophare(cg.x0 + (cg.x1 - cg.x0) * 0.25, cg.hToit, 0.08));
-  return { formes: f, pied, tete: [tete[0], tete[1] - 0.42] };
+  return { formes: f, pied, tete: anneau };
 }
 
 // ---------------------------------------------------------------------------

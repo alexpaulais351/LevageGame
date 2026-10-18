@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { VERDICT, VINCI, VINCI_PDF } from "@/lib/design-tokens";
 import { formatMasse } from "@/lib/utils";
 
+import { EnteteBande, HAUTEUR_BANDE, JaugeTaux } from "./communs";
 import {
   pct,
   pdfTexte,
@@ -22,15 +23,9 @@ const LARGEUR = 595.28 - 2 * 34; // largeur utile (pt)
 
 function creerStyles(ff: string) {
   return StyleSheet.create({
-    page: { fontFamily: ff, fontSize: 8.5, color: VINCI_PDF.textMain, paddingTop: 100, paddingBottom: 64, paddingHorizontal: 34 },
+    page: { fontFamily: ff, fontSize: 8.5, color: VINCI_PDF.textMain, paddingTop: HAUTEUR_BANDE + 30, paddingBottom: 64, paddingHorizontal: 34 },
     // En-tête / pied (fixes)
     entete: { position: "absolute", top: 0, left: 0, right: 0 },
-    bande: { backgroundColor: VINCI_PDF.headerBg, height: 62, paddingHorizontal: 34, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-    logo: { height: 38, maxWidth: 130, objectFit: "contain" },
-    entrepriseNom: { color: VINCI_PDF.headerText, fontSize: 11, fontWeight: 700 },
-    enteteDroite: { alignItems: "flex-end", maxWidth: 380 },
-    enteteTitre: { color: VINCI_PDF.headerText, fontSize: 14, fontWeight: 700, letterSpacing: 0.6 },
-    enteteLigne: { color: VINCI_PDF.headerText, fontSize: 7.5, marginTop: 2, textAlign: "right" },
     pied: { position: "absolute", bottom: 14, left: 34, right: 34, borderTopWidth: 0.75, borderTopColor: VINCI_PDF.border, paddingTop: 4 },
     piedLigne: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
     piedTexte: { fontSize: 6.5, color: VINCI_PDF.textMuted },
@@ -335,20 +330,12 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
       <Page size="A4" style={s.page}>
         {/* En-tête fixe */}
         <View style={s.entete} fixed>
-          <View style={s.bande}>
-            <View>
-              {m.entete.logoUrl ? <Logo s={s} src={m.entete.logoUrl} /> : m.entete.entreprise ? <Text style={s.entrepriseNom}>{m.entete.entreprise}</Text> : null}
-            </View>
-            <View style={s.enteteDroite}>
-              <Text style={s.enteteTitre}>{m.entete.titre}</Text>
-              <Text style={s.enteteLigne}>
-                Projet : {m.entete.projet}  ·  Réf. : {m.entete.reference}  ·  Indice : {m.entete.indice}
-              </Text>
-              <Text style={s.enteteLigne}>
-                Date : {m.entete.date}  ·  Rédacteur : {m.entete.redacteur}
-              </Text>
-            </View>
-          </View>
+          <EnteteBande
+            logoUrl={m.entete.logoUrl}
+            entreprise={m.entete.entreprise}
+            titre={m.entete.titre}
+            lignes={[`Projet : ${m.entete.projet}  ·  Réf. : ${m.entete.reference}  ·  Indice : ${m.entete.indice}`, `Date : ${m.entete.date}  ·  Rédacteur : ${m.entete.redacteur}`]}
+          />
         </View>
 
         {/* Pied fixe */}
@@ -373,6 +360,13 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
             Charge totale : {m.verdict.chargeTotale}  ·  {m.verdict.nbBloquants} point(s) bloquant(s)  ·  {m.verdict.nbReserves} réserve(s)
           </Text>
         </View>
+        <JaugeTaux
+          taux={t.tauxMax}
+          zone={t.zone}
+          seuilVert={t.seuilVert}
+          seuilOrange={t.seuilOrange}
+          note={m.verdict.positionDefavorable !== "—" ? `Position la plus défavorable : ${m.verdict.positionDefavorable}` : undefined}
+        />
         {m.noteAbaque && <NoteAbaque s={s} texte={m.noteAbaque} />}
         <View style={s.mention} wrap={false}>
           <Text style={s.mentionTexte}>
@@ -555,11 +549,6 @@ export function FicheDocument({ model: m, fontFamily }: { model: PdfModel; fontF
 function PhotoMachine({ src }: { src: string }) {
   // eslint-disable-next-line jsx-a11y/alt-text -- <Image> de @react-pdf (PDF), pas un <img> HTML
   return <Image src={src} style={{ width: 150, height: 112, objectFit: "contain", borderWidth: 0.5, borderColor: "#DCDCDC" }} />;
-}
-
-function Logo({ s, src }: { s: Styles; src: string }) {
-  // eslint-disable-next-line jsx-a11y/alt-text -- <Image> de @react-pdf (PDF), pas un <img> HTML
-  return <Image src={src} style={s.logo} />;
 }
 
 function Puce({ s, texte, couleur, fond }: { s: Styles; texte: string; couleur: string; fond: string }) {
