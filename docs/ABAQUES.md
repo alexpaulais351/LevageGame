@@ -2,7 +2,7 @@
 
 | Machine | Type | État | Motif / source |
 |---|---|---|---|
-| Manitou MRT 2550 (Privilège+) | Télescopique rotatif | ❌ abaque manquant | Abaques constructeur uniquement graphiques (fiche FT140EN et load charts consultés chez colle.eu, ukforks.com, jaberg-nacelles.ch, mateco-hungary.hu). Lecture graphique interdite → nécessite une version tabulée. |
+| Manitou MRT 2550 (Privilège+) | Télescopique rotatif | ❌ abaque manquant | Abaques constructeur uniquement graphiques (fiche FT140EN et load charts consultés chez colle.eu, ukforks.com, jaberg-nacelles.ch, mateco-hungary.hu). Abaque graphique : lecture graphique autorisée depuis D51 (2026-11-04), à intégrer dès que le PDF constructeur est fourni. |
 | Manitou MT 1440 | Télescopique fixe | ❌ abaque manquant | Fiches constructeur (Quick-Reach, Lynch, 4groupci, Rockforge, Metrohire MT-X 1440) : abaques uniquement en diagramme. |
 | Caterpillar 323 | Pelle chenilles | 🟢 saisi (2 configs), relu, `a_verifier` | Specalog AEXQ3516-01 (10-2023, CDN Caterpillar), ISO 10567:2007, p. 9 : flèche HD Reach 5,7 m, balancier R2.9B1, CW 5,4 t, patins 600 mm, Heavy Lift On ; axial et transversal (colonnes identifiées par pictogrammes, à confirmer). Diff intégral 117 cellules, 0 écart. Lignes sous le sol (-1,5 à -4,5 m) non saisies. |
 | Merlo P40.17 | Télescopique fixe | ❌ abaque manquant | Datasheet officielle Merlo (CDN merlo-storage, liée depuis merlo.com) : capacité et hauteur max seulement, aucun abaque. |
@@ -42,10 +42,11 @@
 | Tadano ATF 60G-3 | Grue mobile | 🟢 1 config, relu | Fiche FOSELEV p. 3, DIN/ISO/EN, 6,4 m, 360°, 13 t. 10 cellules visuelles : 0 écart. Exclu : colonne « 9.5 m* », cellules « ** ». |
 | Tadano ATF 90G-4 | Grue mobile | 🟢 1 config, relu | Fiche FOSELEV p. 3, DIN/ISO/EN, 7,2 m, 360°, 22,3 t. 10 cellules visuelles : 0 écart. Exclu : colonne « 11.1 m* », cellules « ** ». ⚠ 11,1 m : 35,4 t à 8 m puis 24,0 t à 9 m (fidèle). |
 | Terex A600 | Grue mobile | 🟢 1 config, relu | Fiche FOSELEV p. 3, 8,7 t, 7,2 × 6,6 m, 360° ; norme non imprimée pour la flèche principale. Diff visuel intégral 0 écart. ⚠ Irrégularités fidèles : 25,0 m 3,2 t à 21 m puis 2,3 t à 22 m ; 28,7 m 3,4 t à 20 et 21 m. Fléchette non saisie. |
+| Palfinger PK 42002-SH E (HPSC) – camion EBGC Mercedes Arocs | Grue auxiliaire (camion-bras) | 🟢 38 configs, **lecture graphique** (D51), `a_verifier` | Abaque HPSC Palfinger / assembleur (scan EBGC, réglage Paltronic 28/03/2024, n° 100457075 / S410-SKD) : diagrammes polaires, zones A 1 900 / B 2 550 / C 4 050 kg, 2 modes d'appui (tous stabilisateurs / stabilisateurs de grue seuls) × sorties 0, 25, 50, 75, 100 %, LCA05 7 t. Pour chaque configuration : 360° et secteurs 0°, 90°, 180° (±45°, angles imprimés ; secteur retenu seulement s'il diffère du 360° de plus de 0,3 m). Rayons = plus petit rayon du bord intérieur de chaque courbe sur la zone, échelle étalonnée sur les cercles cotés tous les 2 m (≈ 19,7 px/m à 300 ppp), arrondi à 0,1 m inférieur ; courbes isolées automatiquement (seuil + ouverture morphologique, composantes connexes) puis contrôle visuel en surimpression. Véhicule à vide. Vérifier sur l'afficheur Paltronic. |
 | Liebherr LR 1200 | Grue sur chenilles | ⛔ exclu (`_exclu-liebherr-lr-1200`) | Fiche FOSELEV p. 3 : tableau « 81 t + 36 t » inférieur au tableau « 50,9 t + 36 t » dès 6 m (étiquettes de contrepoids probablement inversées) et valeurs identiques suspectes → exclu par sécurité. Nécessite la doc constructeur. |
 | Terex TCC 45 | Grue sur chenilles | ⛔ exclu (`_exclu-terex-tcc-45`) | Fiche FOSELEV p. 3 : cellules colorées « Mode 1 » / « Mode 2 » (deux lignes « min » d'angle différentes) ; signification des modes non légendée et cellules d'une même colonne réparties entre les deux modes → séparation en 2 configurations ambiguë, exclu par sécurité. |
 | Shuttlelift 5550 RT | Grue pick-and-carry | ❌ non intégré | Fiche FOSELEV : valeurs converties d'une édition US, ni norme ni calage imprimés → laissée de côté par décision. |
-| JMG MC 160 | Grue pick-and-carry | ❌ non intégré | Fiche FOSELEV : abaques uniquement sous forme de courbes (lecture graphique interdite). |
+| JMG MC 160 | Grue pick-and-carry | ❌ non intégré | Fiche FOSELEV : abaques uniquement sous forme de courbes : lecture graphique autorisée depuis D51, à intégrer dès que la fiche est fournie. |
 
 ## Relecture du lot FOSELEV / constructeur (2026-10-11)
 
