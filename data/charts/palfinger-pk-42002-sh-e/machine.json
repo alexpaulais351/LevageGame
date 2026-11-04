@@ -1,0 +1,830 @@
+{
+  "manufacturer": "Palfinger",
+  "type_code": "grue_auxiliaire",
+  "model": "PK 42002-SH E (HPSC) – camion EBGC Mercedes Arocs",
+  "specs": {
+    "porteur": "Mercedes-Benz Arocs",
+    "numero_grue": "100457075 / S410-SKD",
+    "systeme": "HPSC (stabilisation variable)",
+    "zones_hpsc_kg": {
+      "A": 1900,
+      "B": 2550,
+      "C": 4050
+    },
+    "lest_lca05_kg": 7000,
+    "effort_max_stabilisateur_kN": 241,
+    "proprietaire": "EBGC"
+  },
+  "source": {
+    "document_title": "PALFINGER PK 42002-SH E – Abaque capacité levage HPSC (configuration de stabilisation)",
+    "reference": "100457075 / S410-SKD — ID régleur FRPALFI18748E023/647496194669",
+    "edition": "Date réglage 28/03/2024, version PCH 3.3.33.0",
+    "url": null,
+    "publisher": "Palfinger / assembleur (valeurs Paltronic) — scan fourni par EBGC",
+    "file_path": "Palfinger-abaque bras de grue.pdf",
+    "page_refs": "p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu'imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)"
+  },
+  "configurations": [
+    {
+      "slug": "tous-stabs-100pc-360",
+      "label": "Tous stabilisateurs en appui, poutres sorties 100 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 100,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-100pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-100pc-secteur-0",
+      "label": "Tous stabilisateurs en appui, poutres sorties 100 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 100,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-100pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 11.9 m, A 15.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-75pc-360",
+      "label": "Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-75pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.2 m, B 9.0 m, A 11.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-75pc-secteur-0",
+      "label": "Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-75pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-75pc-secteur-90",
+      "label": "Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-75pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.8 m, A 15.7 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-75pc-secteur-180",
+      "label": "Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-75pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.3 m, A 14.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-50pc-360",
+      "label": "Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-50pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.5 m, B 6.3 m, A 7.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-50pc-secteur-0",
+      "label": "Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-50pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-50pc-secteur-90",
+      "label": "Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-50pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.8 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-50pc-secteur-180",
+      "label": "Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-50pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.1 m, B 8.5 m, A 10.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-25pc-360",
+      "label": "Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-25pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.9 m, B 4.1 m, A 5.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-25pc-secteur-0",
+      "label": "Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-25pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.9 m, A 8.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-25pc-secteur-90",
+      "label": "Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-25pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.7 m, B 9.7 m, A 12.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-25pc-secteur-180",
+      "label": "Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-25pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.5 m, B 6.0 m, A 7.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-0pc-360",
+      "label": "Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-0pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.5 m, B 2.0 m, A 2.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-0pc-secteur-0",
+      "label": "Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-0pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 2.7 m, A 3.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-0pc-secteur-90",
+      "label": "Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-0pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.6 m, B 6.6 m, A 8.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "tous-stabs-0pc-secteur-180",
+      "label": "Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Tous stabilisateurs en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "tous-stabs-0pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.5 m, B 3.3 m, A 4.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-100pc-360",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 100,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-100pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.6 m, A 8.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-100pc-secteur-0",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 100,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-100pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-100pc-secteur-90",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 100,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-100pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-100pc-secteur-180",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 100,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-100pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.9 m, B 6.8 m, A 8.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-75pc-360",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-75pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.9 m, B 5.5 m, A 6.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-75pc-secteur-0",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-75pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-75pc-secteur-90",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-75pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.4 m, A 14.9 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-75pc-secteur-180",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 75,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-75pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.4 m, B 6.0 m, A 7.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-50pc-360",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-50pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.1 m, B 4.3 m, A 5.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-50pc-secteur-0",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-50pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-50pc-secteur-90",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-50pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.0 m, B 10.1 m, A 13.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-50pc-secteur-180",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 50,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-50pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.8 m, B 5.1 m, A 6.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-25pc-360",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-25pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.0 m, B 3.0 m, A 3.7 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-25pc-secteur-0",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-25pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.6 m, B 5.7 m, A 7.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-25pc-secteur-90",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-25pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 5.9 m, B 8.4 m, A 10.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-25pc-secteur-180",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 25,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-25pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.9 m, B 4.0 m, A 4.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-0pc-360",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – toutes directions (360°)",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "toutes directions (360°)",
+        "secteur_deg": null
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-0pc-360.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 1.6 m, A 2.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-0pc-secteur-0",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 0° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 0° ±45°",
+        "secteur_deg": 0
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-0pc-secteur-0.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 2.4 m, A 3.2 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-0pc-secteur-90",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 90° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 90° ±45°",
+        "secteur_deg": 90
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-0pc-secteur-90.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.6 m, A 8.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    },
+    {
+      "slug": "stabs-grue-0pc-secteur-180",
+      "label": "Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 180° ±45°",
+      "params": {
+        "appui": "Stabilisateurs de grue seuls en appui",
+        "sortie_poutres_pct": 0,
+        "lest_lca05_kg": 7000,
+        "zone": "secteur 180° ±45°",
+        "secteur_deg": 180
+      },
+      "hook_block_mass_kg": null,
+      "chart": {
+        "file": "stabs-grue-0pc-secteur-180.csv",
+        "axis_y": "none",
+        "unit": "kg",
+        "standard": null,
+        "deductions_included": false,
+        "interpolation_allowed": false,
+        "notes": "LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.2 m, B 3.0 m, A 3.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l'afficheur Paltronic."
+      }
+    }
+  ],
+  "entered_at": "2026-11-04",
+  "entered_by": "lecture graphique automatisée + contrôle visuel",
+  "status": "a_verifier"
+}

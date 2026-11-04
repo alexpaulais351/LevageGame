@@ -7292,6 +7292,788 @@ begin
     (v_chart, 45, 0, 1850);
 end $charts$;
 
+-- palfinger-pk-42002-sh-e
+do $charts$
+declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
+begin
+  select id into v_type from public.machine_types where code = 'grue_auxiliaire';
+  if v_type is null then raise exception 'type_code inconnu : grue_auxiliaire'; end if;
+  select id into v_manu from public.manufacturers where lower(name) = lower('Palfinger');
+  if v_manu is null then raise exception 'constructeur inconnu : Palfinger'; end if;
+  select id into v_src from public.chart_sources where owner_id is null and document_title = 'PALFINGER PK 42002-SH E – Abaque capacité levage HPSC (configuration de stabilisation)'
+    and reference is not distinct from '100457075 / S410-SKD — ID régleur FRPALFI18748E023/647496194669' and edition is not distinct from 'Date réglage 28/03/2024, version PCH 3.3.33.0';
+  if v_src is null then
+    insert into public.chart_sources (owner_id, document_title, reference, edition, url, publisher, file_path)
+    values (null, 'PALFINGER PK 42002-SH E – Abaque capacité levage HPSC (configuration de stabilisation)', '100457075 / S410-SKD — ID régleur FRPALFI18748E023/647496194669', 'Date réglage 28/03/2024, version PCH 3.3.33.0', null, 'Palfinger / assembleur (valeurs Paltronic) — scan fourni par EBGC', 'Palfinger-abaque bras de grue.pdf') returning id into v_src;
+  else update public.chart_sources set url = null, publisher = 'Palfinger / assembleur (valeurs Paltronic) — scan fourni par EBGC', file_path = 'Palfinger-abaque bras de grue.pdf', updated_at = now() where id = v_src;
+  end if;
+  select id into v_machine from public.machines where owner_id is null and manufacturer_id = v_manu and lower(model) = lower('PK 42002-SH E (HPSC) – camion EBGC Mercedes Arocs');
+  if v_machine is null then
+    insert into public.machines (type_id, manufacturer_id, model, owner_id, specs)
+    values (v_type, v_manu, 'PK 42002-SH E (HPSC) – camion EBGC Mercedes Arocs', null, '{"porteur":"Mercedes-Benz Arocs","numero_grue":"100457075 / S410-SKD","systeme":"HPSC (stabilisation variable)","zones_hpsc_kg":{"A":1900,"B":2550,"C":4050},"lest_lca05_kg":7000,"effort_max_stabilisateur_kN":241,"proprietaire":"EBGC"}'::jsonb) returning id into v_machine;
+  else update public.machines set type_id = v_type, specs = '{"porteur":"Mercedes-Benz Arocs","numero_grue":"100457075 / S410-SKD","systeme":"HPSC (stabilisation variable)","zones_hpsc_kg":{"A":1900,"B":2550,"C":4050},"lest_lca05_kg":7000,"effort_max_stabilisateur_kN":241,"proprietaire":"EBGC"}'::jsonb, updated_at = now() where id = v_machine;
+  end if;
+  -- configuration tous-stabs-100pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-100pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 100 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-100pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 100 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-100pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.8, 0, 4050),
+    (v_chart, 11.7, 0, 2550),
+    (v_chart, 15.5, 0, 1900);
+  -- configuration tous-stabs-100pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-100pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 100 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-100pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 11.9 m, A 15.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 100 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-100pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 11.9 m, A 15.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 8.1, 0, 4050),
+    (v_chart, 11.9, 0, 2550),
+    (v_chart, 15.8, 0, 1900);
+  -- configuration tous-stabs-75pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-75pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-75pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.2 m, B 9.0 m, A 11.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-75pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.2 m, B 9.0 m, A 11.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 6.2, 0, 4050),
+    (v_chart, 9, 0, 2550),
+    (v_chart, 11.3, 0, 1900);
+  -- configuration tous-stabs-75pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-75pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-75pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-75pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.8, 0, 4050),
+    (v_chart, 11.7, 0, 2550),
+    (v_chart, 15.6, 0, 1900);
+  -- configuration tous-stabs-75pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-75pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-75pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.8 m, A 15.7 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-75pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.8 m, A 15.7 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.9, 0, 4050),
+    (v_chart, 11.8, 0, 2550),
+    (v_chart, 15.7, 0, 1900);
+  -- configuration tous-stabs-75pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-75pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-75pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.3 m, A 14.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 75 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-75pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.3 m, A 14.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.9, 0, 4050),
+    (v_chart, 11.3, 0, 2550),
+    (v_chart, 14.6, 0, 1900);
+  -- configuration tous-stabs-50pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-50pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-50pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.5 m, B 6.3 m, A 7.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-50pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.5 m, B 6.3 m, A 7.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.5, 0, 4050),
+    (v_chart, 6.3, 0, 2550),
+    (v_chart, 7.8, 0, 1900);
+  -- configuration tous-stabs-50pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-50pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-50pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-50pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.8, 0, 4050),
+    (v_chart, 11.7, 0, 2550),
+    (v_chart, 15.6, 0, 1900);
+  -- configuration tous-stabs-50pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-50pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-50pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.8 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-50pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.8 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.9, 0, 4050),
+    (v_chart, 11.8, 0, 2550),
+    (v_chart, 15.6, 0, 1900);
+  -- configuration tous-stabs-50pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-50pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-50pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.1 m, B 8.5 m, A 10.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 50 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-50pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.1 m, B 8.5 m, A 10.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 6.1, 0, 4050),
+    (v_chart, 8.5, 0, 2550),
+    (v_chart, 10.6, 0, 1900);
+  -- configuration tous-stabs-25pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-25pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-25pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.9 m, B 4.1 m, A 5.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-25pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.9 m, B 4.1 m, A 5.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 2.9, 0, 4050),
+    (v_chart, 4.1, 0, 2550),
+    (v_chart, 5, 0, 1900);
+  -- configuration tous-stabs-25pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-25pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-25pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.9 m, A 8.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-25pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.9 m, A 8.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.7, 0, 4050),
+    (v_chart, 6.9, 0, 2550),
+    (v_chart, 8.8, 0, 1900);
+  -- configuration tous-stabs-25pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-25pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-25pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.7 m, B 9.7 m, A 12.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-25pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 6.7 m, B 9.7 m, A 12.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 6.7, 0, 4050),
+    (v_chart, 9.7, 0, 2550),
+    (v_chart, 12.5, 0, 1900);
+  -- configuration tous-stabs-25pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-25pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-25pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.5 m, B 6.0 m, A 7.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 25 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-25pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.5 m, B 6.0 m, A 7.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.5, 0, 4050),
+    (v_chart, 6, 0, 2550),
+    (v_chart, 7.3, 0, 1900);
+  -- configuration tous-stabs-0pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-0pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-0pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.5 m, B 2.0 m, A 2.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"tous-stabs-0pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.5 m, B 2.0 m, A 2.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 1.5, 0, 4050),
+    (v_chart, 2, 0, 2550),
+    (v_chart, 2.6, 0, 1900);
+  -- configuration tous-stabs-0pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-0pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-0pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 2.7 m, A 3.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"tous-stabs-0pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 2.7 m, A 3.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 1.6, 0, 4050),
+    (v_chart, 2.7, 0, 2550),
+    (v_chart, 3.5, 0, 1900);
+  -- configuration tous-stabs-0pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-0pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-0pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.6 m, B 6.6 m, A 8.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"tous-stabs-0pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.6 m, B 6.6 m, A 8.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.6, 0, 4050),
+    (v_chart, 6.6, 0, 2550),
+    (v_chart, 8.3, 0, 1900);
+  -- configuration tous-stabs-0pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'tous-stabs-0pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-0pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.5 m, B 3.3 m, A 4.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Tous stabilisateurs en appui, poutres sorties 0 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Tous stabilisateurs en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"tous-stabs-0pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.5 m, B 3.3 m, A 4.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 2.5, 0, 4050),
+    (v_chart, 3.3, 0, 2550),
+    (v_chart, 4, 0, 1900);
+  -- configuration stabs-grue-100pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-100pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-100pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.6 m, A 8.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-100pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.6 m, A 8.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.7, 0, 4050),
+    (v_chart, 6.6, 0, 2550),
+    (v_chart, 8.1, 0, 1900);
+  -- configuration stabs-grue-100pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-100pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-100pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-100pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 8.1, 0, 4050),
+    (v_chart, 12.1, 0, 2550),
+    (v_chart, 16.1, 0, 1900);
+  -- configuration stabs-grue-100pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-100pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-100pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-100pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 8.1, 0, 4050),
+    (v_chart, 12.1, 0, 2550),
+    (v_chart, 16.1, 0, 1900);
+  -- configuration stabs-grue-100pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-100pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-100pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.9 m, B 6.8 m, A 8.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 100 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":100,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-100pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.9 m, B 6.8 m, A 8.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.9, 0, 4050),
+    (v_chart, 6.8, 0, 2550),
+    (v_chart, 8.4, 0, 1900);
+  -- configuration stabs-grue-75pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-75pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-75pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.9 m, B 5.5 m, A 6.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-75pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.9 m, B 5.5 m, A 6.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 3.9, 0, 4050),
+    (v_chart, 5.5, 0, 2550),
+    (v_chart, 6.8, 0, 1900);
+  -- configuration stabs-grue-75pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-75pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-75pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-75pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.9 m, B 11.7 m, A 15.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.9, 0, 4050),
+    (v_chart, 11.7, 0, 2550),
+    (v_chart, 15.6, 0, 1900);
+  -- configuration stabs-grue-75pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-75pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-75pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.4 m, A 14.9 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-75pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.8 m, B 11.4 m, A 14.9 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7.8, 0, 4050),
+    (v_chart, 11.4, 0, 2550),
+    (v_chart, 14.9, 0, 1900);
+  -- configuration stabs-grue-75pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-75pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-75pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.4 m, B 6.0 m, A 7.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 75 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":75,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-75pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.4 m, B 6.0 m, A 7.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.4, 0, 4050),
+    (v_chart, 6, 0, 2550),
+    (v_chart, 7.4, 0, 1900);
+  -- configuration stabs-grue-50pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-50pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-50pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.1 m, B 4.3 m, A 5.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-50pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.1 m, B 4.3 m, A 5.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 3.1, 0, 4050),
+    (v_chart, 4.3, 0, 2550),
+    (v_chart, 5.3, 0, 1900);
+  -- configuration stabs-grue-50pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-50pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-50pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-50pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 8.1 m, B 12.1 m, A 16.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 8.1, 0, 4050),
+    (v_chart, 12.1, 0, 2550),
+    (v_chart, 16, 0, 1900);
+  -- configuration stabs-grue-50pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-50pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-50pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.0 m, B 10.1 m, A 13.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-50pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 7.0 m, B 10.1 m, A 13.0 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 7, 0, 4050),
+    (v_chart, 10.1, 0, 2550),
+    (v_chart, 13, 0, 1900);
+  -- configuration stabs-grue-50pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-50pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-50pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.8 m, B 5.1 m, A 6.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 50 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":50,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-50pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.8 m, B 5.1 m, A 6.1 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 3.8, 0, 4050),
+    (v_chart, 5.1, 0, 2550),
+    (v_chart, 6.1, 0, 1900);
+  -- configuration stabs-grue-25pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-25pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-25pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.0 m, B 3.0 m, A 3.7 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-25pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.0 m, B 3.0 m, A 3.7 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 2, 0, 4050),
+    (v_chart, 3, 0, 2550),
+    (v_chart, 3.7, 0, 1900);
+  -- configuration stabs-grue-25pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-25pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-25pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.6 m, B 5.7 m, A 7.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-25pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 3.6 m, B 5.7 m, A 7.4 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 3.6, 0, 4050),
+    (v_chart, 5.7, 0, 2550),
+    (v_chart, 7.4, 0, 1900);
+  -- configuration stabs-grue-25pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-25pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-25pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 5.9 m, B 8.4 m, A 10.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-25pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 5.9 m, B 8.4 m, A 10.6 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 5.9, 0, 4050),
+    (v_chart, 8.4, 0, 2550),
+    (v_chart, 10.6, 0, 1900);
+  -- configuration stabs-grue-25pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-25pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-25pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.9 m, B 4.0 m, A 4.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 25 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":25,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-25pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.9 m, B 4.0 m, A 4.8 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 2.9, 0, 4050),
+    (v_chart, 4, 0, 2550),
+    (v_chart, 4.8, 0, 1900);
+  -- configuration stabs-grue-0pc-360
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-0pc-360';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – toutes directions (360°)', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-0pc-360"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 1.6 m, A 2.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – toutes directions (360°)', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"toutes directions (360°)","secteur_deg":null,"slug":"stabs-grue-0pc-360"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 1.6 m, A 2.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 1.6, 0, 4050),
+    (v_chart, 2.3, 0, 1900);
+  -- configuration stabs-grue-0pc-secteur-0
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-0pc-secteur-0';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 0° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-0pc-secteur-0"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 2.4 m, A 3.2 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 0° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 0° ±45°","secteur_deg":0,"slug":"stabs-grue-0pc-secteur-0"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 1.6 m, B 2.4 m, A 3.2 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 1.6, 0, 4050),
+    (v_chart, 2.4, 0, 2550),
+    (v_chart, 3.2, 0, 1900);
+  -- configuration stabs-grue-0pc-secteur-90
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-0pc-secteur-90';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 90° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-0pc-secteur-90"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.6 m, A 8.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 90° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 90° ±45°","secteur_deg":90,"slug":"stabs-grue-0pc-secteur-90"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 4.7 m, B 6.6 m, A 8.3 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 4.7, 0, 4050),
+    (v_chart, 6.6, 0, 2550),
+    (v_chart, 8.3, 0, 1900);
+  -- configuration stabs-grue-0pc-secteur-180
+  select id into v_cfg from public.machine_configurations where machine_id = v_machine and params->>'slug' = 'stabs-grue-0pc-secteur-180';
+  if v_cfg is null then
+    insert into public.machine_configurations (machine_id, label, params, hook_block_mass_kg, notes)
+    values (v_machine, 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 180° ±45°', '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-0pc-secteur-180"}'::jsonb, null, 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.2 m, B 3.0 m, A 3.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)') returning id into v_cfg;
+  else update public.machine_configurations set label = 'Stabilisateurs de grue seuls en appui, poutres sorties 0 %, LCA05 7 t – secteur 180° ±45°', params = '{"appui":"Stabilisateurs de grue seuls en appui","sortie_poutres_pct":0,"lest_lca05_kg":7000,"zone":"secteur 180° ±45°","secteur_deg":180,"slug":"stabs-grue-0pc-secteur-180"}'::jsonb, hook_block_mass_kg = null, notes = 'LECTURE GRAPHIQUE (D51) du diagramme HPSC (zones A 1 900 / B 2 550 / C 4 050 kg) : plus petit rayon de chaque courbe sur la zone indiquée (C 2.2 m, B 3.0 m, A 3.5 m), échelle des cercles cotés tous les 2 m, arrondi à 0,1 m inférieur ; 1er nœud 1,0 m. Véhicule à vide. Vérifier sur l''afficheur Paltronic. | Pages : p. 1 : tous stabilisateurs en appui (0/25/50/75/100 %) ; p. 2 : stabilisateurs de grue seuls en appui (0/25/50/75/100 %) — angles tels qu''imprimés (vue de dessus, 0° en haut, 90° à gauche) ; méthode de lecture : docs/ABAQUES.md (D51)', updated_at = now() where id = v_cfg;
+  end if;
+  select id into v_chart from public.load_charts where configuration_id = v_cfg order by created_at limit 1;
+  if v_chart is null then
+    insert into public.load_charts (configuration_id, axis_x, axis_y, unit, standard, deductions_included, interpolation_allowed, status, source_id, entered_by, entered_at)
+    values (v_cfg, 'radius_m', 'none', 'kg', null, false, false, 'a_verifier', v_src, null, '2026-11-04'::timestamptz) returning id into v_chart;
+  else update public.load_charts set axis_y = 'none', standard = null, deductions_included = false, interpolation_allowed = false,
+    status = 'a_verifier', source_id = v_src, entered_by = null, entered_at = '2026-11-04'::timestamptz, verified_by = null, verified_at = null, updated_at = now() where id = v_chart;
+  end if;
+  delete from public.load_chart_points where chart_id = v_chart;
+  insert into public.load_chart_points (chart_id, x, y, capacity_kg) values
+    (v_chart, 1, 0, 4050),
+    (v_chart, 2.2, 0, 4050),
+    (v_chart, 3, 0, 2550),
+    (v_chart, 3.5, 0, 1900);
+end $charts$;
+
 -- tadano-faun-atf-50g-3
 do $charts$
 declare v_type uuid; v_manu uuid; v_machine uuid; v_cfg uuid; v_src uuid; v_chart uuid;
