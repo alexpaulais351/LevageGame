@@ -37,7 +37,7 @@ insert into public.machine_types (code, label, family, params_schema) values
        "mouflage": {"enum": ["2_brins", "4_brins"]}
      }
    }'),
-  ('grue_auxiliaire', 'Grue auxiliaire (camion-bras)', 'grue', '{
+  ('grue_auxiliaire', 'Camion grue', 'grue', '{
      "type": "object",
      "properties": {
        "extensions_hydrauliques": {"type": "integer", "minimum": 0},
