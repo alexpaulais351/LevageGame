@@ -122,6 +122,7 @@ describe("utilitaires", () => {
     expect(typeMachineDepuis(null, "Grue à tour")).toBe("grue_tour");
     expect(typeMachineDepuis(null, "Chariot élévateur")).toBe("chariot_elevateur");
     expect(typeMachineDepuis(null, "Grue auxiliaire (camion-bras)")).toBe("grue_auxiliaire");
+    expect(typeMachineDepuis(null, "Camion grue")).toBe("grue_auxiliaire");
     expect(typeMachineDepuis(null, "Truc")).toBeNull();
     expect(typeMachineDepuis(null, null)).toBeNull();
   });

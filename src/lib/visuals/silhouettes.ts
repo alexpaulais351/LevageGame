@@ -46,7 +46,7 @@ export const LIBELLE_TYPE: Record<TypeMachine, string> = {
   grue_mobile: "Grue mobile sur pneus",
   grue_mobile_chenilles: "Grue mobile sur chenilles",
   grue_tour: "Grue à tour",
-  grue_auxiliaire: "Grue auxiliaire (camion-bras)",
+  grue_auxiliaire: "Camion grue",
   telescopique_fixe: "Chariot télescopique fixe",
   telescopique_rotatif: "Chariot télescopique rotatif",
   pelle_pneus: "Pelle sur pneus",
