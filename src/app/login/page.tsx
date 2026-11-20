@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Ruban } from "@/components/layout/Ruban";
 import { LoginForm } from "@/components/modules/account/LoginForm";
 import { cheminInterne } from "@/lib/account/result";
 import { supabaseConfigure } from "@/lib/supabase/env";
@@ -16,11 +17,16 @@ export default async function PageLogin({
   const cible = cheminInterne(suivant);
   if (await contexteUtilisateur()) redirect(cible);
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-4">
-      <h1 className="text-2xl font-bold text-primary">Adéquation de levage</h1>
-      <p className="text-sm text-foreground/80">
-        Accès réservé : chaque nouveau compte est validé par l&apos;administrateur avant de donner accès à l&apos;outil.
-      </p>
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <Ruban
+        variante="hero"
+        titre="Adéquation de levage"
+        sousTitre="Accès réservé aux comptes validés par l'administrateur."
+        logo={
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/logo.svg" alt="" width={64} height={64} className="size-14 shrink-0 rounded-2xl bg-white ring-2 ring-white/80 sm:size-16" />
+        }
+      />
       {!supabaseConfigure() && (
         <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight px-3 py-2 text-sm text-vinci-rouge-dark">
           Les comptes ne sont pas configurés sur cet environnement : l&apos;application est indisponible.
