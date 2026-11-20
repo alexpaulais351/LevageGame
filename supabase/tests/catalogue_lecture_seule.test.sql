@@ -26,7 +26,7 @@ insert into load_charts (id, configuration_id, axis_y, source_id) values
   ('77777777-0000-0000-0000-0000000000c1', '55555555-0000-0000-0000-0000000000c1', 'none', '66666666-0000-0000-0000-0000000000c1');
 insert into load_chart_points (chart_id, x, capacity_kg) values ('77777777-0000-0000-0000-0000000000c1', 3, 1000);
 insert into attachments (id, owner_id, machine_id, kind, file_path) values
-  ('88888888-0000-0000-0000-0000000000c1', 'aaaaaaaa-0000-0000-0000-0000000000c1', '44444444-0000-0000-0000-0000000000c1', 'photo', 'a/photo.jpg');
+  ('88888888-0000-0000-0000-0000000000c1', 'aaaaaaaa-0000-0000-0000-0000000000c1', '44444444-0000-0000-0000-0000000000c1', 'photo', 'aaaaaaaa-0000-0000-0000-0000000000c1/machines/44444444-0000-0000-0000-0000000000c1/photo.jpg');
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-0000-0000-0000-0000000000c1","role":"authenticated"}', true);
@@ -50,7 +50,7 @@ select throws_ok($$insert into load_chart_points (chart_id, x, capacity_kg) valu
 select throws_ok($$update load_charts set status = 'verifie' where id = '77777777-0000-0000-0000-0000000000c1'$$,
   '42501', null, 'A ne peut plus marquer un abaque vérifié');
 select throws_ok($$insert into attachments (owner_id, machine_id, kind, file_path) values
-  ('aaaaaaaa-0000-0000-0000-0000000000c1', '44444444-0000-0000-0000-0000000000c1', 'photo', 'a/autre.jpg')$$,
+  ('aaaaaaaa-0000-0000-0000-0000000000c1', '44444444-0000-0000-0000-0000000000c1', 'photo', 'aaaaaaaa-0000-0000-0000-0000000000c1/machines/44444444-0000-0000-0000-0000000000c1/autre.jpg')$$,
   '42501', null, 'A ne peut plus joindre de fichier à une machine');
 select is((select count(*)::int from machines where id = '44444444-0000-0000-0000-0000000000c1')
         + (select count(*)::int from load_chart_points where chart_id = '77777777-0000-0000-0000-0000000000c1'), 2,
