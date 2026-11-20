@@ -5,7 +5,7 @@ import { Check, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { LoadChart } from "@/engine";
-import { getCatalogProvider, getMesMachinesProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
+import { getCatalogProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
 import { formatTaux } from "@/lib/study/format";
 import type { StudyResult } from "@/lib/study/compute";
 import type { MachineSelection, StudyData } from "@/lib/study/types";
@@ -15,7 +15,6 @@ import { typeMachineDepuis } from "@/lib/visuals/silhouettes";
 import { SelectField } from "../wizard/fields";
 import { VERDICT_LIBELLE, VERDICT_STYLE } from "../wizard/ResultPanel";
 import { useCatalogList } from "../wizard/use-catalog";
-import { ChoixSourceMachines, type SourceMachines } from "../wizard/ChoixSourceMachines";
 import { cn } from "@/lib/utils";
 
 import { axeYIncompatible, etudeAvecAlternative, evaluerAlternative, type Alternative } from "./comparateur";
@@ -71,8 +70,9 @@ function Colonne({ titre, sous, result, data }: { titre: string; sous: string; r
 /** Panneau « Comparer » : évalue une autre machine / configuration sur le même levage, sans toucher à l'étude. */
 export function Comparateur({ data, result, onAdopter }: Props) {
   const sel = data.machine.selection;
-  const [source, setSource] = useState<SourceMachines>(sel?.personnelle ? "mine" : "public");
-  const provider = source === "mine" ? getMesMachinesProvider() : getCatalogProvider();
+  // Catalogue public uniquement (D55 : plus de machines personnelles).
+  const source = "public";
+  const provider = getCatalogProvider();
   const [typeId, setTypeId] = useState(sel?.typeId ?? "");
   const [manufId, setManufId] = useState("");
   const [machineId, setMachineId] = useState("");
@@ -112,23 +112,13 @@ export function Comparateur({ data, result, onAdopter }: Props) {
       configurationId: configId,
       configurationLabel: conf.label,
       chart: chart.chart,
-      ...(source === "mine" ? { personnelle: true, calage: mod.calage ?? null, photoPath: mod.photoPath ?? null } : {}),
     };
     return { selection, moufleCrochetKg: conf.hookBlockMassKg };
-  }, [source, types.items, manufs.items, modeles.items, configs.items, typeId, manufId, machineId, configId, chart]);
+  }, [types.items, manufs.items, modeles.items, configs.items, typeId, manufId, machineId, configId, chart]);
 
   const resultAlt = useMemo(() => (alt ? evaluerAlternative(data, alt) : null), [alt, data]);
   const memeConfig = alt !== null && sel?.configurationId === alt.selection.configurationId;
-  const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0 && source === "public";
-  const aucuneMachinePerso = source === "mine" && !types.chargement && !types.erreur && types.items.length === 0;
-  const surSource = (v: SourceMachines) => {
-    setSource(v);
-    setTypeId("");
-    setManufId("");
-    setMachineId("");
-    setConfigId("");
-    setChart(null);
-  };
+  const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0;
   const opt = <T,>(l: T[], v: (x: T) => string, t: (x: T) => string) => l.map((x) => ({ value: v(x), label: t(x) }));
   const typeTeste = types.items.find((t) => t.id === typeId);
   const typeTesteVisuel = typeTeste ? typeMachineDepuis(typeTeste.code, typeTeste.label) : null;
@@ -140,13 +130,6 @@ export function Comparateur({ data, result, onAdopter }: Props) {
         Testez une autre machine ou configuration sur le même levage (charge, accessoires et positions inchangés). L&apos;étude n&apos;est
         modifiée que si vous adoptez la configuration.
       </p>
-      <ChoixSourceMachines valeur={source} onChange={surSource} nom="comparateur" />
-      {aucuneMachinePerso && (
-        <p role="status" className="flex gap-2 rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm">
-          <Info className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
-          Aucune machine personnelle : créez-en une depuis la page Machines.
-        </p>
-      )}
       {types.erreur && <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight p-3 text-sm">Catalogue indisponible : {types.erreur}</p>}
       {catalogueVide && (
         <p role="status" className="flex gap-2 rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm">

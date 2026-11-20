@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
 
 import { DisponibiliteAbaques } from "@/components/modules/machines/DisponibiliteAbaques";
 import { ListeMachines } from "@/components/modules/machines/ListeMachines";
-import { Button } from "@/components/ui/button";
 import { machinesSansAbaque, versItem } from "@/lib/machines/filtre";
 import { bucketPdf } from "@/lib/machines/pdf";
 import { listerMachines, type MachineResume } from "@/lib/machines/queries";
@@ -30,13 +28,12 @@ function Onglet({ href, actif, children, testid }: { href: string; actif: boolea
 
 export default async function PageMachines({ searchParams }: { searchParams: Promise<{ vue?: string }> }) {
   const { vue } = await searchParams;
-  const mes = vue === "mes";
   const abaques = vue === "abaques";
-  const ctx = await exigerUtilisateur(mes ? "/machines?vue=mes" : abaques ? "/machines?vue=abaques" : "/machines");
+  const ctx = await exigerUtilisateur(abaques ? "/machines?vue=abaques" : "/machines");
   let machines: MachineResume[] = [];
   let erreur: string | null = null;
   try {
-    machines = await listerMachines(ctx.supabase, mes ? "mine" : "public", ctx.user.id);
+    machines = await listerMachines(ctx.supabase, "public", ctx.user.id);
   } catch (e) {
     erreur = e instanceof Error ? e.message : "Erreur inconnue";
   }
@@ -44,34 +41,26 @@ export default async function PageMachines({ searchParams }: { searchParams: Pro
   // Lien d'ouverture du PDF source de chaque machine (une seule requête de signature).
   const items = machines.map(versItem);
   if (!abaques) {
-    const parBucket = [false, true].map(async (perso) => {
-      const chemins = [...new Set(items.filter((x) => x.perso === perso && x.pdfPath).map((x) => x.pdfPath as string))];
-      if (chemins.length === 0) return;
-      const { data } = await ctx.supabase.storage.from(bucketPdf(perso)).createSignedUrls(chemins, 3600);
+    const chemins = [...new Set(items.filter((x) => x.pdfPath).map((x) => x.pdfPath as string))];
+    if (chemins.length > 0) {
+      const { data } = await ctx.supabase.storage.from(bucketPdf(false)).createSignedUrls(chemins, 3600);
       const urls = new Map((data ?? []).filter((d) => d.path && d.signedUrl && !d.error).map((d) => [d.path as string, d.signedUrl]));
-      for (const x of items) if (x.perso === perso && x.pdfPath) x.pdfUrl = urls.get(x.pdfPath) ?? null;
-    });
-    await Promise.all(parBucket);
+      for (const x of items) if (x.pdfPath) x.pdfUrl = urls.get(x.pdfPath) ?? null;
+    }
   }
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-primary">Machines</h1>
-        <Button asChild size="lg">
-          <Link href="/machines/nouvelle">
-            <Plus />
-            Ajouter ma machine
-          </Link>
-        </Button>
+        <Link href="/tickets" className="text-sm font-semibold text-primary underline">
+          Demander l&apos;intégration d&apos;une machine ou d&apos;un abaque
+        </Link>
       </div>
 
-      <nav aria-label="Origine des machines" className="flex gap-1 overflow-x-auto border-b border-border">
-        <Onglet href="/machines" actif={!mes && !abaques} testid="onglet-catalogue">
+      <nav aria-label="Vues du catalogue" className="flex gap-1 overflow-x-auto border-b border-border">
+        <Onglet href="/machines" actif={!abaques} testid="onglet-catalogue">
           Catalogue public
-        </Onglet>
-        <Onglet href="/machines?vue=mes" actif={mes} testid="onglet-mes-machines">
-          Mes machines
         </Onglet>
         <Onglet href="/machines?vue=abaques" actif={abaques} testid="onglet-abaques">
           Disponibilité des abaques
@@ -89,14 +78,12 @@ export default async function PageMachines({ searchParams }: { searchParams: Pro
       ) : (
         <>
           <p className="text-sm text-foreground/80">
-            {mes
-              ? "Vos machines, visibles de vous seul. Un abaque saisi par vos soins reste « à vérifier » tant que vous n'avez pas contrôlé chaque valeur contre le document constructeur."
-              : "Catalogue public en lecture seule. Chaque abaque indique sa source ; « À vérifier » signale un abaque dont le contrôle humain reste à faire."}
+            Catalogue public en lecture seule. Chaque abaque indique sa source ; « À vérifier » signale un abaque dont le contrôle humain reste à faire.
           </p>
           {!erreur && (
             <ListeMachines
               items={items}
-              vide={mes ? "Aucune machine personnelle pour le moment. Utilisez « Ajouter ma machine »." : "Catalogue vide — aucun abaque n'est encore chargé."}
+              vide="Catalogue vide — aucun abaque n'est encore chargé."
             />
           )}
         </>

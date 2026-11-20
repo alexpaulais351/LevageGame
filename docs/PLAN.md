@@ -13,7 +13,7 @@ Détail des étapes : `docs/ARCHITECTURE.md` §5.
 | 5 | Visuels interactifs + comparateur | ✅ courbe en escalier, élévation (crochet déplaçable), plan, comparateur |
 | 6 | Export PDF | ✅ fiche A4 côté client (police VINCI Sans via TTF convertis) |
 | 7 | Comptes, projets, versions | ✅ auth @supabase/ssr, projets/études/versions (Server Actions + Zod), reprise du brouillon invité, profil/logo/seuils |
-| 8 | Machines perso + import CSV | ✅ /machines (catalogue + Mes machines), CSV/grille, PDF constructeur, vérification ; migration 0500 (suppression de compte) |
+| 8 | Machines perso + import CSV | ✅ puis retiré (D55, 2026-11-20) : catalogue en lecture seule, demandes d'abaque par ticket |
 | 9 | Déploiement Vercel | ✅ production = `main` (protégée : PR + CI verte), preview par PR, site https://levagegame.vercel.app |
 
 | 10 | Comptes obligatoires validés par l'administrateur | ✅ mode invité supprimé, /login (connexion + création), /compte-en-attente, /admin/comptes, e-mail de notification (Resend, Edge Function) ; migration 0600 |

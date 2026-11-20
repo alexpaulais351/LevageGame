@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FileText, Info } from "lucide-react";
 
 import { chartSourceLabel, type LoadChart } from "@/engine";
-import { getCatalogProvider, getMesMachinesProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
+import { getCatalogProvider, MESSAGE_CATALOGUE_VIDE } from "@/lib/catalog";
 import { formatMasse } from "@/lib/utils";
 import { useStudy } from "@/stores/study";
 import { LIBELLE_TYPE, typeMachineDepuis } from "@/lib/visuals/silhouettes";
@@ -17,7 +17,6 @@ import { MachineVignette } from "../../visuals/SilhouetteSvg";
 import { gabaritDe } from "@/lib/visuals/gabarits";
 import { useErreurs } from "../use-erreurs";
 import { useCatalogList } from "../use-catalog";
-import { ChoixSourceMachines, type SourceMachines } from "../ChoixSourceMachines";
 
 /** `simplifie` (adéquation rapide) : sans le champ « Fléchette repliée ». */
 export function StepMachine({ numero = 4, simplifie = false }: { numero?: number; simplifie?: boolean } = {}) {
@@ -25,8 +24,9 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
   const patch = useStudy((s) => s.patch);
   const err = useErreurs("machine");
   const sel = m.selection;
-  const [source, setSource] = useState<SourceMachines>(sel?.personnelle ? "mine" : "public");
-  const provider = source === "mine" ? getMesMachinesProvider() : getCatalogProvider();
+  // Catalogue public uniquement (D55 : plus de machines personnelles).
+  const source = "public";
+  const provider = getCatalogProvider();
 
   const [typeId, setTypeId] = useState(sel?.typeId ?? "");
   const [manufId, setManufId] = useState(sel?.manufacturerId ?? "");
@@ -43,14 +43,6 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
   const configs = useCatalogList(machineId ? `${source}:c:${machineId}` : null, () => provider.listConfigurations(machineId));
 
   const efface = () => patch("machine", { selection: null });
-  const surSource = (v: SourceMachines) => {
-    setSource(v);
-    setTypeId("");
-    setManufId("");
-    setMachineId("");
-    setConfigId("");
-    efface();
-  };
   const surType = (v: string) => {
     setTypeId(v);
     setManufId("");
@@ -91,7 +83,6 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
           configurationId: v,
           configurationLabel: conf.label,
           chart,
-          ...(source === "mine" ? { personnelle: true, calage: mod.calage ?? null, photoPath: mod.photoPath ?? null } : {}),
         },
         ...(conf.hookBlockMassKg !== null ? { moufleCrochetKg: conf.hookBlockMassKg } : {}),
       });
@@ -102,8 +93,7 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
     }
   };
 
-  const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0 && source === "public";
-  const aucuneMachinePerso = source === "mine" && !types.chargement && !types.erreur && types.items.length === 0;
+  const catalogueVide = !types.chargement && !types.erreur && types.items.length === 0;
   const opt = <T,>(l: T[], v: (x: T) => string, t: (x: T) => string) => l.map((x) => ({ value: v(x), label: t(x) }));
   const chart: LoadChart | null = sel?.chart ?? null;
   const typeCourant = types.items.find((t) => t.id === typeId);
@@ -116,7 +106,6 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
       titre="Moyen de levage"
       description="Type, constructeur, modèle puis configuration : l'abaque de la configuration est lu tel que publié, sans extrapolation."
     >
-      <ChoixSourceMachines valeur={source} onChange={surSource} nom="étape Moyen de levage" />
       {types.erreur && (
         <p role="alert" className="rounded-md border border-vinci-rouge bg-vinci-rouge-xlight p-3 text-sm">
           Catalogue indisponible : {types.erreur}
@@ -132,14 +121,6 @@ export function StepMachine({ numero = 4, simplifie = false }: { numero?: number
             </p>
           </div>
         </div>
-      )}
-      {aucuneMachinePerso && (
-        <p role="status" className="flex gap-2 rounded-md border border-verdict-jaune bg-verdict-jaune-bg p-3 text-sm" data-testid="aucune-machine-perso">
-          <Info className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
-          <span>
-            Aucune machine personnelle. Créez-en une depuis la page <Link className="font-semibold underline" href="/machines?vue=mes" target="_blank">Machines</Link> avec son abaque et le PDF constructeur.
-          </span>
-        </p>
       )}
       <Grille>
         <div className="min-w-0 sm:col-span-2">

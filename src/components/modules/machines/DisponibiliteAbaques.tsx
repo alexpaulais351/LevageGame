@@ -30,11 +30,11 @@ export function DisponibiliteAbaques({ avec, sans }: { avec: ItemListe[]; sans: 
           Machines sans abaque ({sans.length})
         </h2>
         <p className="text-sm text-foreground/80">
-          Ces machines n&apos;ont pas d&apos;abaque exploitable dans le catalogue. Vous pouvez ajouter votre propre machine via{" "}
-          <Link href="/machines/nouvelle" className="font-semibold text-primary-light underline">
-            « Ajouter ma machine »
-          </Link>
-          .
+          Ces machines n&apos;ont pas d&apos;abaque exploitable dans le catalogue. Pour en demander l&apos;intégration, ouvrez un{" "}
+          <Link href="/tickets" className="font-semibold text-primary-light underline">
+            ticket « Intégration d&apos;abaque »
+          </Link>{" "}
+          et envoyez la documentation constructeur par e-mail.
         </p>
         <ul className="divide-y divide-border rounded-md border border-border">
           {sans.map((m) => (
