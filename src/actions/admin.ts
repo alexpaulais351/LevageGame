@@ -10,7 +10,7 @@ import { mapStatistiques, periode, type Statistiques } from "@/lib/admin/statist
 import { decisionSchema, DECISION_STATUT, mapCompte, type CompteAdmin } from "@/lib/admin/comptes";
 import { echec, ok, type ActionResult } from "@/lib/account/result";
 import { premiereErreur } from "@/lib/account/schemas";
-import { contexteAdmin } from "@/lib/supabase/session";
+import { compteursAdmin, contexteAdmin, type Compteurs } from "@/lib/supabase/session";
 
 const REFUS = "Action réservée à l'administrateur.";
 
@@ -48,4 +48,9 @@ export async function deciderCompte(input: unknown): Promise<ActionResult> {
   revalidatePath(`/admin/comptes/${p.data.userId}`);
   revalidatePath("/", "layout");
   return ok();
+}
+
+/** Pastilles de la barre latérale (comptes à valider, nouveaux tickets), rechargées à chaque navigation et toutes les 60 s. */
+export async function compteursBarreLaterale(): Promise<Compteurs> {
+  return compteursAdmin();
 }

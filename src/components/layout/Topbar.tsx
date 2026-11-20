@@ -8,10 +8,12 @@ import { Ruban } from "./Ruban";
 interface TopbarProps {
   onMenuClick: () => void;
   utilisateur: Utilisateur | null;
+  /** Point rouge sur le bouton menu (tablette) : demandes de compte ou tickets à traiter. */
+  alerte?: boolean;
 }
 
 /** Bandeau illustré en tête des pages : bouton menu (tablette) à gauche, Profil à droite. */
-export function Topbar({ onMenuClick, utilisateur }: TopbarProps) {
+export function Topbar({ onMenuClick, utilisateur, alerte = false }: TopbarProps) {
   return (
     <Ruban
       variante="bandeau"
@@ -19,11 +21,12 @@ export function Topbar({ onMenuClick, utilisateur }: TopbarProps) {
         <button
           type="button"
           onClick={onMenuClick}
-          aria-label="Ouvrir le menu"
+          aria-label={alerte ? "Ouvrir le menu (éléments à traiter)" : "Ouvrir le menu"}
           aria-controls="navigation-principale"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-white hover:bg-vinci-bleu-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:hidden"
+          className="relative inline-flex size-11 shrink-0 items-center justify-center rounded-md text-white hover:bg-vinci-bleu-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:hidden"
         >
           <Menu className="size-5" />
+          {alerte && <span aria-hidden className="absolute right-2 top-2 size-2.5 rounded-full bg-vinci-rouge ring-2 ring-vinci-bleu" />}
         </button>
       }
       droite={
