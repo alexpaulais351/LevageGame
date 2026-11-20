@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Container, FolderOpen, Home, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BarChart3, Container, FolderOpen, Home, LifeBuoy, LogOut, PlusCircle, Truck, UsersRound, X, type LucideIcon } from "lucide-react";
 
 import { deconnexion } from "@/actions/auth";
 import type { Utilisateur } from "@/lib/supabase/session";
@@ -13,7 +13,11 @@ interface Lien {
   label: string;
   icon: LucideIcon;
   badge?: number;
+  /** Libellé lu par les lecteurs d'écran pour la pastille (« 2 demandes en attente »). */
+  badgeLabel?: (n: number) => string;
 }
+
+const pluriel = (n: number, mot: string) => `${n} ${mot}${n > 1 ? "s" : ""}`;
 
 const LIENS: Lien[] = [
   { href: "/", label: "Accueil", icon: Home },
@@ -34,10 +38,25 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
   const liens: Lien[] = utilisateur?.estAdmin
     ? [
         ...LIENS,
-        { href: "/admin/comptes", label: "Comptes", icon: UsersRound, badge: utilisateur.demandesEnAttente },
+        {
+          href: "/tickets",
+          label: "Tickets",
+          icon: LifeBuoy,
+          badge: utilisateur.ticketsNouveaux,
+          badgeLabel: (n) => (n > 1 ? `${n} nouveaux tickets` : "1 nouveau ticket"),
+        },
+        {
+          href: "/admin/comptes",
+          label: "Comptes",
+          icon: UsersRound,
+          badge: utilisateur.demandesEnAttente,
+          badgeLabel: (n) => `${pluriel(n, "demande")} en attente`,
+        },
         { href: "/admin/statistiques", label: "Statistiques", icon: BarChart3 },
       ]
-    : LIENS;
+    : utilisateur
+      ? [...LIENS, { href: "/tickets", label: "Mes demandes", icon: LifeBuoy }]
+      : LIENS;
 
   return (
     <>
@@ -74,7 +93,7 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
           </button>
         </div>
         <nav className="flex-1 py-3" aria-label="Navigation principale">
-          {liens.map(({ href, label, icon: Icon, badge }) => {
+          {liens.map(({ href, label, icon: Icon, badge, badgeLabel }) => {
             const actif = href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
@@ -94,8 +113,8 @@ export function Sidebar({ open, onClose, utilisateur }: SidebarProps) {
                 {badge ? (
                   <span
                     className="ml-auto rounded-full bg-vinci-rouge px-2 py-0.5 text-xs font-bold text-white"
-                    aria-label={`${badge} demande${badge > 1 ? "s" : ""} en attente`}
-                    data-testid="badge-demandes"
+                    aria-label={badgeLabel?.(badge) ?? String(badge)}
+                    data-testid={href === "/tickets" ? "badge-tickets" : "badge-demandes"}
                   >
                     {badge}
                   </span>

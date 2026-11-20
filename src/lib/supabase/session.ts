@@ -92,6 +92,27 @@ export interface Utilisateur {
   estAdmin: boolean;
   /** Nombre de demandes en attente (administrateur uniquement). */
   demandesEnAttente: number;
+  /** Nombre de tickets au statut « nouveau » (administrateur uniquement). */
+  ticketsNouveaux: number;
+}
+
+export interface Compteurs {
+  demandesEnAttente: number;
+  ticketsNouveaux: number;
+}
+
+/** Compteurs des pastilles de la barre latérale (administrateur) ; zéros sinon. */
+export async function compteursAdmin(): Promise<Compteurs> {
+  const ctx = await contexteAdmin();
+  if (!ctx) return { demandesEnAttente: 0, ticketsNouveaux: 0 };
+  const [comptes, tickets] = await Promise.all([
+    ctx.supabase.rpc("admin_lister_comptes"),
+    ctx.supabase.from("tickets").select("id", { count: "exact", head: true }).eq("statut", "nouveau"),
+  ]);
+  return {
+    demandesEnAttente: ((comptes.data ?? []) as { statut: string }[]).filter((c) => c.statut === "en_attente").length,
+    ticketsNouveaux: tickets.count ?? 0,
+  };
 }
 
 /** Utilisateur affichable (barre latérale, topbar) ; `null` si non connecté. */
@@ -100,17 +121,13 @@ export async function utilisateurCourant(): Promise<Utilisateur | null> {
   if (!ctx) return null;
   const etat = await etatCompte();
   const email = ctx.user.email ?? "";
-  let demandesEnAttente = 0;
-  if (etat?.estAdmin) {
-    const { data } = await ctx.supabase.rpc("admin_lister_comptes");
-    demandesEnAttente = ((data ?? []) as { statut: string }[]).filter((c) => c.statut === "en_attente").length;
-  }
+  const compteurs = etat?.estAdmin ? await compteursAdmin() : { demandesEnAttente: 0, ticketsNouveaux: 0 };
   return {
     id: ctx.user.id,
     email,
     nom: etat?.nom?.trim() || email.split("@")[0] || "Utilisateur",
     statut: etat?.statut ?? "en_attente",
     estAdmin: Boolean(etat?.estAdmin),
-    demandesEnAttente,
+    ...compteurs,
   };
 }
