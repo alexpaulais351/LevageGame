@@ -107,12 +107,12 @@ select throws_ok($$delete from study_versions where study_id = '22222222-0000-00
 -- Catalogue
 select is((select count(*)::int from machines), 2, 'A voit le public + sa machine');
 select is((select count(*)::int from chart_sources), 2, 'A voit la source publique et la sienne');
-select is_empty($$update machines set model = 'pirate' where id = '44444444-0000-0000-0000-000000000000' returning id$$,
-  'A ne peut pas modifier une machine publique');
-select is_empty($$update load_charts set status = 'verifie' where id = '77777777-0000-0000-0000-000000000000' returning id$$,
-  'A ne peut pas passer un abaque public en vérifié');
-select is_empty($$delete from load_chart_points where chart_id = '77777777-0000-0000-0000-000000000000' returning chart_id$$,
-  'A ne peut pas supprimer des points publics');
+select throws_ok($$update machines set model = 'pirate' where id = '44444444-0000-0000-0000-000000000000'$$,
+  '42501', null, 'A ne peut pas modifier une machine publique');
+select throws_ok($$update load_charts set status = 'verifie' where id = '77777777-0000-0000-0000-000000000000'$$,
+  '42501', null, 'A ne peut pas passer un abaque public en vérifié');
+select throws_ok($$delete from load_chart_points where chart_id = '77777777-0000-0000-0000-000000000000'$$,
+  '42501', null, 'A ne peut pas supprimer des points publics');
 select throws_ok($$insert into machine_configurations (machine_id, label) values ('44444444-0000-0000-0000-000000000000', 'ajout')$$,
   '42501', null, 'A ne peut pas ajouter de configuration à une machine publique');
 select throws_ok($$update machines set owner_id = null where id = '44444444-0000-0000-0000-00000000000a'$$,
@@ -123,10 +123,10 @@ select throws_ok($$update machine_configurations set machine_id = '44444444-0000
   '42501', null, 'A ne peut pas rattacher sa configuration à une machine publique');
 select throws_ok($$insert into machine_types (code, label, family) values ('x', 'x', 'x')$$,
   '42501', null, 'A ne peut pas modifier les types de machines');
-select lives_ok($$update load_charts set status = 'verifie' where id = '77777777-0000-0000-0000-00000000000a'$$,
-  'A peut vérifier son propre abaque');
-select is((select verified_by from load_charts where id = '77777777-0000-0000-0000-00000000000a'),
-  'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'vérificateur forcé à l''utilisateur courant');
+select throws_ok($$update load_charts set status = 'verifie' where id = '77777777-0000-0000-0000-00000000000a'$$,
+  '42501', null, 'catalogue en lecture seule (D55) : A ne modifie plus son ancien abaque personnel');
+select is((select status::text from load_charts where id = '77777777-0000-0000-0000-00000000000a'),
+  'a_verifier', 'ancien abaque personnel de A inchangé');
 
 -- Storage
 select lives_ok($$insert into storage.objects (bucket_id, name) values ('user-files', 'aaaaaaaa-0000-0000-0000-000000000001/logo.png')$$,

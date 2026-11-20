@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Download, ExternalLink, FileText, Pencil, Plus } from "lucide-react";
+import { Download, ExternalLink, FileText } from "lucide-react";
 
 import { ApercuAbaque } from "@/components/modules/machines/ApercuAbaque";
 import { BadgeStatut } from "@/components/modules/machines/BadgeStatut";
-import { BoutonSupprimer } from "@/components/modules/machines/BoutonSupprimer";
-import { VerificationAbaque } from "@/components/modules/machines/VerificationAbaque";
 import { VignetteMachine } from "@/components/modules/machines/VignetteMachine";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { idSchema } from "@/lib/account/schemas";
 import type { LoadChart } from "@/engine";
@@ -54,7 +51,6 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
   const { supabase } = ctx;
   const m = await lireMachine(supabase, id);
   if (!m) notFound();
-  const proprietaire = m.perso; // la RLS ne renvoie une machine personnelle qu'à son propriétaire
   const abaques = await lireAbaques(supabase, m.configurations.map((c) => c.id));
 
   // Liens (URL signées) vers le PDF source de chaque abaque : catalogue public ou machine personnelle.
@@ -68,8 +64,8 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <Link href={m.perso ? "/machines?vue=mes" : "/machines"} className="text-sm font-medium text-primary-light underline">
-        ← {m.perso ? "Mes machines" : "Catalogue public"}
+      <Link href="/machines" className="text-sm font-medium text-primary-light underline">
+        ← Catalogue
       </Link>
 
       <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start">
@@ -79,7 +75,7 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
           <h1 className="text-2xl font-bold text-primary">
             {m.manufacturerName} {m.model}
           </h1>
-          {m.perso && <p className="mt-1 text-sm font-semibold text-primary-light">Machine personnelle — visible de vous seul</p>}
+          {m.perso && <p className="mt-1 text-sm font-semibold text-primary-light">Machine ajoutée par vos soins (ancienne fonction) — visible de vous seul</p>}
           <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             {s.masseKg !== null && (<><dt className="text-foreground/70">Masse</dt><dd className="font-semibold">{formatMasse(s.masseKg)}</dd></>)}
             {s.longueurM !== null && (<><dt className="text-foreground/70">Longueur hors tout</dt><dd className="font-semibold">{formatNombreFR(s.longueurM, 2).replace(/,00$/, "")} m</dd></>)}
@@ -89,35 +85,14 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
             )}
           </dl>
           <p className="mt-3 text-xs text-foreground/70">Silhouette et photo indicatives — ne remplacent pas les plans constructeur.</p>
-          {proprietaire && (
-            <div className="mt-4 flex flex-wrap items-start gap-2">
-              <Button asChild variant="outline">
-                <Link href={`/machines/${m.id}/modifier`}>
-                  <Pencil />
-                  Modifier
-                </Link>
-              </Button>
-              <BoutonSupprimer cible="machine" id={m.id} libelle={`${m.manufacturerName} ${m.model}`} retour="/machines?vue=mes" />
-            </div>
-          )}
         </div>
       </Card>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-primary">Configurations ({m.configurations.length})</h2>
-        {proprietaire && (
-          <Button asChild size="lg">
-            <Link href={`/machines/${m.id}/configurations/nouvelle`}>
-              <Plus />
-              Ajouter une configuration
-            </Link>
-          </Button>
-        )}
-      </div>
+      <h2 className="text-xl font-bold text-primary">Configurations ({m.configurations.length})</h2>
 
       {m.configurations.length === 0 && (
         <p role="status" className="rounded-md bg-vinci-bleu-xlight p-4 text-sm">
-          Aucune configuration. {proprietaire ? "Ajoutez-en une avec son abaque et le PDF constructeur." : ""}
+          Aucune configuration.
         </p>
       )}
 
@@ -195,21 +170,9 @@ export default async function PageFicheMachine({ params }: { params: Promise<{ i
                     </div>
                   </details>
                 )}
-                {proprietaire && <VerificationAbaque chartId={a.id} status={a.status} />}
               </>
             ) : (
               <p className="text-sm text-foreground/70">Aucun abaque pour cette configuration.</p>
-            )}
-            {proprietaire && (
-              <div className="flex flex-wrap items-start gap-2">
-                <Button asChild variant="outline">
-                  <Link href={`/machines/${m.id}/configurations/${c.id}`}>
-                    <Pencil />
-                    Modifier
-                  </Link>
-                </Button>
-                <BoutonSupprimer cible="configuration" id={c.id} libelle={`la configuration « ${c.label} »`} />
-              </div>
             )}
           </Card>
         );

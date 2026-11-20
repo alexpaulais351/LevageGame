@@ -108,7 +108,6 @@ const LIBELLES: Record<string, string> = {
   "/projets/:id/etudes/:id": "Étude de levage",
   "/machines": "Machines (catalogue)",
   "/machines/:id": "Machine (fiche)",
-  "/machines/nouvelle": "Machine personnelle (création)",
   "/transport": "Transport des pièces",
   "/profil": "Profil",
   "/admin/comptes": "Admin : comptes",
